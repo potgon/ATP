@@ -33,7 +33,7 @@ def update_graph(_):
             )
             data = fetcher.current_data.copy()
             logger.info(f"Copied data length: {len(data)}")
-        logger.info(f"Updating graph, current data: {data}")
+        logger.info(f"Updating graph, current data: \n {data}")
         if data.empty:
             logger.info("No data available updating the graph")
             return go.Figure()
