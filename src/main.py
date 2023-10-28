@@ -1,3 +1,9 @@
-import dash_app as dsh
+import app.dash_app as dsh
 
-dsh.run()
+
+def main():
+    dsh.run()
+
+
+if __name__ == "__main__":
+    main()

@@ -1,12 +1,8 @@
 import logging
 import os
 from logging.handlers import RotatingFileHandler
+from utils.config import LOGS_DIR
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-LOGS_DIR = os.path.join(os.path.dirname(BASE_DIR), "logs")
-
-if not os.path.exists(LOGS_DIR):
-    os.makedirs(LOGS_DIR)
 
 def setup_logger(logger_name, log_file="dash.log", level=logging.INFO):
     """
@@ -21,14 +17,22 @@ def setup_logger(logger_name, log_file="dash.log", level=logging.INFO):
         logging.Logger: Configured logger.
     """
 
+    if not os.path.exists(LOGS_DIR):
+        os.makedirs(LOGS_DIR)
+
     logger = logging.getLogger(logger_name)
     logger.setLevel(level)
 
     log_filepath = os.path.join(LOGS_DIR, log_file)
     handler = RotatingFileHandler(log_filepath, maxBytes=1e6, backupCount=5)
 
-    formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s')
+    formatter = logging.Formatter(
+        "[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s"
+    )
     handler.setFormatter(formatter)
 
     logger.addHandler(handler)
     return logger
+
+
+# TODO make logger func

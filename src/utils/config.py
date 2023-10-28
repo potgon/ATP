@@ -1,0 +1,3 @@
+LOGS_DIR = "../logs"
+
+EVALUATOR_VERSION = "v1"
