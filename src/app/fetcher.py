@@ -3,8 +3,8 @@ import talib as ta
 import time
 import threading
 import pandas as pd
-import utils.logger as lg
 
+import utils.logger as lg
 
 class Fetcher:
     def __init__(self) -> None:

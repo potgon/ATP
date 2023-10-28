@@ -1,12 +1,12 @@
 from dash.dependencies import Input, Output
-from app.fetcher import Fetcher
-import utils.logger as lg
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 import threading
 
+import utils.logger as lg
+from app.fetcher import Fetcher
 from evaluator.evaluator_factory import get_evaluator
 
 logger = lg.setup_logger("dash_app")
@@ -93,7 +93,9 @@ def update_graph(_):
 
 def run():
     try:
-        logger.info("Dash web app startup successful")
+        logger.info('\n' + ("-" * 20) + '\n' +
+            "Dash web app startup successful" + 
+                   '\n' + ("-" * 20))
 
         web_app_thread = threading.Thread(
             target=app.run,
