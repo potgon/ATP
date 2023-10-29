@@ -69,7 +69,11 @@ def update_graph(_):
     )
     fig.add_trace(go.Scatter(x=data.index, y=data["EMA9"], mode="lines", name="EMA9"))
     fig.add_trace(go.Scatter(x=data.index, y=data["EMA21"], mode="lines", name="EMA21"))
-    fig.add_trace(go.Scatter(x=data.index, y=data["Slope"], mode="lines", name="Slope"))
+    fig.add_trace(
+        go.Scatter(
+            x=data.index, y=data["Slope"], mode="lines", name="Slope", yaxis="y2"
+        )
+    )
     logger.info(f"Slope value: {data['Slope']}")
     fig.add_trace(
         go.Scatter(
@@ -82,11 +86,16 @@ def update_graph(_):
     )
 
     layout = go.Layout(
-        title="AAPL Live Candlestick Chart with Buy Signals",
+        title="TSLA Live Candlestick Chart with Buy Signals",
         xaxis_title="Date",
         yaxis_title="Price",
         xaxis_rangeslider_visible=False,
         yaxis=dict(type="linear", range=[min(data["Low"]), max(data["High"])]),
+        yaxis2=dict(
+            overlaying="y",
+            side="right",
+            range=[-1, 1],
+        ),
     )
 
     fig.update_layout(layout)
@@ -95,9 +104,14 @@ def update_graph(_):
 
 def run():
     try:
-        logger.info('\n' + ("-" * 20) + '\n' +
-            "Dash web app startup successful" + 
-                   '\n' + ("-" * 20))
+        logger.info(
+            "\n"
+            + ("-" * 20)
+            + "\n"
+            + "Dash web app startup successful"
+            + "\n"
+            + ("-" * 20)
+        )
 
         web_app_thread = threading.Thread(
             target=app.run,
