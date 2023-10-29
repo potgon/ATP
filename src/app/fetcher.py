@@ -12,7 +12,7 @@ class Fetcher:
         self.data_lock = threading.Lock()
         self.logger = lg.setup_logger("fetcher")
 
-    def _initialise_data(self, period="1d", interval="1m") -> pd.DataFrame:
+    def _initialise_data(self, period="5d", interval="1m") -> pd.DataFrame:
         return _fetch_indicator_data(period, interval)
 
     def periodic_fetch(self):
@@ -29,7 +29,7 @@ class Fetcher:
             time.sleep(60)
 
 
-def _fetch_indicator_data(period="1d", interval="1m"):
+def _fetch_indicator_data(period="5d", interval="1m"):
     data = yf.download("AAPL", period=period, interval=interval)
 
     data["Upper"], data["Middle"], data["Lower"] = ta.BBANDS(
@@ -37,4 +37,10 @@ def _fetch_indicator_data(period="1d", interval="1m"):
     )
     data["EMA9"] = ta.EMA(data["Close"], timeperiod=9)
     data["EMA21"] = ta.EMA(data["Close"], timeperiod=21)
+    data = calculate_slope(data, data['EMA9'])
+    return data
+
+def calculate_slope(data: pd.DataFrame, ema_series: pd.Series) -> pd.DataFrame:
+    data['EMA'] = ema_series
+    data['Slope'] = data['EMA'].diff()
     return data

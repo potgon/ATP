@@ -69,6 +69,8 @@ def update_graph(_):
     )
     fig.add_trace(go.Scatter(x=data.index, y=data["EMA9"], mode="lines", name="EMA9"))
     fig.add_trace(go.Scatter(x=data.index, y=data["EMA21"], mode="lines", name="EMA21"))
+    fig.add_trace(go.Scatter(x=data.index, y=data["Slope"], mode="lines", name="Slope"))
+    logger.info(f"Slope value: {data['Slope']}")
     fig.add_trace(
         go.Scatter(
             x=buy_data.index,

@@ -22,9 +22,9 @@ class Result:
 
 
 def calculate_entry(close: float, ratio=RATIO):
-    stop_loss = 1 - RATIO
-    take_profit = (RATIO + 1) * close
-
+    #stop_loss = 1 - RATIO
+    #take_profit = (RATIO + 1) * close
+    pass
 
 class Evaluator:
     def __init__(self) -> None:
