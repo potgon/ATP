@@ -11,8 +11,8 @@ from evaluator.evaluator_factory import get_evaluator
 
 logger = lg.setup_logger("dash_app")
 app = dash.Dash(__name__)
+fetcher: Fetcher = Fetcher(ticker="MSFT")
 
-fetcher: Fetcher = Fetcher()
 
 app.layout = html.Div(
     [
@@ -33,7 +33,7 @@ def update_graph(_):
             )
             data = fetcher.current_data.copy()
             logger.info(f"Copied data length: {len(data)}")
-        logger.info(f"Updating graph, current data: \n {data}")
+        logger.info(f"Updating graph, current data: \n {data[-5:]}")
         if data.empty:
             logger.info("No data available updating the graph")
             return go.Figure()
@@ -41,8 +41,7 @@ def update_graph(_):
         logger.error(f"Error updating the graph: {e}")
         return go.Figure()
 
-    buy_signals = get_evaluator()(data)
-    buy_data = data[buy_signals]
+    buy_data = data[get_evaluator()(data)]
 
     fig = go.Figure()
 
@@ -69,12 +68,12 @@ def update_graph(_):
     )
     fig.add_trace(go.Scatter(x=data.index, y=data["EMA9"], mode="lines", name="EMA9"))
     fig.add_trace(go.Scatter(x=data.index, y=data["EMA21"], mode="lines", name="EMA21"))
-    fig.add_trace(
-        go.Scatter(
-            x=data.index, y=data["Slope"], mode="lines", name="Slope", yaxis="y2"
-        )
-    )
-    logger.info(f"Slope value: {data['Slope']}")
+#    fig.add_trace(
+#        go.Scatter(
+#            x=data.index, y=data["Slope"], mode="lines", name="Slope", yaxis="y2"
+#        )
+#    )
+    #logger.info(f"Slope value: {data['Slope']}")
     fig.add_trace(
         go.Scatter(
             x=buy_data.index,
@@ -84,9 +83,19 @@ def update_graph(_):
             marker=dict(color="red", size=15, symbol="circle-open"),
         )
     )
+    
+    # fig.add_trace(
+    #     go.Scatter(
+    #         x=data.index,
+    #         y=data["Stop_Loss"],
+    #         mode="lines",
+    #         name="Stop Loss",
+    #         line=dict(color="orange"),
+    #     )
+    # )
 
     layout = go.Layout(
-        title="TSLA Live Candlestick Chart with Buy Signals",
+        title=f"{fetcher.ticker} Live Candlestick Chart with Buy Signals",
         xaxis_title="Date",
         yaxis_title="Price",
         xaxis_rangeslider_visible=False,
