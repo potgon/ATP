@@ -33,6 +33,3 @@ def setup_logger(logger_name, log_file="dash.log", level=logging.INFO):
 
     logger.addHandler(handler)
     return logger
-
-
-# TODO make logger func
