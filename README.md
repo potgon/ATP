@@ -1,2 +1,2 @@
-# Automated Scalping Trader (AST) 
-Python bot that continuously scalps a certain market asset on demand
+# Algorithmic Trading Platform (ATP) 
+Python platform that stores and uses different algorithms, each one of them specialized in different market assets.
