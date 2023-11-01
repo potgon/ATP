@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "ast"
+name = "ATP"
 version = "1.0"
 description = ""
 authors = ["potgon"]
