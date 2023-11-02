@@ -55,7 +55,7 @@ def calculate_ratio_tp(close: float, sl: float) -> float:
 
 
 def calculate_all_sl(data: pd.DataFrame):
-    """Meant to calculate Stop Loss at first data load. Not optimal right now
+    """Meant to calculate Stop Loss at first data load. Not necessary if algorithm is constantly running
 
     Args:
         data (pd.DataFrame): Current data Pandas dataframe
@@ -66,6 +66,30 @@ def calculate_all_sl(data: pd.DataFrame):
 
 
 def calculate_all_tp(data: pd.DataFrame):
+    """Meant to calculate Take Profit at first data load. Not necessary if algorithm is constantly running
+
+    Args:
+        data (pd.DataFrame): Current data Pandas dataframe
+    """
     data.loc[data["Buy Signal"] == True, "Take Profit"] = data[
         data["Buy Signal"] == True
     ].apply(lambda x: calculate_ratio_tp(x["Close"], x["Stop Loss"]), axis=1)
+
+
+def close_position(data: pd.DataFrame) -> bool:
+    return (
+        data["Low"].iloc[-1] <= data["Stop Loss"].iloc[-1]
+        or data["High"].iloc[-1] >= data["Take Profit"].iloc[-1]
+    )
+
+
+def open_position(data: pd.DataFrame) -> bool:
+    return data["Buy Signal"].iloc[-1]
+
+
+def open_all_positions(data: pd.DataFrame):
+    pass
+
+
+def close_all_positions(data: pd.DataFrame):
+    pass

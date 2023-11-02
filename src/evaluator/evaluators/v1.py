@@ -7,7 +7,7 @@ def evaluate(data) -> bool:
 
 
 def bbands_relative_value(data):
-    data["Relative_Position"] = (data["Close"] - data["Lower"]) / (
+    data["Relative Position"] = (data["Close"] - data["Lower"]) / (
         data["Middle"] - data["Lower"]
     )
-    return data["Relative_Position"]
+    return data["Relative Position"]
