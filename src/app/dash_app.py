@@ -32,7 +32,7 @@ def update_graph(_):
             data = fetcher.current_data.copy()
             logger.info(f"Copied data length: {len(data)}")
         logger.info(f"Logged data: \n {data[-1:]}")
-        #temp_data only serves debugging purposes. Will be removed at production
+        # temp_data only serves debugging purposes. Will be removed in production
         temp_data = data.drop(columns=["Adj Close"])
         lg.log_full_dataframe(temp_data, logger)
         if data.empty:
@@ -81,7 +81,7 @@ def update_graph(_):
             y=buy_data["Close"],
             mode="markers",
             name="Buy Signal",
-            marker=dict(color="red", size=15, symbol="circle-open"),
+            marker=dict(color="orange", size=15, symbol="circle-open"),
         )
     )
 
@@ -89,9 +89,21 @@ def update_graph(_):
         go.Scatter(
             x=data.index,
             y=data["Stop Loss"],
-            mode="lines",
+            mode="lines+markers",
             name="Stop Loss",
-            line=dict(color="orange"),
+            line=dict(color="red", width=2),
+            marker=dict(size=6, color="red"),
+        )
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=data.index,
+            y=data["Take Profit"],
+            mode="lines+markers",
+            name="Take Profit",
+            line=dict(color="green", width=2),
+            marker=dict(size=6, color="green"),
         )
     )
 

@@ -15,6 +15,7 @@ class Fetcher:
         self.current_data = self._initialise_data()
         self.data_lock = threading.Lock()
         self.logger = lg.setup_custom_logger("fetcher")
+        self.open = False
 
     def _initialise_data(self, period="1d", interval="1m") -> pd.DataFrame:
         return _fetch_indicator_data(self.ticker, period, interval)

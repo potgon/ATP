@@ -44,7 +44,7 @@ def setup_custom_logger(
 
     price_data_log_path = os.path.join(LOGS_DIR, price_data_log)
     price_data_handler = RotatingFileHandler(
-        price_data_log_path, maxBytes=1e6, backupCount=1
+        price_data_log_path, maxBytes=1e6, backupCount=0
     )
     price_data_handler.setLevel(logging.DEBUG)
     price_data_handler.addFilter(DebugOnlyFilter())
