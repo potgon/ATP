@@ -44,10 +44,28 @@ def find_swing_low(data: pd.DataFrame, window: int = 5) -> pd.Series:
 
 # def calculate_fixed_tp(data: pd.DataFrame) -> float:
 #      absolute_diff = abs((data['Close'].iloc[-1]) - (data['Stop_Loss'].iloc[-1]))
-    
+
+
 def calculate_atr_sl(close: float, atr: float) -> float:
     return close - (atr * 2)
 
+
+def calculate_ratio_tp(close: float, sl: float) -> float:
+    return (abs(close - sl) * 1.5) + close
+
+
 def calculate_all_sl(data: pd.DataFrame):
-    data.loc[data['Buy Signal'] == True, 'Stop Loss'] = data[data['Buy Signal'] == True].apply(lambda x: calculate_atr_sl(x['Close'], x['ATR']), axis=1)
-    
+    """Meant to calculate Stop Loss at first data load. Not optimal right now
+
+    Args:
+        data (pd.DataFrame): Current data Pandas dataframe
+    """
+    data.loc[data["Buy Signal"] == True, "Stop Loss"] = data[
+        data["Buy Signal"] == True
+    ].apply(lambda x: calculate_atr_sl(x["Close"], x["ATR"]), axis=1)
+
+
+def calculate_all_tp(data: pd.DataFrame):
+    data.loc[data["Buy Signal"] == True, "Take Profit"] = data[
+        data["Buy Signal"] == True
+    ].apply(lambda x: calculate_ratio_tp(x["Close"], x["Stop Loss"]), axis=1)

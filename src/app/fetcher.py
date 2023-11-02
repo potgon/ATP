@@ -29,6 +29,7 @@ class Fetcher:
                     )
                     print(self.current_data.tail())
             dt.calculate_all_sl(self.current_data)
+            dt.calculate_all_tp(self.current_data)
             self.logger.info(
                 f"Fetched {len(self.current_data)} data points for {self.ticker}."
             )
@@ -46,6 +47,7 @@ def _fetch_indicator_data(ticker="AAPL", period="1d", interval="1m"):
     data["ATR"] = ta.ATR(data["High"], data["Low"], data["Close"], timeperiod=14)
     data["Buy Signal"] = get_evaluator()(data)
     data["Stop Loss"] = pd.Series()
+    data["Take Profit"] = pd.Series()
     # data = dt.calculate_slope(data, data["EMA9"])
     # data['Swing_Low'] = data['Low'].rolling(window=3).apply(dt.is_swing_low)
     return data
