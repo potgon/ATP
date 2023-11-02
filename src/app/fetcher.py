@@ -14,7 +14,7 @@ class Fetcher:
         self.ticker = ticker
         self.current_data = self._initialise_data()
         self.data_lock = threading.Lock()
-        self.logger = lg.setup_logger("fetcher")
+        self.logger = lg.setup_custom_logger("fetcher")
 
     def _initialise_data(self, period="1d", interval="1m") -> pd.DataFrame:
         return _fetch_indicator_data(self.ticker, period, interval)
@@ -28,7 +28,13 @@ class Fetcher:
                         [self.current_data, temp_data], axis=0
                     )
                     print(self.current_data.tail())
-            self.logger.info(f"Fetched {len(self.current_data)} data points for {self.ticker}.")
+            if self.current_data["Buy_Signal"].iloc[-1]:
+                self.current_data.loc[
+                    self.current_data.index[-1], "Stop_Loss"
+                ] = dt.calculate_fixed_sl(self.current_data)
+            self.logger.info(
+                f"Fetched {len(self.current_data)} data points for {self.ticker}."
+            )
             time.sleep(60)
 
 
@@ -41,6 +47,7 @@ def _fetch_indicator_data(ticker="AAPL", period="1d", interval="1m"):
     data["EMA9"] = ta.EMA(data["Close"], timeperiod=9)
     data["EMA21"] = ta.EMA(data["Close"], timeperiod=21)
     data["Buy_Signal"] = get_evaluator()(data)
-    #data = dt.calculate_slope(data, data["EMA9"])
-    #data['Swing_Low'] = data['Low'].rolling(window=3).apply(dt.is_swing_low)
+    data["Stop_Loss"] = pd.Series()
+    # data = dt.calculate_slope(data, data["EMA9"])
+    # data['Swing_Low'] = data['Low'].rolling(window=3).apply(dt.is_swing_low)
     return data

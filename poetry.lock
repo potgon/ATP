@@ -2028,12 +2028,12 @@ files = [
 
 [[package]]
 name = "ta-lib"
-version = "0.4.28"
+version = "0.4.24"
 description = "Python wrapper for TA-Lib"
 optional = false
 python-versions = "*"
 files = [
-    {file = "TA-Lib-0.4.28.tar.gz", hash = "sha256:3f03847162e003e0d92a8a89d9e8b7192dfe1235507e2f7d1d0e66cd5af7a48e"},
+    {file = "TA-Lib-0.4.24.tar.gz", hash = "sha256:9df262312daa0f1a63f281c6a943fe98c8007a2147776c1b43712e04ccede209"},
 ]
 
 [package.dependencies]
@@ -2431,4 +2431,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "fa711d0767e3461c683c7e2e738d8495887d02a125bef9a171065199d9ad9410"
+content-hash = "ab0976300757e374694779110f1d95d0f48ac99f9bf2339c2f623755dbdaea71"

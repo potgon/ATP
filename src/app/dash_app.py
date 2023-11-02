@@ -9,7 +9,7 @@ import utils.logger as lg
 from app.fetcher import Fetcher
 from evaluator.evaluator_factory import get_evaluator
 
-logger = lg.setup_logger("dash_app")
+logger = lg.setup_custom_logger("dash_app")
 app = dash.Dash(__name__)
 fetcher: Fetcher = Fetcher(ticker="MSFT")
 
@@ -28,12 +28,11 @@ app.layout = html.Div(
 def update_graph(_):
     try:
         with fetcher.data_lock:
-            logger.info(
-                f"Original data length and ID: {len(fetcher.current_data)}, {id(fetcher.current_data)}"
-            )
+            logger.info(f"Original data length: {len(fetcher.current_data)}")
             data = fetcher.current_data.copy()
             logger.info(f"Copied data length: {len(data)}")
-        logger.info(f"Updating graph, current data: \n {data[-5:]}")
+        logger.info(f"Logged data: \n {data[-1:]}")
+        lg.log_full_dataframe(data, logger)
         if data.empty:
             logger.info("No data available updating the graph")
             return go.Figure()
@@ -68,12 +67,12 @@ def update_graph(_):
     )
     fig.add_trace(go.Scatter(x=data.index, y=data["EMA9"], mode="lines", name="EMA9"))
     fig.add_trace(go.Scatter(x=data.index, y=data["EMA21"], mode="lines", name="EMA21"))
-#    fig.add_trace(
-#        go.Scatter(
-#            x=data.index, y=data["Slope"], mode="lines", name="Slope", yaxis="y2"
-#        )
-#    )
-    #logger.info(f"Slope value: {data['Slope']}")
+    #    fig.add_trace(
+    #        go.Scatter(
+    #            x=data.index, y=data["Slope"], mode="lines", name="Slope", yaxis="y2"
+    #        )
+    #    )
+    # logger.info(f"Slope value: {data['Slope']}")
     fig.add_trace(
         go.Scatter(
             x=buy_data.index,
@@ -83,16 +82,16 @@ def update_graph(_):
             marker=dict(color="red", size=15, symbol="circle-open"),
         )
     )
-    
-    # fig.add_trace(
-    #     go.Scatter(
-    #         x=data.index,
-    #         y=data["Stop_Loss"],
-    #         mode="lines",
-    #         name="Stop Loss",
-    #         line=dict(color="orange"),
-    #     )
-    # )
+
+    fig.add_trace(
+        go.Scatter(
+            x=data.index,
+            y=data["Stop_Loss"],
+            mode="lines",
+            name="Stop Loss",
+            line=dict(color="orange"),
+        )
+    )
 
     layout = go.Layout(
         title=f"{fetcher.ticker} Live Candlestick Chart with Buy Signals",

@@ -15,8 +15,10 @@ def calculate_slope(data: pd.DataFrame, ema_series: pd.Series) -> pd.DataFrame:
     data["Slope"] = data["EMA"].diff()
     return data
 
+
 # def is_swing_low(series):
 #     return series[1] < series[0] and series[1] < series[2]
+
 
 def find_swing_low(data: pd.DataFrame, window: int = 5) -> pd.Series:
     """Identify swing lows in a time series.
@@ -28,10 +30,14 @@ def find_swing_low(data: pd.DataFrame, window: int = 5) -> pd.Series:
     Returns:
         pd.Series: Series of boolean values indicating if a data point is a swing low.
     """
-    low = data['Low']
+    low = data["Low"]
     is_swing_low = (low.shift(1) > low) & (low < low.shift(-1))
 
     for i in range(2, window + 1):
         is_swing_low &= (low < low.shift(-i)) & (low < low.shift(i - 1))
-    
+
     return is_swing_low
+
+
+def calculate_fixed_sl(data: pd.DataFrame) -> float:
+    return data["Close"].iloc[-1] * 0.98
