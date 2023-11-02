@@ -39,5 +39,15 @@ def find_swing_low(data: pd.DataFrame, window: int = 5) -> pd.Series:
     return is_swing_low
 
 
-def calculate_fixed_sl(data: pd.DataFrame) -> float:
-    return data["Close"].iloc[-1] * 0.98
+# def calculate_fixed_sl(data: pd.DataFrame) -> float:
+#     return data["Close"].iloc[-1] * 0.98
+
+# def calculate_fixed_tp(data: pd.DataFrame) -> float:
+#      absolute_diff = abs((data['Close'].iloc[-1]) - (data['Stop_Loss'].iloc[-1]))
+    
+def calculate_atr_sl(close: float, atr: float) -> float:
+    return close - (atr * 2)
+
+def calculate_all_sl(data: pd.DataFrame):
+    data.loc[data['Buy Signal'] == True, 'Stop Loss'] = data[data['Buy Signal'] == True].apply(lambda x: calculate_atr_sl(x['Close'], x['ATR']), axis=1)
+    

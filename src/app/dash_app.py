@@ -11,7 +11,7 @@ from evaluator.evaluator_factory import get_evaluator
 
 logger = lg.setup_custom_logger("dash_app")
 app = dash.Dash(__name__)
-fetcher: Fetcher = Fetcher(ticker="MSFT")
+fetcher: Fetcher = Fetcher(ticker="GC=F")
 
 
 app.layout = html.Div(
@@ -32,7 +32,9 @@ def update_graph(_):
             data = fetcher.current_data.copy()
             logger.info(f"Copied data length: {len(data)}")
         logger.info(f"Logged data: \n {data[-1:]}")
-        lg.log_full_dataframe(data, logger)
+        #temp_data only serves debugging purposes. Will be removed at production
+        temp_data = data.drop(columns=["Adj Close"])
+        lg.log_full_dataframe(temp_data, logger)
         if data.empty:
             logger.info("No data available updating the graph")
             return go.Figure()
@@ -86,7 +88,7 @@ def update_graph(_):
     fig.add_trace(
         go.Scatter(
             x=data.index,
-            y=data["Stop_Loss"],
+            y=data["Stop Loss"],
             mode="lines",
             name="Stop Loss",
             line=dict(color="orange"),
