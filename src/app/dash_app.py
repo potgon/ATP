@@ -32,7 +32,7 @@ def update_graph(_):
         with fetcher.data_lock:
             logger.info(f"Original data length: {len(fetcher.current_data)}")
             data = fetcher.current_data.copy()
-        logger.info(f"Update graph received data: \n {data[-1:]}")
+        logger.info(f"Updating graph with received data: \n {data[-1:]}")
         lg.log_full_dataframe(data, logger)
         if data.empty:
             logger.info("No data available updating the graph")
@@ -68,12 +68,6 @@ def update_graph(_):
     )
     fig.add_trace(go.Scatter(x=data.index, y=data["EMA9"], mode="lines", name="EMA9"))
     fig.add_trace(go.Scatter(x=data.index, y=data["EMA21"], mode="lines", name="EMA21"))
-    #    fig.add_trace(
-    #        go.Scatter(
-    #            x=data.index, y=data["Slope"], mode="lines", name="Slope", yaxis="y2"
-    #        )
-    #    )
-    # logger.info(f"Slope value: {data['Slope']}")
     fig.add_trace(
         go.Scatter(
             x=buy_data.index,
@@ -83,28 +77,6 @@ def update_graph(_):
             marker=dict(color="purple", size=20, symbol="circle-open"),
         )
     )
-
-    #    fig.add_trace(
-    #        go.Scatter(
-    #            x=data.index,
-    #            y=data["Stop Loss"],
-    #            mode="lines+markers",
-    #            name="Stop Loss",
-    #            line=dict(color="red", width=2),
-    #            marker=dict(size=6, color="red"),
-    #        )
-    #    )
-
-    #    fig.add_trace(
-    #        go.Scatter(
-    #            x=data.index,
-    #            y=data["Take Profit"],
-    #            mode="lines+markers",
-    #            name="Take Profit",
-    #            line=dict(color="green", width=2),
-    #            marker=dict(size=6, color="green"),
-    #        )
-    #    )
 
     layout = go.Layout(
         title=f"{fetcher.ticker} Live Candlestick Chart with Buy Signals",
@@ -147,7 +119,9 @@ def run():
 
 
 def service_loop():
+    logger.info("Service loop start...")
     current_pos = None
+    logger.info(f"Position open?: {type(current_pos)}")
     evaluation_function = get_evaluator()
     while True:
         data = fetcher.fetch()
@@ -158,4 +132,5 @@ def service_loop():
         else:
             if evaluation_function(data.iloc[-1]):
                 current_pos = pt.Position(data["Close"], data["ATR"], logger)
+        logger.info("Service loop sleep...")
         time.sleep(60)

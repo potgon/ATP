@@ -18,6 +18,7 @@ class Fetcher:
         return _fetch_indicator_data(self.ticker, period, interval)
 
     def fetch(self) -> pd.Series:
+        self.logger.info("Fetching new data...")
         temp_data = _fetch_indicator_data(self.ticker)
         if temp_data.index[0] not in self.current_data.index:
             with self.data_lock:
@@ -25,6 +26,7 @@ class Fetcher:
         self.logger.info(
             f"Fetched {len(self.current_data)} data points for {self.ticker}."
         )
+        self.logger.info("Appended new data")
         return temp_data
 
 
