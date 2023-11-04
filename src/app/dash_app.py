@@ -4,7 +4,9 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 import threading
+import time
 
+import app.positions as pt
 import utils.logger as lg
 from app.fetcher import Fetcher
 from evaluator.evaluator_factory import get_evaluator
@@ -81,31 +83,31 @@ def update_graph(_):
             y=buy_data["Close"],
             mode="markers",
             name="Buy Signal",
-            marker=dict(color="orange", size=15, symbol="circle-open"),
+            marker=dict(color="purple", size=20, symbol="circle-open"),
         )
     )
 
-    fig.add_trace(
-        go.Scatter(
-            x=data.index,
-            y=data["Stop Loss"],
-            mode="lines+markers",
-            name="Stop Loss",
-            line=dict(color="red", width=2),
-            marker=dict(size=6, color="red"),
-        )
-    )
+    #    fig.add_trace(
+    #        go.Scatter(
+    #            x=data.index,
+    #            y=data["Stop Loss"],
+    #            mode="lines+markers",
+    #            name="Stop Loss",
+    #            line=dict(color="red", width=2),
+    #            marker=dict(size=6, color="red"),
+    #        )
+    #    )
 
-    fig.add_trace(
-        go.Scatter(
-            x=data.index,
-            y=data["Take Profit"],
-            mode="lines+markers",
-            name="Take Profit",
-            line=dict(color="green", width=2),
-            marker=dict(size=6, color="green"),
-        )
-    )
+    #    fig.add_trace(
+    #        go.Scatter(
+    #            x=data.index,
+    #            y=data["Take Profit"],
+    #            mode="lines+markers",
+    #            name="Take Profit",
+    #            line=dict(color="green", width=2),
+    #            marker=dict(size=6, color="green"),
+    #        )
+    #    )
 
     layout = go.Layout(
         title=f"{fetcher.ticker} Live Candlestick Chart with Buy Signals",
@@ -141,7 +143,23 @@ def run():
         web_app_thread.setDaemon(True)
         web_app_thread.start()
 
-        logger.info("Running periodic tasks...")
-        fetcher.periodic_fetch()
+        logger.info("Running service loop...")
+        service_loop()
     finally:
         logger.info("Dash web app shutdown successful")
+
+
+def service_loop():
+    current_pos = None
+    evaluation_function = get_evaluator()
+    while True:
+        data = fetcher.fetch()
+        logger.info(f"Fetched data: \n {data.iloc[-1]}")
+        if current_pos:
+            if pt.close_position(data, current_pos.sl, current_pos.tp):
+                current_pos.close()
+                current_pos = None
+        else:
+            if evaluation_function(data.iloc[-1]):
+                current_pos = pt.Position(data["Close"], data["ATR"], logger)
+        time.sleep(60)
