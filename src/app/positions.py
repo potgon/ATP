@@ -10,11 +10,11 @@ class Position:
 
     # API functionality to close position
     def close(self):
-        self.logger.info("Position closed")
+        pass
 
     # API functionality to open position
     def open(self):
-        self.logger.info("Position opened")
+        pass
 
 
 def calculate_atr_sl(close: float, atr: float) -> float:

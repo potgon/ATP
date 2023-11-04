@@ -126,11 +126,16 @@ def service_loop():
     while True:
         data = fetcher.fetch()
         if current_pos:
+            logger.info(
+                f"Current position attributes: {current_pos.sl}, {current_pos.tp}"
+            )
             if pt.close_position(data, current_pos.sl, current_pos.tp):
                 current_pos.close()
                 current_pos = None
+                logger.info(f"Position closed?: {type(current_pos)}")
         else:
             if evaluation_function(data.iloc[-1]):
                 current_pos = pt.Position(data["Close"], data["ATR"], logger)
+                logger.info(f"Position opened?: {type(current_pos)}")
         logger.info("Service loop sleep...")
         time.sleep(60)
