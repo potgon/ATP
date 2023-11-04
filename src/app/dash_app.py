@@ -32,11 +32,8 @@ def update_graph(_):
         with fetcher.data_lock:
             logger.info(f"Original data length: {len(fetcher.current_data)}")
             data = fetcher.current_data.copy()
-            logger.info(f"Copied data length: {len(data)}")
-        logger.info(f"Logged data: \n {data[-1:]}")
-        # temp_data only serves debugging purposes. Will be removed in production
-        temp_data = data.drop(columns=["Adj Close"])
-        lg.log_full_dataframe(temp_data, logger)
+        logger.info(f"Update graph received data: \n {data[-1:]}")
+        lg.log_full_dataframe(data, logger)
         if data.empty:
             logger.info("No data available updating the graph")
             return go.Figure()
@@ -154,7 +151,6 @@ def service_loop():
     evaluation_function = get_evaluator()
     while True:
         data = fetcher.fetch()
-        logger.info(f"Fetched data: \n {data.iloc[-1]}")
         if current_pos:
             if pt.close_position(data, current_pos.sl, current_pos.tp):
                 current_pos.close()
