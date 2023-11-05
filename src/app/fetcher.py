@@ -39,6 +39,5 @@ def _fetch_indicator_data(ticker="AAPL", period="1d", interval="1m"):
     data["EMA9"] = ta.EMA(data["Close"], timeperiod=9)
     data["EMA21"] = ta.EMA(data["Close"], timeperiod=21)
     data["ATR"] = ta.ATR(data["High"], data["Low"], data["Close"], timeperiod=14)
-    data["RSI"] = ta.RSI(data["Close"], timeperiod=14)
     data["Slope"] = data["EMA9"].diff()
     return data

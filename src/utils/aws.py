@@ -2,7 +2,9 @@ import boto3
 import json
 from botocore.exceptions import ClientError
 
-def get_secret(env):
+from config import ALPACA_ENV
+
+def get_secret():
     """Retrieves the Alpaca API Key from the AWS Secrets Manager Service
 
     Args:
@@ -12,9 +14,9 @@ def get_secret(env):
         dict: Alpaca API Key/Value Pair
     """
 
-    if env == "REAL":
+    if ALPACA_ENV == "REAL":
         secret_name = "prod/Alpaca_Key"
-    elif env == "PAPER":
+    elif ALPACA_ENV == "PAPER":
         secret_name = "paper/Alpaca_Key"
     region_name = "eu-west-1"
 
