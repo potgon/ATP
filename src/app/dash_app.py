@@ -13,7 +13,7 @@ from evaluator.evaluator_factory import get_evaluator
 
 logger = lg.setup_custom_logger("dash_app")
 app = dash.Dash(__name__)
-fetcher: Fetcher = Fetcher(ticker="MSFT")
+fetcher: Fetcher = Fetcher(ticker="GBPUSD=X")
 
 
 app.layout = html.Div(
@@ -41,7 +41,7 @@ def update_graph(_):
         logger.error(f"Error updating the graph: {e}")
         return go.Figure()
 
-    buy_data = data[get_evaluator()(data)]
+    #buy_data = data[get_evaluator()(data)]
 
     fig = go.Figure()
 
@@ -55,34 +55,23 @@ def update_graph(_):
             name="Price",
         )
     )
-    fig.add_trace(
-        go.Scatter(x=data.index, y=data["Upper"], mode="lines", name="Upper Bollinger")
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=data.index, y=data["Middle"], mode="lines", name="Middle Bollinger"
-        )
-    )
-    fig.add_trace(
-        go.Scatter(x=data.index, y=data["Lower"], mode="lines", name="Lower Bollinger")
-    )
-    fig.add_trace(go.Scatter(x=data.index, y=data["EMA9"], mode="lines", name="EMA9"))
-    fig.add_trace(go.Scatter(x=data.index, y=data["EMA21"], mode="lines", name="EMA21"))
-    fig.add_trace(
-        go.Scatter(
-            x=buy_data.index,
-            y=buy_data["Close"],
-            mode="markers",
-            name="Buy Signal",
-            marker=dict(color="purple", size=20, symbol="circle-open"),
-        )
-    )
-
-    fig.add_trace(
-        go.Scatter(
-            x=data.index, y=data["Slope"], mode="lines", name="Slope", yaxis="y2"
-        )
-    )
+    
+    valid_clusters = data.groupby("Cluster")["Close"].filter(lambda x: len(x) >= 2) #2 defines the minimum points to consider a cluster as significant
+    support_resistance = data[data["Cluster"].isin(valid_clusters["Cluster"])].groupby("Cluster")["Close"].agg(["min", "max"])
+    
+    for _, row in support_resistance.iterrows():
+        fig.add_trace(go.Scatter(x=data.index, y=[row['min'], row['min']], mode='lines', line=dict(color='green'), name='Support'))
+        fig.add_trace(go.Scatter(x=data.index, y=[row['max'], row['max']], mode='lines', line=dict(color='red'), name='Resistance'))
+    
+    # fig.add_trace(
+    #     go.Scatter(
+    #         x=buy_data.index,
+    #         y=buy_data["Close"],
+    #         mode="markers",
+    #         name="Buy Signal",
+    #         marker=dict(color="purple", size=20, symbol="circle-open"),
+    #     )
+    # )
 
     layout = go.Layout(
         title=f"{fetcher.ticker} Live Candlestick Chart with Buy Signals",

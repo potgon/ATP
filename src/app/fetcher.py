@@ -2,6 +2,7 @@ import yfinance as yf
 import talib as ta
 import threading
 import pandas as pd
+import numpy as np
 
 import utils.logger as lg
 from evaluator.evaluator_factory import get_evaluator
@@ -30,14 +31,19 @@ class Fetcher:
         return temp_data
 
 
-def _fetch_indicator_data(ticker="AAPL", period="1d", interval="1m"):
-    data = yf.download(ticker, period=period, interval=interval)
-
-    data["Upper"], data["Middle"], data["Lower"] = ta.BBANDS(
-        data["Close"], timeperiod=12, nbdevup=2, nbdevdn=2, matype=0
-    )
-    data["EMA9"] = ta.EMA(data["Close"], timeperiod=9)
-    data["EMA21"] = ta.EMA(data["Close"], timeperiod=21)
+def _fetch_indicator_data(ticker="GBPUSD=X", period="90d", interval="1d"):
+    data = yf.download(ticker=ticker, period=period, interval=interval)
+    
+    data["RSI"] = ta.RSI(data["Close"], timeperiod=14)
     data["ATR"] = ta.ATR(data["High"], data["Low"], data["Close"], timeperiod=14)
-    data["Slope"] = data["EMA9"].diff()
+    
+    ema = ta.EMA(data["Close"], timeperiod=14)
+    data["1st Derivative"] = ema.diff()
+    data["2nd Derivative"] = data["1st Derivative"].diff()
+    data["Sign Change"] = np.sign(data["2nd Derivative"]).diff()
+    
+    data["Cluster"] = (data["Close"].diff().abs() > 1).cumsum() #1 defines the threshold for price difference
+    valid_clusters = data.groupby("Cluster")["Close"].filter(lambda x: len(x) >= 2) #2 defines the minimum points to consider a cluster as significant
+    
+    support_resistance = data[data["Cluster"].isin(valid_clusters["Cluster"])].groupby("Cluster")["Close"].agg(["min", "max"])
     return data
