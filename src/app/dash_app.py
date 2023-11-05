@@ -13,7 +13,7 @@ from evaluator.evaluator_factory import get_evaluator
 
 logger = lg.setup_custom_logger("dash_app")
 app = dash.Dash(__name__)
-fetcher: Fetcher = Fetcher(ticker="GC=F")
+fetcher: Fetcher = Fetcher(ticker="MSFT")
 
 
 app.layout = html.Div(
@@ -75,6 +75,12 @@ def update_graph(_):
             mode="markers",
             name="Buy Signal",
             marker=dict(color="purple", size=20, symbol="circle-open"),
+        )
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=data.index, y=data["Slope"], mode="lines", name="Slope", yaxis="y2"
         )
     )
 
