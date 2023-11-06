@@ -8,12 +8,13 @@ import time
 
 import app.positions as pt
 import utils.logger as lg
+from utils.config import SNR_CHECK_INTERVAL
 from app.fetcher import Fetcher
 from evaluator.evaluator_factory import get_evaluator
 
 logger = lg.setup_custom_logger("dash_app")
 app = dash.Dash(__name__)
-fetcher: Fetcher = Fetcher(ticker="GBPUSD=X")
+fetcher: Fetcher = Fetcher(ticker="CL=F")
 
 
 app.layout = html.Div(
@@ -32,7 +33,9 @@ def update_graph(_):
         with fetcher.data_lock:
             logger.info(f"Original data length: {len(fetcher.current_data)}")
             data = fetcher.current_data.copy()
+            clusters = fetcher.current_snr.copy()
         logger.info(f"Updating graph with received data: \n {data[-1:]}")
+        logger.info(f"Updating the graph with received cluster: \n {clusters[-1:]}")
         lg.log_full_dataframe(data, logger)
         if data.empty:
             logger.info("No data available updating the graph")
@@ -41,7 +44,7 @@ def update_graph(_):
         logger.error(f"Error updating the graph: {e}")
         return go.Figure()
 
-    #buy_data = data[get_evaluator()(data)]
+    # buy_data = data[get_evaluator()(data)]
 
     fig = go.Figure()
 
@@ -55,14 +58,11 @@ def update_graph(_):
             name="Price",
         )
     )
-    
-    valid_clusters = data.groupby("Cluster")["Close"].filter(lambda x: len(x) >= 2) #2 defines the minimum points to consider a cluster as significant
-    support_resistance = data[data["Cluster"].isin(valid_clusters["Cluster"])].groupby("Cluster")["Close"].agg(["min", "max"])
-    
-    for _, row in support_resistance.iterrows():
-        fig.add_trace(go.Scatter(x=data.index, y=[row['min'], row['min']], mode='lines', line=dict(color='green'), name='Support'))
-        fig.add_trace(go.Scatter(x=data.index, y=[row['max'], row['max']], mode='lines', line=dict(color='red'), name='Resistance'))
-    
+
+    # for _, row in support_resistance.iterrows():
+    #     fig.add_trace(go.Scatter(x=data.index, y=[row['min'], row['min']], mode='lines', line=dict(color='green'), name='Support'))
+    #     fig.add_trace(go.Scatter(x=data.index, y=[row['max'], row['max']], mode='lines', line=dict(color='red'), name='Resistance'))
+
     # fig.add_trace(
     #     go.Scatter(
     #         x=buy_data.index,
@@ -117,9 +117,12 @@ def service_loop():
     logger.info("Service loop start...")
     current_pos = None
     logger.info(f"Position open?: {type(current_pos)}")
+    last_snr_check = time.time()
+    next_snr_check = last_snr_check + SNR_CHECK_INTERVAL
     evaluation_function = get_evaluator()
     while True:
         data = fetcher.fetch()
+        current_time = time.time()
         if current_pos:
             logger.info(
                 f"Current position attributes: {current_pos.sl}, {current_pos.tp}"
@@ -132,5 +135,12 @@ def service_loop():
             if evaluation_function(data.iloc[-1]):
                 current_pos = pt.Position(data["Close"], data["ATR"], logger)
                 logger.info(f"Position opened?: {type(current_pos)}")
+
+        if current_time >= next_snr_check:
+            cluster = fetcher.update_snr()
+            last_snr_check = time.time()
+            next_snr_check = last_snr_check + SNR_CHECK_INTERVAL
+            logger.info("Cluster checked for support and resistance zones")
+
         logger.info("Service loop sleep...")
         time.sleep(60)

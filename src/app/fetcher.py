@@ -12,15 +12,19 @@ class Fetcher:
     def __init__(self, ticker="AAPL") -> None:
         self.ticker = ticker
         self.current_data = self._initialise_data()
+        self.current_snr = self._initialise_clusters()
         self.data_lock = threading.Lock()
         self.logger = lg.setup_custom_logger("fetcher")
 
     def _initialise_data(self, period="1d", interval="1m") -> pd.DataFrame:
-        return _fetch_indicator_data(self.ticker, period, interval)
+        return fetch_indicator_data(self.ticker, period, interval)
+
+    def _initialise_clusters(self) -> pd.DataFrame:
+        return fetch_clusters(self.current_data)
 
     def fetch(self) -> pd.Series:
         self.logger.info("Fetching new data...")
-        temp_data = _fetch_indicator_data(self.ticker)
+        temp_data = fetch_indicator_data(self.ticker)
         if temp_data.index[0] not in self.current_data.index:
             with self.data_lock:
                 self.current_data = pd.concat([self.current_data, temp_data], axis=0)
@@ -30,20 +34,38 @@ class Fetcher:
         )
         return temp_data
 
+    def update_snr(self) -> pd.Series:
+        self.logger.info("Checking for support and resistance zones")
+        temp_clusters = fetch_clusters(self.current_data)
+        if temp_clusters.index[0] not in self.current_snr.index:
+            with self.data_lock:
+                self.current_snr = pd.concat([self.current_snr, temp_clusters], axis=0)
+            self.logger.info("Appended new clusters")
+        self.logger.info(f"Fetched {len(self.current_snr)} clusters for {self.ticker}")
 
-def _fetch_indicator_data(ticker="GBPUSD=X", period="90d", interval="1d"):
-    data = yf.download(ticker=ticker, period=period, interval=interval)
-    
+
+def fetch_indicator_data(
+    ticker="GBPUSD=X", period="30d", interval="1h"
+) -> pd.DataFrame:
+    data = yf.download(ticker, period=period, interval=interval)
+
     data["RSI"] = ta.RSI(data["Close"], timeperiod=14)
     data["ATR"] = ta.ATR(data["High"], data["Low"], data["Close"], timeperiod=14)
-    
+
     ema = ta.EMA(data["Close"], timeperiod=14)
     data["1st Derivative"] = ema.diff()
     data["2nd Derivative"] = data["1st Derivative"].diff()
     data["Sign Change"] = np.sign(data["2nd Derivative"]).diff()
-    
-    data["Cluster"] = (data["Close"].diff().abs() > 1).cumsum() #1 defines the threshold for price difference
-    valid_clusters = data.groupby("Cluster")["Close"].filter(lambda x: len(x) >= 2) #2 defines the minimum points to consider a cluster as significant
-    
-    support_resistance = data[data["Cluster"].isin(valid_clusters["Cluster"])].groupby("Cluster")["Close"].agg(["min", "max"])
+    data["Cluster"] = (
+        data["Close"].diff().abs() > 1  # 1 defines the threshold for price difference
+    ).cumsum()
     return data
+
+
+def fetch_clusters(data: pd.DataFrame) -> pd.DataFrame:
+    valid_cluster_bool = data.groupby("Cluster")["Close"].transform(
+        lambda x: len(x)
+        >= 2  # 2 defines the minimum points to consider a cluster as 'significant'
+    )
+    valid_cluster_data = data[valid_cluster_bool]
+    return valid_cluster_data.groupby("Cluster")["Close"].agg(["min", "max"])
