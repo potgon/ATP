@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 
 import utils.logger as lg
+from utils.config import CLUSTER_MIN_POINTS, CLUSTER_THRESHOLD
 from evaluator.evaluator_factory import get_evaluator
 
 
@@ -56,16 +57,13 @@ def fetch_indicator_data(
     data["1st Derivative"] = ema.diff()
     data["2nd Derivative"] = data["1st Derivative"].diff()
     data["Sign Change"] = np.sign(data["2nd Derivative"]).diff()
-    data["Cluster"] = (
-        data["Close"].diff().abs() > 1  # 1 defines the threshold for price difference
-    ).cumsum()
+    data["Cluster"] = (data["Close"].diff().abs() > CLUSTER_THRESHOLD).cumsum()
     return data
 
 
 def fetch_clusters(data: pd.DataFrame) -> pd.DataFrame:
     valid_cluster_bool = data.groupby("Cluster")["Close"].transform(
-        lambda x: len(x)
-        >= 2  # 2 defines the minimum points to consider a cluster as 'significant'
+        lambda x: len(x) >= CLUSTER_MIN_POINTS
     )
     valid_cluster_data = data[valid_cluster_bool]
     return valid_cluster_data.groupby("Cluster")["Close"].agg(["min", "max"])
