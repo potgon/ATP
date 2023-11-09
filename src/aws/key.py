@@ -2,7 +2,8 @@ import boto3
 import json
 from botocore.exceptions import ClientError
 
-from config import ALPACA_ENV
+from utils.config import ALPACA_ENV
+
 
 def get_secret():
     """Retrieves the Alpaca API Key from the AWS Secrets Manager Service
@@ -21,22 +22,17 @@ def get_secret():
     region_name = "eu-west-1"
 
     session = boto3.session.Session()
-    client = session.client(
-        service_name = 'secretsmanager',
-        region_name = region_name
-    )
+    client = session.client(service_name="secretsmanager", region_name=region_name)
 
     try:
-        get_secret_value_response = client.get_secret_value(
-            SecretId=secret_name
-        )
+        get_secret_value_response = client.get_secret_value(SecretId=secret_name)
     except ClientError as e:
-        if e.response['Error']['Code'] == 'ResourceNotFoundException':
+        if e.response["Error"]["Code"] == "ResourceNotFoundException":
             print("The requested secret " + secret_name + " was not found")
-        elif e.response['Error']['Code'] == 'InvalidRequestException':
+        elif e.response["Error"]["Code"] == "InvalidRequestException":
             print("The request was invalid due to:", e)
-        elif e.response['Error']['Code'] == 'InvalidParameterException':
+        elif e.response["Error"]["Code"] == "InvalidParameterException":
             print("The request had invalid params:", e)
     else:
-        secret = get_secret_value_response['SecretString']
+        secret = get_secret_value_response["SecretString"]
         return json.loads(secret)
