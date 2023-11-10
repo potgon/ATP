@@ -1,6 +1,6 @@
 import pymysql as ps
 
-from utils.config import DB_HOST, DB_INSTANCE_ID, DB__USER, DB_PASS
+from utils.config import DB_HOST, DB_NAME, DB__USER, DB_PASS
 
 
 def get_connection():
@@ -8,7 +8,7 @@ def get_connection():
         host=DB_HOST,
         user=DB__USER,
         password=DB_PASS,
-        db=DB_INSTANCE_ID,
+        db=DB_NAME,
         charset="utf8mb4",
         cursorclass=ps.cursors.DictCursor,
     )

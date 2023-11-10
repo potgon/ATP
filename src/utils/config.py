@@ -12,7 +12,7 @@ CLUSTER_THRESHOLD = 1
 
 CLUSTER_MIN_POINTS = 2
 
-DB_INSTANCE_ID = "atp-pre1"
+DB_NAME = "atp_v2"
 
 DB_HOST = "apt-pre1.czyo2rubv0y9.eu-west-1.rds.amazonaws.com"
 
