@@ -8,4 +8,4 @@ import aws.db as db
 
 
 if __name__ == "__main__":
-    print(db.get_connection())
+    db.get_ssh_con()

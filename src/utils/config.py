@@ -12,10 +12,14 @@ CLUSTER_THRESHOLD = 1
 
 CLUSTER_MIN_POINTS = 2
 
-DB_NAME = "atp_v2"
+RDS_DB_NAME = "ebdb"
 
-DB_HOST = "apt-pre1.czyo2rubv0y9.eu-west-1.rds.amazonaws.com"
+RDS_HOSTNAME = "ec2-rds-test.czyo2rubv0y9.eu-west-1.rds.amazonaws.com"
 
-DB__USER = "admin1234"
+RDS_USERNAME = "admin1234"
 
-DB_PASS = "admin1234"
+RDS_PASSWORD = "admin1234"
+
+RDS_PORT = 3306
+
+EC2_KEY = "src/aws/ATP-key.pem"
