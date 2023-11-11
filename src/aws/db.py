@@ -28,7 +28,7 @@ def get_ssh_con(sql):
         ssh_pkey="./aws/ATP-key.pem",
         remote_bind_address=(RDS_HOSTNAME, RDS_PORT),
     ) as tunnel:
-        make_log("DB", 10, "db.log", "Tunnel Established")
+        make_log("RDS", 10, "db.log", "Tunnel Established")
 
         db = get_connection(tunnel)
 
@@ -36,6 +36,6 @@ def get_ssh_con(sql):
             with db.cursor() as cur:
                 cur.execute(sql)
                 for r in cur:
-                    print(r)
+                    make_log("RDS", 20, "db.log", r)
         finally:
             db.close()

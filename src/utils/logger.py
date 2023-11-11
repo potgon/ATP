@@ -6,6 +6,9 @@ import pandas as pd
 from utils.config import LOGS_DIR
 
 
+loggers = {}
+
+
 class DebugOnlyFilter(logging.Filter):
     def filter(self, record):
         return record.levelno == logging.DEBUG
@@ -22,16 +25,20 @@ def setup_logger(name: str, level: int, log_file: str) -> logging.Logger:
     logger = logging.getLogger(name)
     logger.setLevel(level)
 
-    log_path = os.path.join(LOGS_DIR, log_file)
-    log_handler = RotatingFileHandler(log_path, maxBytes=1e6, backupCount=5)
-    log_handler.setFormatter(formatter)
-    log_handler.setLevel(level)
-    logger.addHandler(log_handler)
+    if not logger.handlers:
+        log_path = os.path.join(LOGS_DIR, log_file)
+        log_handler = RotatingFileHandler(log_path, maxBytes=1e6, backupCount=5)
+        log_handler.setFormatter(formatter)
+        log_handler.setLevel(level)
+        logger.addHandler(log_handler)
 
     return logger
 
 
 def make_log(name: str, level: int, log_file: str, msg):
+    global loggers
+    logger = loggers.get(name)
+
     log_levels = {
         10: logging.DEBUG,
         20: logging.INFO,
@@ -39,8 +46,11 @@ def make_log(name: str, level: int, log_file: str, msg):
         40: logging.ERROR,
         50: logging.CRITICAL,
     }
+    if not logger:
+        logger = setup_logger(name, level, log_file)
+        loggers[name] = logger
+
     log_level = log_levels.get(level, logging.DEBUG)
-    logger = setup_logger(name, log_level, log_file)
     logger.log(log_level, msg)
 
 
@@ -87,13 +97,14 @@ def setup_custom_logger(
     return logger
 
 
-def log_full_dataframe(data: pd.DataFrame, logger: logging.Logger):
+def log_full_dataframe(name: str, level: int, log_file: str, data: pd.DataFrame):
     """Logs whole dataframe by temporarily changing pandas settings to avoid data truncation
 
     Args:
         data (pd.DataFrame): Pandas DataFrame
         logger (logging.Logger): Logger instance
     """
+
     original_max_rows = pd.get_option("display.max_rows")
     original_max_columns = pd.get_option("display.max_columns")
     original_width = pd.get_option("display.width")
@@ -103,7 +114,7 @@ def log_full_dataframe(data: pd.DataFrame, logger: logging.Logger):
         pd.set_option("display.max_columns", None)
         pd.set_option("display.width", None)
 
-        logger.debug(f"Updating graph, current data: \n {data}")
+        make_log(name, level, log_file, f"Updating graph, current data: \n {data}")
 
     finally:
         pd.set_option("display.max_rows", original_max_rows)

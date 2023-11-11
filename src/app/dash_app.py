@@ -7,12 +7,14 @@ import threading
 import time
 
 import app.positions as pt
-import utils.logger as lg
+
+# import utils.logger as lg
+from utils.logger import make_log, log_full_dataframe
 from utils.config import SNR_CHECK_INTERVAL
 from app.fetcher import Fetcher
 from evaluator.evaluator_factory import get_evaluator
 
-logger = lg.setup_custom_logger("dash_app")
+# logger = lg.setup_custom_logger("dash_app")
 app = dash.Dash(__name__)
 fetcher: Fetcher = Fetcher(ticker="CL=F")
 
@@ -31,17 +33,34 @@ app.layout = html.Div(
 def update_graph(_):
     try:
         with fetcher.data_lock:
-            logger.info(f"Original data length: {len(fetcher.current_data)}")
+            make_log(
+                "DASH",
+                20,
+                "dash.log",
+                f"Original data length: {len(fetcher.current_data)}",
+            )
+            # logger.info(f"Original data length: {len(fetcher.current_data)}")
             data = fetcher.current_data.copy()
             clusters = fetcher.current_snr.copy()
-        logger.info(f"Updating graph with received data: \n {data[-1:]}")
-        logger.info(f"Updating the graph with received cluster: \n {clusters[-1:]}")
-        lg.log_full_dataframe(data, logger)
+        make_log(
+            "DASH", 20, "dash.log", f"Updating graph with received data: \n {data[-1:]}"
+        )
+        # logger.info(f"Updating graph with received data: \n {data[-1:]}")
+        make_log(
+            "DASH",
+            20,
+            "dash.log",
+            f"Updating the graph with received cluster: \n {clusters[-1:]}",
+        )
+        # logger.info(f"Updating the graph with received cluster: \n {clusters[-1:]}")
+        log_full_dataframe("DASH", 10, "dash.log", data)
         if data.empty:
-            logger.info("No data available updating the graph")
+            make_log("DASH", 20, "dash.log", "No data available updating the graph")
+            # logger.info("No data available updating the graph")
             return go.Figure()
     except Exception as e:
-        logger.error(f"Error updating the graph: {e}")
+        make_log("DASH", 40, "dash.log", f"Error updating the graph: {e}")
+        # logger.error(f"Error updating the graph: {e}")
         return go.Figure()
 
     # buy_data = data[get_evaluator()(data)]
@@ -92,13 +111,24 @@ def update_graph(_):
 
 def run():
     try:
-        logger.info(
+        # logger.info(
+        #     "\n"
+        #     + ("-" * 20)
+        #     + "\n"
+        #     + "Dash web app startup successful"
+        #     + "\n"
+        #     + ("-" * 20)
+        # )
+        make_log(
+            "DASH",
+            20,
+            "dash.log",
             "\n"
             + ("-" * 20)
             + "\n"
             + "Dash web app startup successful"
             + "\n"
-            + ("-" * 20)
+            + ("-" * 20),
         )
 
         web_app_thread = threading.Thread(
@@ -107,16 +137,20 @@ def run():
         web_app_thread.setDaemon(True)
         web_app_thread.start()
 
-        logger.info("Running service loop...")
+        make_log("DASH", 20, "dash.log", "Running service loop...")
+        # logger.info("Running service loop...")
         service_loop()
     finally:
-        logger.info("Dash web app shutdown successful")
+        make_log("DASH", 20, "dash.log", "Dash web app shutdown successful")
+        # logger.info("Dash web app shutdown successful")
 
 
 def service_loop():
-    logger.info("Service loop start...")
+    make_log("DASH", 20, "dash.log", "Service loop start...")
+    # logger.info("Service loop start...")
     current_pos = None
-    logger.info(f"Position open?: {type(current_pos)}")
+    make_log("DASH", 20, "dash.log", f"Position open?: {type(current_pos)}")
+    # logger.info(f"Position open?: {type(current_pos)}")
     last_snr_check = time.time()
     next_snr_check = last_snr_check + SNR_CHECK_INTERVAL
     evaluation_function = get_evaluator()
@@ -124,23 +158,42 @@ def service_loop():
         data = fetcher.fetch()
         current_time = time.time()
         if current_pos:
-            logger.info(
-                f"Current position attributes: {current_pos.sl}, {current_pos.tp}"
+            make_log(
+                "DASH",
+                20,
+                "dash.log",
+                f"Current position attributes: {current_pos.sl}, {current_pos.tp}",
             )
+            # logger.info(
+            #     f"Current position attributes: {current_pos.sl}, {current_pos.tp}"
+            # )
             if pt.close_position(data, current_pos.sl, current_pos.tp):
                 current_pos.close()
                 current_pos = None
-                logger.info(f"Position closed?: {type(current_pos)}")
+                make_log(
+                    "DASH", 20, "dash.log", f"Position closed?: {type(current_pos)}"
+                )
+                # logger.info(f"Position closed?: {type(current_pos)}")
         else:
             if evaluation_function(data.iloc[-1]):
-                current_pos = pt.Position(data["Close"], data["ATR"], logger)
-                logger.info(f"Position opened?: {type(current_pos)}")
+                current_pos = pt.Position(data["Close"], data["ATR"])
+                make_log(
+                    "DASH", 20, "dash.log", f"Position opened?: {type(current_pos)}"
+                )
+                # logger.info(f"Position opened?: {type(current_pos)}")
 
         if current_time >= next_snr_check:
             cluster = fetcher.update_snr()
             last_snr_check = time.time()
             next_snr_check = last_snr_check + SNR_CHECK_INTERVAL
-            logger.info("Cluster checked for support and resistance zones")
+            make_log(
+                "DASH",
+                20,
+                "dash.log",
+                "Cluster checked for support and resistance zones",
+            )
+            # logger.info("Cluster checked for support and resistance zones")
 
-        logger.info("Service loop sleep...")
+        make_log("DASH", 20, "dash.log", "Service loop sleep...")
+        # logger.info("Service loop sleep...")
         time.sleep(60)
