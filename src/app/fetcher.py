@@ -4,7 +4,7 @@ import threading
 import pandas as pd
 import numpy as np
 
-import utils.logger as lg
+from utils.logger import make_log
 from utils.config import CLUSTER_MIN_POINTS, CLUSTER_THRESHOLD
 from evaluator.evaluator_factory import get_evaluator
 
@@ -15,7 +15,6 @@ class Fetcher:
         self.current_data = self._initialise_data()
         self.current_snr = self._initialise_clusters()
         self.data_lock = threading.Lock()
-        self.logger = lg.setup_custom_logger("fetcher")
 
     def _initialise_data(self, period="1d", interval="1m") -> pd.DataFrame:
         return fetch_indicator_data(self.ticker, period, interval)
@@ -24,25 +23,35 @@ class Fetcher:
         return fetch_clusters(self.current_data)
 
     def fetch(self) -> pd.Series:
-        self.logger.info("Fetching new data...")
+        make_log("FETCHER", 20, "workflow.log", "Fetching new data...")
         temp_data = fetch_indicator_data(self.ticker)
         if temp_data.index[0] not in self.current_data.index:
             with self.data_lock:
                 self.current_data = pd.concat([self.current_data, temp_data], axis=0)
-            self.logger.info("Appended new data")
-        self.logger.info(
-            f"Fetched {len(self.current_data)} data points for {self.ticker}."
+            make_log("FETCHER", 20, "workflow.log", "Appended new data")
+        make_log(
+            "FETCHER",
+            20,
+            "workflow.log",
+            f"Fetched {len(self.current_data)} data points for {self.ticker}.",
         )
         return temp_data
 
     def update_snr(self) -> pd.Series:
-        self.logger.info("Checking for support and resistance zones")
+        make_log(
+            "FETCHER", 20, "workflow.log", "Checking for support and resistance zones"
+        )
         temp_clusters = fetch_clusters(self.current_data)
         if temp_clusters.index[0] not in self.current_snr.index:
             with self.data_lock:
                 self.current_snr = pd.concat([self.current_snr, temp_clusters], axis=0)
-            self.logger.info("Appended new clusters")
-        self.logger.info(f"Fetched {len(self.current_snr)} clusters for {self.ticker}")
+            make_log("FETCHER", 20, "workflow.log", "Appended new clusters")
+        make_log(
+            "FETCHER",
+            20,
+            "workflow.log",
+            f"Fetched {len(self.current_snr)} clusters for {self.ticker}",
+        )
 
 
 def fetch_indicator_data(

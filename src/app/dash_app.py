@@ -8,13 +8,11 @@ import time
 
 import app.positions as pt
 
-# import utils.logger as lg
 from utils.logger import make_log, log_full_dataframe
 from utils.config import SNR_CHECK_INTERVAL
 from app.fetcher import Fetcher
 from evaluator.evaluator_factory import get_evaluator
 
-# logger = lg.setup_custom_logger("dash_app")
 app = dash.Dash(__name__)
 fetcher: Fetcher = Fetcher(ticker="CL=F")
 
@@ -34,38 +32,38 @@ def update_graph(_):
     try:
         with fetcher.data_lock:
             make_log(
-                "DASH",
+                "GRAPH",
                 20,
-                "dash.log",
+                "graph.log",
                 f"Original data length: {len(fetcher.current_data)}",
             )
-            # logger.info(f"Original data length: {len(fetcher.current_data)}")
             data = fetcher.current_data.copy()
             clusters = fetcher.current_snr.copy()
         make_log(
-            "DASH", 20, "dash.log", f"Updating graph with received data: \n {data[-1:]}"
-        )
-        # logger.info(f"Updating graph with received data: \n {data[-1:]}")
-        make_log(
-            "DASH",
+            "GRAPH",
             20,
-            "dash.log",
+            "graph.log",
+            f"Updating graph with received data: \n {data[-1:]}",
+        )
+        make_log(
+            "GRAPH",
+            20,
+            "graph.log",
             f"Updating the graph with received cluster: \n {clusters[-1:]}",
         )
-        # logger.info(f"Updating the graph with received cluster: \n {clusters[-1:]}")
-        log_full_dataframe("DASH", 10, "dash.log", data)
+        log_full_dataframe("PRICE", 10, "price.log", data)
         if data.empty:
-            make_log("DASH", 20, "dash.log", "No data available updating the graph")
-            # logger.info("No data available updating the graph")
+            make_log("GRAPH", 20, "graph.log", "No data available updating the graph")
             return go.Figure()
     except Exception as e:
-        make_log("DASH", 40, "dash.log", f"Error updating the graph: {e}")
-        # logger.error(f"Error updating the graph: {e}")
+        make_log("GRAPH", 40, "graph.log", f"Error updating the graph: {e}")
         return go.Figure()
 
     # buy_data = data[get_evaluator()(data)]
 
     fig = go.Figure()
+
+    make_log("GRAPH", 20, "graph.log", "Adding candlesticks...")
 
     fig.add_trace(
         go.Candlestick(
@@ -106,23 +104,16 @@ def update_graph(_):
     )
 
     fig.update_layout(layout)
+    make_log("GRAPH", 20, "graph.log", "Updating graph layout...")
     return fig
 
 
 def run():
     try:
-        # logger.info(
-        #     "\n"
-        #     + ("-" * 20)
-        #     + "\n"
-        #     + "Dash web app startup successful"
-        #     + "\n"
-        #     + ("-" * 20)
-        # )
         make_log(
             "DASH",
             20,
-            "dash.log",
+            "workflow.log",
             "\n"
             + ("-" * 20)
             + "\n"
@@ -137,20 +128,16 @@ def run():
         web_app_thread.setDaemon(True)
         web_app_thread.start()
 
-        make_log("DASH", 20, "dash.log", "Running service loop...")
-        # logger.info("Running service loop...")
+        make_log("DASH", 20, "workflow.log", "Running service loop...")
         service_loop()
     finally:
-        make_log("DASH", 20, "dash.log", "Dash web app shutdown successful")
-        # logger.info("Dash web app shutdown successful")
+        make_log("DASH", 20, "workflow.log", "Dash web app shutdown successful")
 
 
 def service_loop():
-    make_log("DASH", 20, "dash.log", "Service loop start...")
-    # logger.info("Service loop start...")
+    make_log("DASH", 20, "workflow.log", "Service loop start...")
     current_pos = None
-    make_log("DASH", 20, "dash.log", f"Position open?: {type(current_pos)}")
-    # logger.info(f"Position open?: {type(current_pos)}")
+    make_log("DASH", 20, "workflow.log", f"Position open?: {type(current_pos)}")
     last_snr_check = time.time()
     next_snr_check = last_snr_check + SNR_CHECK_INTERVAL
     evaluation_function = get_evaluator()
@@ -161,26 +148,21 @@ def service_loop():
             make_log(
                 "DASH",
                 20,
-                "dash.log",
+                "workflow.log",
                 f"Current position attributes: {current_pos.sl}, {current_pos.tp}",
             )
-            # logger.info(
-            #     f"Current position attributes: {current_pos.sl}, {current_pos.tp}"
-            # )
             if pt.close_position(data, current_pos.sl, current_pos.tp):
                 current_pos.close()
                 current_pos = None
                 make_log(
-                    "DASH", 20, "dash.log", f"Position closed?: {type(current_pos)}"
+                    "DASH", 20, "workflow.log", f"Position closed?: {type(current_pos)}"
                 )
-                # logger.info(f"Position closed?: {type(current_pos)}")
         else:
             if evaluation_function(data.iloc[-1]):
                 current_pos = pt.Position(data["Close"], data["ATR"])
                 make_log(
-                    "DASH", 20, "dash.log", f"Position opened?: {type(current_pos)}"
+                    "DASH", 20, "workflow.log", f"Position opened?: {type(current_pos)}"
                 )
-                # logger.info(f"Position opened?: {type(current_pos)}")
 
         if current_time >= next_snr_check:
             cluster = fetcher.update_snr()
@@ -189,11 +171,9 @@ def service_loop():
             make_log(
                 "DASH",
                 20,
-                "dash.log",
+                "workflow.log",
                 "Cluster checked for support and resistance zones",
             )
-            # logger.info("Cluster checked for support and resistance zones")
 
-        make_log("DASH", 20, "dash.log", "Service loop sleep...")
-        # logger.info("Service loop sleep...")
+        make_log("DASH", 20, "workflow.log", "Service loop sleep...")
         time.sleep(60)
