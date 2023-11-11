@@ -11,6 +11,39 @@ class DebugOnlyFilter(logging.Filter):
         return record.levelno == logging.DEBUG
 
 
+def setup_logger(name: str, level: int, log_file: str) -> logging.Logger:
+    if not os.path.exists(LOGS_DIR):
+        os.makedirs(LOGS_DIR)
+
+    formatter = logging.Formatter(
+        "[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s"
+    )
+
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+
+    log_path = os.path.join(LOGS_DIR, log_file)
+    log_handler = RotatingFileHandler(log_path, maxBytes=1e6, backupCount=5)
+    log_handler.setFormatter(formatter)
+    log_handler.setLevel(level)
+    logger.addHandler(log_handler)
+
+    return logger
+
+
+def make_log(name: str, level: int, log_file: str, msg):
+    log_levels = {
+        10: logging.DEBUG,
+        20: logging.INFO,
+        30: logging.WARNING,
+        40: logging.ERROR,
+        50: logging.CRITICAL,
+    }
+    log_level = log_levels.get(level, logging.DEBUG)
+    logger = setup_logger(name, log_level, log_file)
+    logger.log(log_level, msg)
+
+
 def setup_custom_logger(
     name: str, workflow_log="dash.log", price_data_log="price.log"
 ) -> logging.Logger:

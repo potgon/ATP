@@ -1,6 +1,7 @@
 import pymysql as ps
 from sshtunnel import SSHTunnelForwarder
 
+from utils.logger import make_log
 from utils.config import (
     RDS_PASSWORD,
     RDS_DB_NAME,
@@ -27,7 +28,7 @@ def get_ssh_con(sql):
         ssh_pkey="./aws/ATP-key.pem",
         remote_bind_address=(RDS_HOSTNAME, RDS_PORT),
     ) as tunnel:
-        print("Tunnel Established")
+        make_log("DB", 10, "db.log", "Tunnel Established")
 
         db = get_connection(tunnel)
 

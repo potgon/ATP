@@ -8,4 +8,4 @@ import aws.db as db
 
 
 if __name__ == "__main__":
-    db.get_ssh_con()
+    db.get_ssh_con("SHOW TABLES;")
