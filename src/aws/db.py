@@ -35,7 +35,6 @@ def get_ssh_con(sql):
         try:
             with db.cursor() as cur:
                 cur.execute(sql)
-                for r in cur:
-                    make_log("RDS", 10, "db.log", r)
+                make_log("RDS", 20, "db.log", cur.fetchall())
         finally:
             db.close()

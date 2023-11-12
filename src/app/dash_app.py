@@ -56,7 +56,7 @@ def update_graph(_):
             make_log("GRAPH", 20, "graph.log", "No data available updating the graph")
             return go.Figure()
     except Exception as e:
-        make_log("GRAPH", 40, "graph.log", f"Error updating the graph: {e}")
+        make_log("GRAPH", 20, "graph.log", f"Error updating the graph: {e}")
         return go.Figure()
 
     # buy_data = data[get_evaluator()(data)]
