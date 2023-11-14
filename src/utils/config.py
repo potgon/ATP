@@ -6,12 +6,6 @@ ALPACA_ENV = "PAPER"
 
 RSI_CONSTANT = 2
 
-SNR_CHECK_INTERVAL = 4 * 60 * 60
-
-CLUSTER_THRESHOLD = 1
-
-CLUSTER_MIN_POINTS = 2
-
 RDS_DB_NAME = "ebdb"
 
 RDS_HOSTNAME = "ec2-rds-test.czyo2rubv0y9.eu-west-1.rds.amazonaws.com"
@@ -21,3 +15,7 @@ RDS_USERNAME = "admin"
 RDS_PASSWORD = "admin1234"
 
 RDS_PORT = 3306
+
+SNR_PRICE_RANGE = 3
+
+SNR_BREAKOUT_FACTOR = 2

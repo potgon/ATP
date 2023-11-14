@@ -13,10 +13,8 @@ from app.fetcher import Fetcher
 from app.snr import SNRDetector
 from evaluator.evaluator_factory import get_evaluator
 
-# from utils.config import SNR_CHECK_INTERVAL
-
 app = dash.Dash(__name__)
-fetcher: Fetcher = Fetcher(ticker="CL=F")
+fetcher: Fetcher = Fetcher(ticker="GC=F")
 
 
 app.layout = html.Div(
@@ -40,19 +38,12 @@ def update_graph(_):
                 f"Original data length: {len(fetcher.current_data)}",
             )
             data = fetcher.current_data.copy()
-            # clusters = fetcher.current_snr.copy()
         make_log(
             "GRAPH",
             20,
             "graph.log",
             f"Updating graph with received data: \n {data[-1:]}",
         )
-        # make_log(
-        #     "GRAPH",
-        #     20,
-        #     "graph.log",
-        #     f"Updating the graph with received cluster: \n {clusters[-1:]}",
-        # )
         log_full_dataframe("PRICE", 10, "price.log", data)
         if data.empty:
             make_log("GRAPH", 20, "graph.log", "No data available updating the graph")
@@ -77,10 +68,6 @@ def update_graph(_):
             name="Price",
         )
     )
-
-    # for _, row in support_resistance.iterrows():
-    #     fig.add_trace(go.Scatter(x=data.index, y=[row['min'], row['min']], mode='lines', line=dict(color='green'), name='Support'))
-    #     fig.add_trace(go.Scatter(x=data.index, y=[row['max'], row['max']], mode='lines', line=dict(color='red'), name='Resistance'))
 
     # fig.add_trace(
     #     go.Scatter(
@@ -140,12 +127,10 @@ def service_loop():
     make_log("DASH", 20, "workflow.log", "Service loop start...")
     current_pos = None
     make_log("DASH", 20, "workflow.log", f"Position open?: {type(current_pos)}")
-    # last_snr_check = time.time()
-    # next_snr_check = last_snr_check + SNR_CHECK_INTERVAL
     evaluation_function = get_evaluator()
     while True:
         data = fetcher.fetch()
-        # current_time = time.time()
+        detector = SNRDetector(data)
         if current_pos:
             make_log(
                 "DASH",
@@ -166,19 +151,8 @@ def service_loop():
                     "DASH", 20, "workflow.log", f"Position opened?: {type(current_pos)}"
                 )
 
-        snr_detector: SNRDetector = SNRDetector(fetcher)
-        snr_detector.detect_cluster()
-
-        # if current_time >= next_snr_check:
-        #     cluster = fetcher.update_snr()
-        #     last_snr_check = time.time()
-        #     next_snr_check = last_snr_check + SNR_CHECK_INTERVAL
-        #     make_log(
-        #         "DASH",
-        #         20,
-        #         "workflow.log",
-        #         "Cluster checked for support and resistance zones",
-        #     )
+        clusters = detector.detect_clusters()
+        make_log("DASH", 20, "workflow.log", f"Current clusters: {clusters}")
 
         make_log("DASH", 20, "workflow.log", "Service loop sleep...")
         time.sleep(60)
