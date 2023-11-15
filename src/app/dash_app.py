@@ -76,7 +76,7 @@ def update_graph(_):
     #     )
     # )
 
-    plot_support_resistance(data, min_bounces=2, fig=fig)
+    plot_support_resistance(data, fig=fig)
 
     layout = go.Layout(
         title=f"{fetcher.ticker} Live Candlestick Chart with Buy Signals",
@@ -156,27 +156,26 @@ def service_loop():
 import plotly.graph_objects as go
 
 
-def plot_support_resistance(dfkeys, min_bounces, fig):
-    high_counts = dfkeys[dfkeys["Pivot"] == 2]["High"].value_counts()
-    low_counts = dfkeys[dfkeys["Pivot"] == 1]["Low"].value_counts()
+def plot_support_resistance(data, fig):
+    unique_supports = data["Support"].dropna().unique()
+    unique_resistances = data["Resistance"].dropna().unique()
 
-    significant_highs = high_counts[high_counts >= min_bounces]
-    significant_lows = low_counts[low_counts >= min_bounces]
-
-    for level in significant_highs.index:
+    # Plot support levels
+    for support in unique_supports:
         fig.add_hline(
-            y=level,
+            y=support,
+            line_color="green",
             line_dash="solid",
-            line_color="red",
-            annotation_text=f"Resistance ({high_counts[level]})",
-            annotation_position="bottom right",
+            annotation_text=f"Support",
+            annotation_position="top right",
         )
 
-    for level in significant_lows.index:
+    # Plot resistance levels
+    for resistance in unique_resistances:
         fig.add_hline(
-            y=level,
+            y=resistance,
+            line_color="red",
             line_dash="solid",
-            line_color="green",
-            annotation_text=f"Support ({low_counts[level]})",
-            annotation_position="top right",
+            annotation_text=f"Resistance",
+            annotation_position="bottom right",
         )

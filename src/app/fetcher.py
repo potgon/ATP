@@ -39,6 +39,7 @@ def fetch_indicator_data(
     ticker="EURUSD=X", period="730d", interval="1h"
 ) -> pd.DataFrame:
     data = yf.download(ticker, period=period, interval=interval)
+    data = remove_nan_rows(data)
 
     # data["RSI"] = ta.RSI(data["Close"], timeperiod=14)
     # data["ATR"] = ta.ATR(data["High"], data["Low"], data["Close"], timeperiod=14)
@@ -47,9 +48,31 @@ def fetch_indicator_data(
     # data["1st Derivative"] = ema.diff()
     # data["2nd Derivative"] = data["1st Derivative"].diff()
     # data["Sign Change"] = np.sign(data["2nd Derivative"]).diff()
-    data = remove_nan_rows(data)
     data["Pivot"] = data.apply(lambda x: pivotid(data, x.name, 10, 10), axis=1)
     data["Pointpos"] = data.apply(lambda row: pointpos(row), axis=1)
+
+    high_counts = data[data["Pivot"] == 2]["High"].value_counts()
+    low_counts = data[data["Pivot"] == 1]["Low"].value_counts()
+
+    # Filter out the pivot points based on min_bounces
+    significant_highs = high_counts[high_counts >= 2]
+    significant_lows = low_counts[low_counts >= 2]
+
+    # Further filter for closely spaced levels
+    filtered_highs, filtered_lows = [], []
+
+    for level in significant_highs.index:
+        if not any(abs(level - other_level) < 0.005 for other_level in filtered_highs):
+            filtered_highs.append(level)
+
+    for level in significant_lows.index:
+        if not any(abs(level - other_level) < 0 for other_level in filtered_lows):
+            filtered_lows.append(level)
+
+    data["Resistance"] = data["High"].apply(
+        lambda x: x if x in filtered_highs else np.nan
+    )
+    data["Support"] = data["Low"].apply(lambda x: x if x in filtered_lows else np.nan)
 
     return data
 
