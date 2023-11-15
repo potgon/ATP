@@ -17,11 +17,11 @@ class Fetcher:
         self.data_lock = threading.Lock()
 
     def _initialise_data(self, period="90d", interval="1h") -> pd.DataFrame:
-        return fetch_indicator_data(self.ticker, period, interval)
+        return fetch_data(self.ticker, period, interval)
 
     def fetch(self) -> pd.Series:
         make_log("FETCHER", 20, "workflow.log", "Fetching new data...")
-        temp_data = fetch_indicator_data(self.ticker)
+        temp_data = fetch_data(self.ticker)
         if temp_data.index[0] not in self.current_data.index:
             with self.data_lock:
                 self.current_data = pd.concat([self.current_data, temp_data], axis=0)
@@ -35,15 +35,14 @@ class Fetcher:
         return temp_data
 
 
-def fetch_indicator_data(
-    ticker="EURUSD=X", period="730d", interval="1h"
-) -> pd.DataFrame:
-    data = yf.download(ticker, period=period, interval=interval)
-    data = remove_nan_rows(data)
+def fetch_data(ticker="EURUSD=X", period="730d", interval="1h") -> pd.DataFrame:
+    return yf.download(ticker, period=period, interval=interval)
 
+
+def get_indicator_data(df: pd.DataFrame):
+    data = df.copy()
     # data["RSI"] = ta.RSI(data["Close"], timeperiod=14)
     # data["ATR"] = ta.ATR(data["High"], data["Low"], data["Close"], timeperiod=14)
-
     # ema = ta.EMA(data["Close"], timeperiod=14)
     # data["1st Derivative"] = ema.diff()
     # data["2nd Derivative"] = data["1st Derivative"].diff()
@@ -79,7 +78,7 @@ def fetch_indicator_data(
 
 def remove_nan_rows(data: pd.DataFrame) -> pd.DataFrame:
     updated_data = data.copy()
-    # updated_data = updated_data[updated_data["Volume"] != 0]
+    updated_data = updated_data[updated_data["Volume"] != 0]
     updated_data.reset_index(inplace=True)
 
     return updated_data
