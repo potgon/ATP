@@ -7,15 +7,12 @@ import threading
 import time
 
 import app.positions as pt
-
 from utils.logger import make_log, log_full_dataframe
 from app.fetcher import Fetcher
-from app.snr import SNRDetector
 from evaluator.evaluator_factory import get_evaluator
 
 app = dash.Dash(__name__)
-fetcher: Fetcher = Fetcher(ticker="GC=F")
-
+fetcher: Fetcher = Fetcher(ticker="EURUSD=X")
 
 app.layout = html.Div(
     [
@@ -79,6 +76,8 @@ def update_graph(_):
     #     )
     # )
 
+    plot_support_resistance(data, min_bounces=2, fig=fig)
+
     layout = go.Layout(
         title=f"{fetcher.ticker} Live Candlestick Chart with Buy Signals",
         xaxis_title="Date",
@@ -130,7 +129,6 @@ def service_loop():
     evaluation_function = get_evaluator()
     while True:
         data = fetcher.fetch()
-        detector = SNRDetector(data)
         if current_pos:
             make_log(
                 "DASH",
@@ -151,8 +149,34 @@ def service_loop():
                     "DASH", 20, "workflow.log", f"Position opened?: {type(current_pos)}"
                 )
 
-        clusters = detector.detect_clusters()
-        make_log("DASH", 20, "workflow.log", f"Current clusters: {clusters}")
-
         make_log("DASH", 20, "workflow.log", "Service loop sleep...")
         time.sleep(60)
+
+
+import plotly.graph_objects as go
+
+
+def plot_support_resistance(dfkeys, min_bounces, fig):
+    high_counts = dfkeys[dfkeys["Pivot"] == 2]["High"].value_counts()
+    low_counts = dfkeys[dfkeys["Pivot"] == 1]["Low"].value_counts()
+
+    significant_highs = high_counts[high_counts >= min_bounces]
+    significant_lows = low_counts[low_counts >= min_bounces]
+
+    for level in significant_highs.index:
+        fig.add_hline(
+            y=level,
+            line_dash="solid",
+            line_color="red",
+            annotation_text=f"Resistance ({high_counts[level]})",
+            annotation_position="bottom right",
+        )
+
+    for level in significant_lows.index:
+        fig.add_hline(
+            y=level,
+            line_dash="solid",
+            line_color="green",
+            annotation_text=f"Support ({low_counts[level]})",
+            annotation_position="top right",
+        )

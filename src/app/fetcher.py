@@ -7,6 +7,8 @@ import numpy as np
 from utils.logger import make_log
 from evaluator.evaluator_factory import get_evaluator
 
+from app.snr import pivotid, pointpos
+
 
 class Fetcher:
     def __init__(self, ticker="AAPL") -> None:
@@ -14,7 +16,7 @@ class Fetcher:
         self.current_data = self._initialise_data()
         self.data_lock = threading.Lock()
 
-    def _initialise_data(self, period="1d", interval="1m") -> pd.DataFrame:
+    def _initialise_data(self, period="90d", interval="1h") -> pd.DataFrame:
         return fetch_indicator_data(self.ticker, period, interval)
 
     def fetch(self) -> pd.Series:
@@ -34,15 +36,27 @@ class Fetcher:
 
 
 def fetch_indicator_data(
-    ticker="GBPUSD=X", period="360d", interval="1h"
+    ticker="EURUSD=X", period="730d", interval="1h"
 ) -> pd.DataFrame:
     data = yf.download(ticker, period=period, interval=interval)
 
-    data["RSI"] = ta.RSI(data["Close"], timeperiod=14)
-    data["ATR"] = ta.ATR(data["High"], data["Low"], data["Close"], timeperiod=14)
+    # data["RSI"] = ta.RSI(data["Close"], timeperiod=14)
+    # data["ATR"] = ta.ATR(data["High"], data["Low"], data["Close"], timeperiod=14)
 
-    ema = ta.EMA(data["Close"], timeperiod=14)
-    data["1st Derivative"] = ema.diff()
-    data["2nd Derivative"] = data["1st Derivative"].diff()
-    data["Sign Change"] = np.sign(data["2nd Derivative"]).diff()
+    # ema = ta.EMA(data["Close"], timeperiod=14)
+    # data["1st Derivative"] = ema.diff()
+    # data["2nd Derivative"] = data["1st Derivative"].diff()
+    # data["Sign Change"] = np.sign(data["2nd Derivative"]).diff()
+    data = remove_nan_rows(data)
+    data["Pivot"] = data.apply(lambda x: pivotid(data, x.name, 10, 10), axis=1)
+    data["Pointpos"] = data.apply(lambda row: pointpos(row), axis=1)
+
     return data
+
+
+def remove_nan_rows(data: pd.DataFrame) -> pd.DataFrame:
+    updated_data = data.copy()
+    # updated_data = updated_data[updated_data["Volume"] != 0]
+    updated_data.reset_index(inplace=True)
+
+    return updated_data
