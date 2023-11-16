@@ -77,7 +77,7 @@ def update_graph(_):
     #     )
     # )
 
-    plot_support_resistance(fig=fig)
+    plot_support_resistance(fig)
 
     layout = go.Layout(
         title=f"{fetcher.ticker} Live Candlestick Chart with Buy Signals",

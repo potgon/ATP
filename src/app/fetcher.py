@@ -1,6 +1,6 @@
 import yfinance as yf
 
-# import talib as ta
+import talib as ta
 import threading
 import pandas as pd
 import numpy as np
