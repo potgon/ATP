@@ -6,8 +6,8 @@ import pandas as pd
 import numpy as np
 
 from utils.logger import make_log
+from utils.config import SNR_CLOSENESS_FACTOR, SNR_MIN_BOUNCES, SNR_MULTIPLIER
 from evaluator.evaluator_factory import get_evaluator
-
 from app.snr import pivotid, pointpos
 
 
@@ -37,13 +37,13 @@ class Fetcher:
 
 
 def fetch_indicator_data(
-    ticker="EURUSD=X", period="730d", interval="1h"
+    ticker="EURUSD=X", period="90d", interval="1h"
 ) -> pd.DataFrame:
     data = yf.download(ticker, period=period, interval=interval)
     data = remove_nan_rows(data)
 
     # data["RSI"] = ta.RSI(data["Close"], timeperiod=14)
-    # data["ATR"] = ta.ATR(data["High"], data["Low"], data["Close"], timeperiod=14)
+    data["ATR"] = ta.ATR(data["High"], data["Low"], data["Close"], timeperiod=90)
 
     # ema = ta.EMA(data["Close"], timeperiod=14)
     # data["1st Derivative"] = ema.diff()
@@ -52,20 +52,28 @@ def fetch_indicator_data(
     data["Pivot"] = data.apply(lambda x: pivotid(data, x.name, 10, 10), axis=1)
     data["Pointpos"] = data.apply(lambda row: pointpos(row), axis=1)
 
+    average_atr = data["ATR"].mean()
+    closeness_factor = average_atr * SNR_MULTIPLIER
+
     high_counts = data[data["Pivot"] == 2]["High"].value_counts()
     low_counts = data[data["Pivot"] == 1]["Low"].value_counts()
 
-    significant_highs = high_counts[high_counts >= 2]
-    significant_lows = low_counts[low_counts >= 2]
+    significant_highs = high_counts[high_counts >= SNR_MIN_BOUNCES]
+    significant_lows = low_counts[low_counts >= SNR_MIN_BOUNCES]
 
     filtered_highs, filtered_lows = [], []
 
     for level in significant_highs.index:
-        if not any(abs(level - other_level) < 0.005 for other_level in filtered_highs):
+        if not any(
+            abs(level - other_level) < closeness_factor
+            for other_level in filtered_highs
+        ):
             filtered_highs.append(level)
 
     for level in significant_lows.index:
-        if not any(abs(level - other_level) < 0.005 for other_level in filtered_lows):
+        if not any(
+            abs(level - other_level) < closeness_factor for other_level in filtered_lows
+        ):
             filtered_lows.append(level)
 
     data["Resistance"] = data["High"].apply(

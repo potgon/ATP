@@ -77,7 +77,7 @@ def update_graph(_):
     #     )
     # )
 
-    plot_support_resistance(fig)
+    plot_support_resistance(data, fig)
 
     layout = go.Layout(
         title=f"{fetcher.ticker} Live Candlestick Chart with Buy Signals",
@@ -154,21 +154,21 @@ def service_loop():
         time.sleep(60)
 
 
-def plot_support_resistance(fig):
-    # unique_supports = data["Support"].dropna().unique()
-    # unique_resistances = data["Resistance"].dropna().unique()
+def plot_support_resistance(data, fig):
+    unique_supports = data["Support"].dropna().unique()
+    unique_resistances = data["Resistance"].dropna().unique()
 
-    unique_supports = []
-    unique_resistances = []
-    result = execute_sql("SELECT * FROM supports")
+    # unique_supports = []
+    # unique_resistances = []
+    # result = execute_sql("SELECT * FROM supports")
 
-    for r in result:
-        unique_supports.append(r[2])
+    # for r in result:
+    #     unique_supports.append(r[2])
 
-    result = execute_sql("SELECT * FROM resistances")
+    # result = execute_sql("SELECT * FROM resistances")
 
-    for r in result:
-        unique_resistances.append(r[2])
+    # for r in result:
+    #     unique_resistances.append(r[2])
 
     for support in unique_supports:
         fig.add_hline(
