@@ -2695,23 +2695,6 @@ dev = ["check-manifest"]
 test = ["tox (>=1.8.1)"]
 
 [[package]]
-name = "TA-Lib"
-version = "0.4.24"
-description = "Python wrapper for TA-Lib"
-optional = false
-python-versions = "*"
-files = [
-    {file = "TA_Lib-0.4.24-cp39-cp39-win_amd64.whl", hash = "sha256:d4205d243686ef91fb8167c82c56b6c2ed088b052fb76adf5734f38dccefc22a"},
-]
-
-[package.dependencies]
-numpy = "*"
-
-[package.source]
-type = "file"
-url = "TA_Lib-0.4.24-cp39-cp39-win_amd64.whl"
-
-[[package]]
 name = "tenacity"
 version = "8.2.3"
 description = "Retry code until it succeeds"
@@ -3241,4 +3224,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.13"
-content-hash = "08a10758fa841b377f6b6907eb82d5aa54a7de513820d3e585e944f413de58f8"
+content-hash = "f0b20467d69825102967224ea36174b92a9491e1132dfc811f9c6409549e5fe6"

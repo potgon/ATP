@@ -163,3 +163,5 @@ cython_debug/
 pyright.json
 *.pem
 /.vscode/
+*.toml
+*.lock

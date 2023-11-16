@@ -1,5 +1,6 @@
 import yfinance as yf
-import talib as ta
+
+# import talib as ta
 import threading
 import pandas as pd
 import numpy as np
@@ -64,7 +65,7 @@ def fetch_indicator_data(
             filtered_highs.append(level)
 
     for level in significant_lows.index:
-        if not any(abs(level - other_level) < 0 for other_level in filtered_lows):
+        if not any(abs(level - other_level) < 0.005 for other_level in filtered_lows):
             filtered_lows.append(level)
 
     data["Resistance"] = data["High"].apply(

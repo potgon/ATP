@@ -21,20 +21,24 @@ def get_connection(tunnel: SSHTunnelForwarder):
     )
 
 
-def get_ssh_con(sql):
+def execute_sql(sql):
     with SSHTunnelForwarder(
         ("ec2-34-250-215-95.eu-west-1.compute.amazonaws.com"),
         ssh_username="ec2-user",
         ssh_pkey="./aws/ATP-key.pem",
         remote_bind_address=(RDS_HOSTNAME, RDS_PORT),
     ) as tunnel:
-        make_log("RDS", 20, "db.log", "Tunnel Established")
-
         db = get_connection(tunnel)
 
         try:
             with db.cursor() as cur:
                 cur.execute(sql)
-                make_log("RDS", 20, "db.log", cur.fetchall())
+                sql_result = cur.fetchall()
+                for r in cur:
+                    make_log("RDS", 20, "db.log", r)
+                db.commit()
+                make_log("RDS", 20, "db.log", "Changes commited")
         finally:
             db.close()
+
+    return sql_result
