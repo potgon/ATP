@@ -7,9 +7,10 @@ import threading
 import time
 
 import data_processing.positions as pt
-from utils.logger import make_log, log_full_dataframe
 from data_processing.fetcher import Fetcher
+from data_processing.snr import get_snr
 from evaluator.evaluator_factory import get_evaluator
+from utils.logger import make_log, log_full_dataframe
 
 app = dash.Dash(__name__)
 fetcher: Fetcher = Fetcher(ticker="EURUSD=X")
@@ -153,7 +154,8 @@ def service_loop():
         time.sleep(60)
 
 
-def plot_support_resistance(data, fig):
+def plot_support_resistance(df, fig):
+    data = df.copy()
     unique_supports = data["Support"].dropna().unique()
     unique_resistances = data["Resistance"].dropna().unique()
 

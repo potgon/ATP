@@ -9,7 +9,24 @@ class Indicators:
         self.fetcher = Fetcher(ticker)
 
     def get_RSI(self):
-        data = self.fetcher.current_data
+        with self.fetcher.data_lock:
+            data = self.fetcher.current_data.copy()
+            data["RSI"] = ta.RSI(data["Close"], timeperiod=14)
+        return data
+
+    def get_ATR(self):
+        with self.fetcher.data_lock:
+            data = self.fetcher.current_data.copy()
+            data["ATR"] = ta.ATR(
+                data["High"], data["Low"], data["Close"], timeperiod=14
+            )
+        return data
+
+    def get_EMA(self, period: int):
+        with self.fetcher.data_lock:
+            data = self.fetcher.current_data.copy()
+            data["EMA"] = ta.EMA(data["Close"], timeperiod=period)
+        return data
 
 
 def remove_nan_rows(df: pd.DataFrame) -> pd.DataFrame:
