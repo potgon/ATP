@@ -6,8 +6,7 @@ import numpy as np
 
 from utils.logger import make_log
 from evaluator.evaluator_factory import get_evaluator
-
-from app.snr import pivotid, pointpos
+from data_processing.snr import pivotid, pointpos
 
 
 class Fetcher:
@@ -65,7 +64,7 @@ def get_indicator_data(df: pd.DataFrame):
             filtered_highs.append(level)
 
     for level in significant_lows.index:
-        if not any(abs(level - other_level) < 0 for other_level in filtered_lows):
+        if not any(abs(level - other_level) < 0.005 for other_level in filtered_lows):
             filtered_lows.append(level)
 
     data["Resistance"] = data["High"].apply(

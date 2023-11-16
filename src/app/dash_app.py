@@ -6,9 +6,9 @@ import plotly.graph_objs as go
 import threading
 import time
 
-import app.positions as pt
+import data_processing.positions as pt
 from utils.logger import make_log, log_full_dataframe
-from app.fetcher import Fetcher
+from data_processing.fetcher import Fetcher
 from evaluator.evaluator_factory import get_evaluator
 
 app = dash.Dash(__name__)
@@ -153,14 +153,10 @@ def service_loop():
         time.sleep(60)
 
 
-import plotly.graph_objects as go
-
-
 def plot_support_resistance(data, fig):
     unique_supports = data["Support"].dropna().unique()
     unique_resistances = data["Resistance"].dropna().unique()
 
-    # Plot support levels
     for support in unique_supports:
         fig.add_hline(
             y=support,
@@ -170,7 +166,6 @@ def plot_support_resistance(data, fig):
             annotation_position="top right",
         )
 
-    # Plot resistance levels
     for resistance in unique_resistances:
         fig.add_hline(
             y=resistance,
