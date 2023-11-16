@@ -153,14 +153,10 @@ def service_loop():
         time.sleep(60)
 
 
-import plotly.graph_objects as go
-
-
 def plot_support_resistance(data, fig):
     unique_supports = data["Support"].dropna().unique()
     unique_resistances = data["Resistance"].dropna().unique()
 
-    # Plot support levels
     for support in unique_supports:
         fig.add_hline(
             y=support,
@@ -170,7 +166,6 @@ def plot_support_resistance(data, fig):
             annotation_position="top right",
         )
 
-    # Plot resistance levels
     for resistance in unique_resistances:
         fig.add_hline(
             y=resistance,

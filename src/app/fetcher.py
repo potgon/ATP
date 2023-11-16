@@ -54,11 +54,9 @@ def fetch_indicator_data(
     high_counts = data[data["Pivot"] == 2]["High"].value_counts()
     low_counts = data[data["Pivot"] == 1]["Low"].value_counts()
 
-    # Filter out the pivot points based on min_bounces
     significant_highs = high_counts[high_counts >= 2]
     significant_lows = low_counts[low_counts >= 2]
 
-    # Further filter for closely spaced levels
     filtered_highs, filtered_lows = [], []
 
     for level in significant_highs.index:
