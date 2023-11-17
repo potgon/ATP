@@ -37,7 +37,6 @@ def execute_sql(sql):
                 for r in cur:
                     make_log("RDS", 20, "db.log", r)
                 db.commit()
-                make_log("RDS", 20, "db.log", "Changes commited")
         finally:
             db.close()
 

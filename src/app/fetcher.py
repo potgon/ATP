@@ -1,12 +1,11 @@
 import yfinance as yf
-
 import talib as ta
 import threading
 import pandas as pd
 import numpy as np
 
 from utils.logger import make_log
-from utils.config import SNR_CLOSENESS_FACTOR, SNR_MIN_BOUNCES, SNR_MULTIPLIER
+from utils.config import SNR_CLOSENESS_FACTOR, SNR_MIN_BOUNCES, SNR_PERCENTAGE_RANGE
 from evaluator.evaluator_factory import get_evaluator
 from app.snr import pivotid, pointpos
 
@@ -17,7 +16,7 @@ class Fetcher:
         self.current_data = self._initialise_data()
         self.data_lock = threading.Lock()
 
-    def _initialise_data(self, period="90d", interval="1h") -> pd.DataFrame:
+    def _initialise_data(self, period="730d", interval="1h") -> pd.DataFrame:
         return fetch_indicator_data(self.ticker, period, interval)
 
     def fetch(self) -> pd.Series:
@@ -43,17 +42,13 @@ def fetch_indicator_data(
     data = remove_nan_rows(data)
 
     # data["RSI"] = ta.RSI(data["Close"], timeperiod=14)
-    data["ATR"] = ta.ATR(data["High"], data["Low"], data["Close"], timeperiod=90)
+    # data["ATR"] = ta.ATR(data["High"], data["Low"], data["Close"], timeperiod=90)
 
-    # ema = ta.EMA(data["Close"], timeperiod=14)
-    # data["1st Derivative"] = ema.diff()
-    # data["2nd Derivative"] = data["1st Derivative"].diff()
-    # data["Sign Change"] = np.sign(data["2nd Derivative"]).diff()
-    data["Pivot"] = data.apply(lambda x: pivotid(data, x.name, 10, 10), axis=1)
+    data["Pivot"] = data.apply(lambda x: pivotid(data, x.name, 15, 15), axis=1)
     data["Pointpos"] = data.apply(lambda row: pointpos(row), axis=1)
 
-    average_atr = data["ATR"].mean()
-    closeness_factor = average_atr * SNR_MULTIPLIER
+    avg_price = (data["High"].mean() + data["Low"].mean()) / 2
+    range_value = avg_price * SNR_PERCENTAGE_RANGE
 
     high_counts = data[data["Pivot"] == 2]["High"].value_counts()
     low_counts = data[data["Pivot"] == 1]["Low"].value_counts()
@@ -65,16 +60,21 @@ def fetch_indicator_data(
 
     for level in significant_highs.index:
         if not any(
-            abs(level - other_level) < closeness_factor
+            abs(level - other_level) < SNR_CLOSENESS_FACTOR
             for other_level in filtered_highs
         ):
             filtered_highs.append(level)
 
     for level in significant_lows.index:
         if not any(
-            abs(level - other_level) < closeness_factor for other_level in filtered_lows
+            abs(level - other_level) < SNR_CLOSENESS_FACTOR
+            for other_level in filtered_lows
         ):
             filtered_lows.append(level)
+
+    for level in filtered_highs:
+        price_range_max = level + range_value
+        price_range_min = level - range_value
 
     data["Resistance"] = data["High"].apply(
         lambda x: x if x in filtered_highs else np.nan
