@@ -11,6 +11,7 @@ from utils.logger import make_log, log_full_dataframe
 from app.fetcher import Fetcher
 from evaluator.evaluator_factory import get_evaluator
 from aws.db import execute_sql
+from app.snr import calculate_reversal_zones
 
 app = dash.Dash(__name__)
 fetcher: Fetcher = Fetcher(ticker="EURUSD=X")
@@ -77,7 +78,8 @@ def update_graph(_):
     #     )
     # )
 
-    plot_support_resistance(data, fig)
+    # plot_support_resistance(data, fig)
+    plot_reversal_zones(calculate_reversal_zones(data), fig)
 
     layout = go.Layout(
         title=f"{fetcher.ticker} Live Candlestick Chart with Buy Signals",
@@ -186,4 +188,21 @@ def plot_support_resistance(data, fig):
             line_dash="solid",
             annotation_text=f"Resistance",
             annotation_position="bottom right",
+        )
+
+
+def plot_reversal_zones(reversal_zones, fig):
+    for index, row in reversal_zones.iterrows():
+        color = "green" if row["Type"] == "Support" else "red"
+        fig.add_hrect(
+            y0=row["Min"],
+            y1=row["Max"],
+            line_width=0,
+            fillcolor=color,
+            opacity=0.2,
+            annotation_text=row["Type"],
+            annotation_position="top right"
+            if row["Type"] == "Support"
+            else "bottom right",
+            annotation=dict(font_size=10, font_color=color),
         )

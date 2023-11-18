@@ -1,4 +1,7 @@
 import numpy as np
+import pandas as pd
+
+from utils.config import SNR_PERCENTAGE_RANGE
 
 
 def pivotid(df1, l, n1, n2):
@@ -29,3 +32,38 @@ def pointpos(x):
         return x["High"] + 1e-3
     else:
         return np.nan
+
+
+def calculate_reversal_zones(data: pd.DataFrame) -> pd.DataFrame:
+    range_value = get_range_value(data)
+    reversal_zones_data = []
+    filtered_highs = data["Resistance"]
+    filtered_lows = data["Support"]
+    for level in filtered_highs:
+        price_range_max = level + range_value
+        price_range_min = level - range_value
+        reversal_zones_data.append(
+            {
+                "Type": "Resistance",
+                "Price": level,
+                "Max": price_range_max,
+                "Min": price_range_min,
+            }
+        )
+    for level in filtered_lows:
+        price_range_max = level + range_value
+        price_range_min = level - range_value
+        reversal_zones_data.append(
+            {
+                "Type": "Support",
+                "Price": level,
+                "Max": price_range_max,
+                "Min": price_range_min,
+            }
+        )
+    return pd.DataFrame(reversal_zones_data)
+
+
+def get_range_value(data: pd.DataFrame) -> float:
+    avg_price = (data["High"].mean() + data["Low"].mean()) / 2
+    return avg_price * SNR_PERCENTAGE_RANGE
