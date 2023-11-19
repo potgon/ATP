@@ -13,7 +13,7 @@ from evaluator.evaluator_factory import get_evaluator
 from app.snr import calculate_reversal_zones
 
 app = dash.Dash(__name__)
-fetcher: Fetcher = Fetcher(ticker="EURUSD=X")
+fetcher: Fetcher = Fetcher(ticker="JPY=X")
 
 app.layout = html.Div(
     [
@@ -199,5 +199,5 @@ def plot_reversal_zones(df, fig):
             y1=row["Max"],
             line_width=0,
             fillcolor=color,
-            opacity=0.2,
+            opacity=0.35,
         )

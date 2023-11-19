@@ -2,18 +2,19 @@ import numpy as np
 import pandas as pd
 
 from utils.config import SNR_PERCENTAGE_RANGE
+from utils.logger import log_full_dataframe
 
 
-def pivotid(df1, l, n1, n2):
-    if l - n1 < 0 or l + n2 >= len(df1):
+def pivotid(data, idx, n1, n2):
+    if idx - n1 < 0 or idx + n2 >= len(data):
         return 0
 
     pividlow = 1
     pividhigh = 1
-    for i in range(l - n1, l + n2 + 1):
-        if df1.Low[l] > df1.Low[i]:
+    for i in range(idx - n1, idx + n2 + 1):
+        if data.Low[idx] > data.Low[i]:
             pividlow = 0
-        if df1.High[l] < df1.High[i]:
+        if data.High[idx] < data.High[i]:
             pividhigh = 0
     if pividlow and pividhigh:
         return 3
@@ -38,8 +39,8 @@ def calculate_reversal_zones(df: pd.DataFrame) -> pd.DataFrame:
     data = df.copy()
     range_value = get_range_value(data)
     reversal_zones_data = []
-    filtered_highs = data["Resistance"]
-    filtered_lows = data["Support"]
+    filtered_highs = data["Resistance"].unique()
+    filtered_lows = data["Support"].unique()
     for level in filtered_highs:
         price_range_max = level + range_value
         price_range_min = level - range_value
@@ -63,7 +64,7 @@ def calculate_reversal_zones(df: pd.DataFrame) -> pd.DataFrame:
             }
         )
     reversals = pd.DataFrame(reversal_zones_data)
-    print(type(reversals))
+    log_full_dataframe("REVERSAL", 20, "reversals.log", reversals)
     return reversals
 
 

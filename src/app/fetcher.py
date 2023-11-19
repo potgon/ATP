@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 from utils.logger import make_log
-from utils.config import SNR_CLOSENESS_FACTOR, SNR_MIN_BOUNCES, SNR_PERCENTAGE_RANGE
+from utils.config import SNR_CLOSENESS_FACTOR, SNR_MIN_BOUNCES
 from evaluator.evaluator_factory import get_evaluator
 from app.snr import pivotid, pointpos
 
@@ -16,7 +16,7 @@ class Fetcher:
         self.current_data = self._initialise_data()
         self.data_lock = threading.Lock()
 
-    def _initialise_data(self, period="90d", interval="1h") -> pd.DataFrame:
+    def _initialise_data(self, period="730d", interval="1h") -> pd.DataFrame:
         return fetch_indicator_data(self.ticker, period, interval)
 
     def fetch(self) -> pd.Series:
@@ -68,6 +68,7 @@ def fetch_indicator_data(
             for other_level in filtered_lows
         ):
             filtered_lows.append(level)
+            make_log("FILTER", 20, "filter.log", level)
 
     data["Resistance"] = data["High"].apply(
         lambda x: x if x in filtered_highs else np.nan

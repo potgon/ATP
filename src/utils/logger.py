@@ -22,7 +22,7 @@ def setup_logger(name: str, level: int, log_file: str) -> logging.Logger:
 
     if not logger.handlers:
         log_path = os.path.join(LOGS_DIR, log_file)
-        log_handler = RotatingFileHandler(log_path, maxBytes=1e6, backupCount=1)
+        log_handler = RotatingFileHandler(log_path, maxBytes=1e6, backupCount=0)
         log_handler.setFormatter(formatter)
         log_handler.setLevel(level)
         logger.addHandler(log_handler)
@@ -53,8 +53,10 @@ def log_full_dataframe(name: str, level: int, log_file: str, data: pd.DataFrame)
     """Logs whole dataframe by temporarily changing pandas settings to avoid data truncation
 
     Args:
-        data (pd.DataFrame): Pandas DataFrame
-        logger (logging.Logger): Logger instance
+        name (str): Logger instance name
+        level (int): Logging level
+        log_file (str): Log file name
+        data (pd.DataFrame): DataFrame to log
     """
 
     original_max_rows = pd.get_option("display.max_rows")
