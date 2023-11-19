@@ -5,7 +5,12 @@ import pandas as pd
 import numpy as np
 
 from utils.logger import make_log
-from utils.config import SNR_CLOSENESS_FACTOR, SNR_MIN_BOUNCES
+from utils.config import (
+    SNR_CLOSENESS_FACTOR,
+    SNR_MIN_BOUNCES,
+    SNR_PROPORTIONALITY_RATIO,
+    SNR_DEVIATION_FACTOR,
+)
 from evaluator.evaluator_factory import get_evaluator
 from app.snr import pivotid, pointpos
 
@@ -36,7 +41,7 @@ class Fetcher:
 
 
 def fetch_indicator_data(
-    ticker="EURUSD=X", period="90d", interval="1h"
+    ticker="EURUSD=X", period="730d", interval="1h"
 ) -> pd.DataFrame:
     data = yf.download(ticker, period=period, interval=interval)
     data = remove_nan_rows(data)
@@ -44,7 +49,7 @@ def fetch_indicator_data(
     # data["RSI"] = ta.RSI(data["Close"], timeperiod=14)
     # data["ATR"] = ta.ATR(data["High"], data["Low"], data["Close"], timeperiod=90)
 
-    data["Pivot"] = data.apply(lambda x: pivotid(data, x.name, 10, 10), axis=1)
+    data["Pivot"] = data.apply(lambda x: pivotid(data, x.name, 5, 5), axis=1)
     data["Pointpos"] = data.apply(lambda row: pointpos(row), axis=1)
 
     high_counts = data[data["Pivot"] == 2]["High"].value_counts()
@@ -55,20 +60,22 @@ def fetch_indicator_data(
 
     filtered_highs, filtered_lows = [], []
 
+    avg_price = data["Close"].mean()
+    print(f"Data Average Price: {avg_price}")
+    c_factor = avg_price * SNR_PROPORTIONALITY_RATIO - SNR_DEVIATION_FACTOR
+    print(f"C_Factor: {c_factor}")
+
     for level in significant_highs.index:
         if not any(
-            abs(level - other_level) < SNR_CLOSENESS_FACTOR
-            for other_level in filtered_highs
+            abs(level - other_level) < c_factor for other_level in filtered_highs
         ):
             filtered_highs.append(level)
 
     for level in significant_lows.index:
         if not any(
-            abs(level - other_level) < SNR_CLOSENESS_FACTOR
-            for other_level in filtered_lows
+            abs(level - other_level) < c_factor for other_level in filtered_lows
         ):
             filtered_lows.append(level)
-            make_log("FILTER", 20, "filter.log", level)
 
     data["Resistance"] = data["High"].apply(
         lambda x: x if x in filtered_highs else np.nan

@@ -63,12 +63,10 @@ def calculate_reversal_zones(df: pd.DataFrame) -> pd.DataFrame:
                 "Min": price_range_min,
             }
         )
-    reversals = pd.DataFrame(reversal_zones_data)
-    log_full_dataframe("REVERSAL", 20, "reversals.log", reversals)
-    return reversals
+    return pd.DataFrame(reversal_zones_data)
 
 
 def get_range_value(data: pd.DataFrame) -> float:
     avg_price = (data["High"].mean() + data["Low"].mean()) / 2
-    print(avg_price * SNR_PERCENTAGE_RANGE)
+    print(f"Average Price: {avg_price}")
     return avg_price * SNR_PERCENTAGE_RANGE

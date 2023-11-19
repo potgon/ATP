@@ -13,7 +13,7 @@ from evaluator.evaluator_factory import get_evaluator
 from app.snr import calculate_reversal_zones
 
 app = dash.Dash(__name__)
-fetcher: Fetcher = Fetcher(ticker="JPY=X")
+fetcher: Fetcher = Fetcher(ticker="EURUSD=X")
 
 app.layout = html.Div(
     [
