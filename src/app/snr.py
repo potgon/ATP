@@ -34,7 +34,8 @@ def pointpos(x):
         return np.nan
 
 
-def calculate_reversal_zones(data: pd.DataFrame) -> pd.DataFrame:
+def calculate_reversal_zones(df: pd.DataFrame) -> pd.DataFrame:
+    data = df.copy()
     range_value = get_range_value(data)
     reversal_zones_data = []
     filtered_highs = data["Resistance"]
@@ -61,9 +62,12 @@ def calculate_reversal_zones(data: pd.DataFrame) -> pd.DataFrame:
                 "Min": price_range_min,
             }
         )
-    return pd.DataFrame(reversal_zones_data)
+    reversals = pd.DataFrame(reversal_zones_data)
+    print(type(reversals))
+    return reversals
 
 
 def get_range_value(data: pd.DataFrame) -> float:
     avg_price = (data["High"].mean() + data["Low"].mean()) / 2
+    print(avg_price * SNR_PERCENTAGE_RANGE)
     return avg_price * SNR_PERCENTAGE_RANGE

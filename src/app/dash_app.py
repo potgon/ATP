@@ -10,7 +10,6 @@ import app.positions as pt
 from utils.logger import make_log, log_full_dataframe
 from app.fetcher import Fetcher
 from evaluator.evaluator_factory import get_evaluator
-from aws.db import execute_sql
 from app.snr import calculate_reversal_zones
 
 app = dash.Dash(__name__)
@@ -156,42 +155,43 @@ def service_loop():
         time.sleep(60)
 
 
-def plot_support_resistance(data, fig):
-    unique_supports = data["Support"].dropna().unique()
-    unique_resistances = data["Resistance"].dropna().unique()
+# def plot_support_resistance(data, fig):
+#     unique_supports = data["Support"].dropna().unique()
+#     unique_resistances = data["Resistance"].dropna().unique()
 
-    # unique_supports = []
-    # unique_resistances = []
-    # result = execute_sql("SELECT * FROM supports")
+#     # unique_supports = []
+#     # unique_resistances = []
+#     # result = execute_sql("SELECT * FROM supports")
 
-    # for r in result:
-    #     unique_supports.append(r[2])
+#     # for r in result:
+#     #     unique_supports.append(r[2])
 
-    # result = execute_sql("SELECT * FROM resistances")
+#     # result = execute_sql("SELECT * FROM resistances")
 
-    # for r in result:
-    #     unique_resistances.append(r[2])
+#     # for r in result:
+#     #     unique_resistances.append(r[2])
 
-    for support in unique_supports:
-        fig.add_hline(
-            y=support,
-            line_color="green",
-            line_dash="solid",
-            annotation_text=f"Support",
-            annotation_position="top right",
-        )
+#     for support in unique_supports:
+#         fig.add_hline(
+#             y=support,
+#             line_color="green",
+#             line_dash="solid",
+#             annotation_text=f"Support",
+#             annotation_position="top right",
+#         )
 
-    for resistance in unique_resistances:
-        fig.add_hline(
-            y=resistance,
-            line_color="red",
-            line_dash="solid",
-            annotation_text=f"Resistance",
-            annotation_position="bottom right",
-        )
+#     for resistance in unique_resistances:
+#         fig.add_hline(
+#             y=resistance,
+#             line_color="red",
+#             line_dash="solid",
+#             annotation_text=f"Resistance",
+#             annotation_position="bottom right",
+#         )
 
 
-def plot_reversal_zones(reversal_zones, fig):
+def plot_reversal_zones(df, fig):
+    reversal_zones = df.dropna()
     for index, row in reversal_zones.iterrows():
         color = "green" if row["Type"] == "Support" else "red"
         fig.add_hrect(
@@ -200,9 +200,4 @@ def plot_reversal_zones(reversal_zones, fig):
             line_width=0,
             fillcolor=color,
             opacity=0.2,
-            annotation_text=row["Type"],
-            annotation_position="top right"
-            if row["Type"] == "Support"
-            else "bottom right",
-            annotation=dict(font_size=10, font_color=color),
         )

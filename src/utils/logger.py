@@ -66,7 +66,7 @@ def log_full_dataframe(name: str, level: int, log_file: str, data: pd.DataFrame)
         pd.set_option("display.max_columns", None)
         pd.set_option("display.width", None)
 
-        make_log(name, level, log_file, f"Updating graph, current data: \n {data}")
+        make_log(name, level, log_file, f"DataFrame: \n {data}")
 
     finally:
         pd.set_option("display.max_rows", original_max_rows)
