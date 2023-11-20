@@ -63,10 +63,23 @@ def calculate_reversal_zones(df: pd.DataFrame) -> pd.DataFrame:
                 "Min": price_range_min,
             }
         )
-    return pd.DataFrame(reversal_zones_data)
+    reversal_zones_data = pd.DataFrame(reversal_zones_data)
+    filtered_zones = remove_close_zones(reversal_zones_data, range_value)
+    return filtered_zones
 
 
 def get_range_value(data: pd.DataFrame) -> float:
     avg_price = (data["High"].mean() + data["Low"].mean()) / 2
     print(f"Average Price: {avg_price}")
     return avg_price * SNR_PERCENTAGE_RANGE
+
+
+def remove_close_zones(df: pd.DataFrame, range_value: float):
+    data = df.copy()
+    combined_prices = (
+        pd.concat([data["Min"], data["Max"]]).sort_values().reset_index(drop=True)
+    )
+    price_diffs = combined_prices.diff().abs()
+    valid_prices = price_diffs > range_value
+    filtered_prices = combined_prices[valid_prices]
+    return data[data["Min"].isin(filtered_prices) | data["Max"].isin(filtered_prices)]

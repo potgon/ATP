@@ -62,7 +62,7 @@ def fetch_indicator_data(
 
     avg_price = data["Close"].mean()
     print(f"Data Average Price: {avg_price}")
-    c_factor = avg_price * SNR_PROPORTIONALITY_RATIO - SNR_DEVIATION_FACTOR
+    c_factor = avg_price * SNR_PROPORTIONALITY_RATIO
     print(f"C_Factor: {c_factor}")
 
     for level in significant_highs.index:
