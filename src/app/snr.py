@@ -84,7 +84,6 @@ def pointpos(x):
 
 def calculate_reversal_zones(avg_price: float) -> pd.DataFrame:
     data = get_pivots()
-    log_full_dataframe("REVERSAL", 20, "snr.log", data)
     range_value = get_range_value(avg_price)
     reversal_zones_data = []
     filtered_highs = data["Resistance"].unique()
@@ -113,14 +112,14 @@ def calculate_reversal_zones(avg_price: float) -> pd.DataFrame:
             }
         )
     reversal_zones = pd.DataFrame(reversal_zones_data)
-    # filtered_zones = remove_close_zones(reversal_zones, avg_price)
-    # make_log(
-    #     "REVERSAL",
-    #     20,
-    #     "reversals.log",
-    #     f"{reversal_zones.shape[0]} | {filtered_zones.shape[0]}",
-    # )
-    return reversal_zones
+    filtered_zones = remove_close_zones(reversal_zones, avg_price)
+    make_log(
+        "SNR",
+        20,
+        "workflow.log",
+        f"{reversal_zones.shape[0]} | {filtered_zones.shape[0]}",
+    )
+    return filtered_zones
 
 
 def get_range_value(avg_price: float) -> float:
