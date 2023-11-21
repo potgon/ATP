@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from utils.config import SNR_PERCENTAGE_RANGE
-from utils.logger import log_full_dataframe
+from utils.config import SNR_PERCENTAGE_RANGE, SNR_PROPORTIONALITY_RATIO
+from utils.logger import log_full_dataframe, make_log
 
 
 def pivotid(data, idx, n1, n2):
@@ -35,9 +35,9 @@ def pointpos(x):
         return np.nan
 
 
-def calculate_reversal_zones(df: pd.DataFrame) -> pd.DataFrame:
+def calculate_reversal_zones(df: pd.DataFrame, avg_price: float) -> pd.DataFrame:
     data = df.copy()
-    range_value = get_range_value(data)
+    range_value = get_range_value(avg_price)
     reversal_zones_data = []
     filtered_highs = data["Resistance"].unique()
     filtered_lows = data["Support"].unique()
@@ -63,23 +63,36 @@ def calculate_reversal_zones(df: pd.DataFrame) -> pd.DataFrame:
                 "Min": price_range_min,
             }
         )
-    reversal_zones_data = pd.DataFrame(reversal_zones_data)
-    filtered_zones = remove_close_zones(reversal_zones_data, range_value)
-    return filtered_zones
+    reversal_zones = pd.DataFrame(reversal_zones_data)
+    # filtered_zones = remove_close_zones(reversal_zones, avg_price)
+    # make_log(
+    #     "REVERSAL",
+    #     20,
+    #     "reversals.log",
+    #     f"{reversal_zones.shape[0]} | {filtered_zones.shape[0]}",
+    # )
+    return reversal_zones
 
 
-def get_range_value(data: pd.DataFrame) -> float:
-    avg_price = (data["High"].mean() + data["Low"].mean()) / 2
-    print(f"Average Price: {avg_price}")
+def get_range_value(avg_price: float) -> float:
+    make_log("REVERSAL", 20, "reversals.log", f"Average Price: {avg_price}")
     return avg_price * SNR_PERCENTAGE_RANGE
 
 
-def remove_close_zones(df: pd.DataFrame, range_value: float):
-    data = df.copy()
-    combined_prices = (
-        pd.concat([data["Min"], data["Max"]]).sort_values().reset_index(drop=True)
-    )
-    price_diffs = combined_prices.diff().abs()
-    valid_prices = price_diffs > range_value
-    filtered_prices = combined_prices[valid_prices]
-    return data[data["Min"].isin(filtered_prices) | data["Max"].isin(filtered_prices)]
+# def remove_close_zones(df: pd.DataFrame, avg_price: float):
+#     data = df.copy()
+#     combined_c_factor = avg_price * SNR_PROPORTIONALITY_RATIO
+#     combined_prices = (
+#         pd.concat([data["Min"], data["Max"]]).sort_values().reset_index(drop=True)
+#     )
+#     price_diffs = combined_prices.diff().abs()
+#     valid_prices = price_diffs > combined_c_factor
+#     make_log(
+#         "REVERSAL", 20, "reversals.log", f"Current range threshold: {combined_c_factor}"
+#     )
+#     filtered_prices = combined_prices[valid_prices]
+#     valid_df = data[
+#         data["Min"].isin(filtered_prices) | data["Max"].isin(filtered_prices)
+#     ]
+#     log_full_dataframe("REVERSAL", 20, "reversals.log", valid_df)
+#     return valid_df

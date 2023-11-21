@@ -43,6 +43,7 @@ def update_graph(_):
             f"Updating graph with received data: \n {data[-1:]}",
         )
         log_full_dataframe("PRICE", 10, "price.log", data)
+        avg_price = data["Close"].mean()
         if data.empty:
             make_log("GRAPH", 20, "graph.log", "No data available updating the graph")
             return go.Figure()
@@ -78,7 +79,7 @@ def update_graph(_):
     # )
 
     # plot_support_resistance(data, fig)
-    plot_reversal_zones(calculate_reversal_zones(data), fig)
+    plot_reversal_zones(calculate_reversal_zones(data, avg_price), fig)
 
     layout = go.Layout(
         title=f"{fetcher.ticker} Live Candlestick Chart with Buy Signals",

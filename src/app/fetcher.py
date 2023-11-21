@@ -49,9 +49,9 @@ def fetch_indicator_data(
     # data["RSI"] = ta.RSI(data["Close"], timeperiod=14)
     # data["ATR"] = ta.ATR(data["High"], data["Low"], data["Close"], timeperiod=90)
 
-    data["Pivot"] = data.apply(lambda x: pivotid(data, x.name, 5, 5), axis=1)
+    data["Pivot"] = data.apply(lambda x: pivotid(data, x.name, 10, 10), axis=1)
     data["Pointpos"] = data.apply(lambda row: pointpos(row), axis=1)
-
+    # TODO: Move this into a snr function. Mix highs and lows, calculate c_factor and separate again
     high_counts = data[data["Pivot"] == 2]["High"].value_counts()
     low_counts = data[data["Pivot"] == 1]["Low"].value_counts()
 
@@ -61,19 +61,20 @@ def fetch_indicator_data(
     filtered_highs, filtered_lows = [], []
 
     avg_price = data["Close"].mean()
-    print(f"Data Average Price: {avg_price}")
+    make_log("FETCHER", 20, "workflow.log", f"Data Average Price: {avg_price}")
     c_factor = avg_price * SNR_PROPORTIONALITY_RATIO
-    print(f"C_Factor: {c_factor}")
-
+    make_log("FETCHER", 20, "workflow.log", f"C_Factor: {c_factor}")
     for level in significant_highs.index:
         if not any(
-            abs(level - other_level) < c_factor for other_level in filtered_highs
+            abs(level - other_level) < SNR_CLOSENESS_FACTOR
+            for other_level in filtered_highs
         ):
             filtered_highs.append(level)
 
     for level in significant_lows.index:
         if not any(
-            abs(level - other_level) < c_factor for other_level in filtered_lows
+            abs(level - other_level) < SNR_CLOSENESS_FACTOR
+            for other_level in filtered_lows
         ):
             filtered_lows.append(level)
 
