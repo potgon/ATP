@@ -7,10 +7,9 @@ import threading
 import time
 
 import app.positions as pt
-from utils.logger import make_log, log_full_dataframe
 from app.fetcher import Fetcher
+from utils.logger import make_log, log_full_dataframe
 from evaluator.evaluator_factory import get_evaluator
-from app.snr import calculate_reversal_zones
 
 app = dash.Dash(__name__)
 fetcher: Fetcher = Fetcher(ticker="EURUSD=X")
@@ -79,7 +78,10 @@ def update_graph(_):
     # )
 
     # plot_support_resistance(data, fig)
-    plot_reversal_zones(calculate_reversal_zones(data, avg_price), fig)
+
+    from app.snr import calculate_reversal_zones
+
+    plot_reversal_zones(calculate_reversal_zones(avg_price), fig)
 
     layout = go.Layout(
         title=f"{fetcher.ticker} Live Candlestick Chart with Buy Signals",
@@ -129,7 +131,7 @@ def service_loop():
     make_log("DASH", 20, "workflow.log", "Service loop start...")
     current_pos = None
     make_log("DASH", 20, "workflow.log", f"Position open?: {type(current_pos)}")
-    evaluation_function = get_evaluator()
+    evaluate = get_evaluator()
     while True:
         data = fetcher.fetch()
         if current_pos:
@@ -146,7 +148,7 @@ def service_loop():
                     "DASH", 20, "workflow.log", f"Position closed?: {type(current_pos)}"
                 )
         else:
-            if evaluation_function(data.iloc[-1]):
+            if evaluate(data.iloc[-1]):
                 current_pos = pt.Position(data["Close"], data["ATR"])
                 make_log(
                     "DASH", 20, "workflow.log", f"Position opened?: {type(current_pos)}"
@@ -202,3 +204,7 @@ def plot_reversal_zones(df, fig):
             fillcolor=color,
             opacity=0.35,
         )
+
+
+def retrieve_fetcher() -> Fetcher:
+    return fetcher
