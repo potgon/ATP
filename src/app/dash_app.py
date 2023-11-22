@@ -12,7 +12,7 @@ from utils.logger import make_log, log_full_dataframe
 from evaluator.evaluator_factory import get_evaluator
 
 app = dash.Dash(__name__)
-fetcher: Fetcher = Fetcher(ticker="JPY=X")
+fetcher: Fetcher = Fetcher(ticker="AUDUSD=X")
 
 app.layout = html.Div(
     [

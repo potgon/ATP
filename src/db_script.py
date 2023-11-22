@@ -1,7 +1,8 @@
 from aws.db import execute_sql
-from app.fetcher import Fetcher
+from app.dash_app import retrieve_fetcher
+from app.snr import calculate_reversal_zones
 
-fetcher: Fetcher = Fetcher("EURUSD=X")
+fetcher = retrieve_fetcher()
 
 
 def check_sql(sql: str):
@@ -12,27 +13,17 @@ def insert_asset(sql) -> None:
     execute_sql(sql)
 
 
-def insert_support() -> None:
+def insert_zone() -> None:
     with fetcher.data_lock:
         data = fetcher.current_data.copy()
 
-    unique_supports = data["Support"].dropna().unique()
+    avg_price = data["Close"].mean()
+    valid_zones = calculate_reversal_zones(avg_price)
 
-    for support in unique_supports:
-        sql = f"INSERT INTO supports (asset_id, price) VALUES ((SELECT id FROM assets WHERE name = '{fetcher.ticker}'), {support});"
-        execute_sql(sql)
-
-
-def insert_resistance() -> None:
-    with fetcher.data_lock:
-        data = fetcher.current_data.copy()
-
-    unique_resistances = data["Resistance"].dropna().unique()
-
-    for resistance in unique_resistances:
-        sql = f"INSERT INTO resistances (asset_id, price) VALUES ((SELECT id FROM assets WHERE name = '{fetcher.ticker}'), {resistance});"
+    for idx, row in valid_zones.iterrows():
+        sql = f"INSERT INTO reversal_zones (asset_id, price, zone_type, price_range_max, price_range_min) VALUES ((SELECT id FROM assets WHERE name = '{fetcher.ticker}'),{row['Price']},'{row['Type']}',{row['Max']},{row['Min']});"
         execute_sql(sql)
 
 
 if __name__ == "__main__":
-    check_sql("SELECT * FROM supports;")
+    insert_zone()

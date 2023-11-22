@@ -3,10 +3,8 @@ import pandas as pd
 
 from app.dash_app import retrieve_fetcher
 from utils.config import (
-    SNR_CLOSENESS_FACTOR,
     SNR_MIN_BOUNCES,
     SNR_PROPORTIONALITY_RATIO,
-    SNR_DEVIATION_FACTOR,
     SNR_PERCENTAGE_RANGE,
 )
 from utils.logger import log_full_dataframe, make_log
@@ -117,7 +115,7 @@ def calculate_reversal_zones(avg_price: float) -> pd.DataFrame:
         "SNR",
         20,
         "workflow.log",
-        f"{reversal_zones.shape[0]} | {filtered_zones.shape[0]}",
+        f"Unfiltered zones: {reversal_zones.shape[0]} | Filtered zones: {filtered_zones.shape[0]}",
     )
     return filtered_zones
 
