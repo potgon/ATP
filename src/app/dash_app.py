@@ -84,7 +84,7 @@ def update_graph(_):
     plot_reversal_zones(calculate_reversal_zones(avg_price), fig)
 
     layout = go.Layout(
-        title=f"{fetcher.ticker} Live Candlestick Chart with Buy Signals",
+        title=f"{fetcher.ticker} Live Candlestick Chart",
         xaxis_title="Date",
         yaxis_title="Price",
         xaxis_rangeslider_visible=False,
