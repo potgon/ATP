@@ -6,24 +6,10 @@ import pandas as pd
 from utils.config import LOGS_DIR
 
 
-class DebugOnlyFilter(logging.Filter):
-    def filter(self, record):
-        return record.levelno == logging.DEBUG
+loggers = {}
 
 
-def setup_custom_logger(
-    name: str, workflow_log="dash.log", price_data_log="price.log"
-) -> logging.Logger:
-    """Set up a logger with rotating file handlers for both workflow and price data logging.
-
-    Args:
-        name (str): Name of the logger.
-        workflow_log (str): Name of the workflow log file. Default is "dash.log".
-        price_data_log (str): Name of the price data log file. Default is "price.log".
-
-    Returns:
-        logging.Logger: Configured logger.
-    """
+def setup_logger(name: str, level: int, log_file: str) -> logging.Logger:
     if not os.path.exists(LOGS_DIR):
         os.makedirs(LOGS_DIR)
 
@@ -32,35 +18,47 @@ def setup_custom_logger(
     )
 
     logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(level)
 
-    workflow_log_path = os.path.join(LOGS_DIR, workflow_log)
-    workflow_handler = RotatingFileHandler(
-        workflow_log_path, maxBytes=1e6, backupCount=5
-    )
-    workflow_handler.setLevel(logging.INFO)
-    workflow_handler.setFormatter(formatter)
-    logger.addHandler(workflow_handler)
-
-    price_data_log_path = os.path.join(LOGS_DIR, price_data_log)
-    price_data_handler = RotatingFileHandler(
-        price_data_log_path, maxBytes=1e6, backupCount=0
-    )
-    price_data_handler.setLevel(logging.DEBUG)
-    price_data_handler.addFilter(DebugOnlyFilter())
-    price_data_handler.setFormatter(formatter)
-    logger.addHandler(price_data_handler)
+    if not logger.handlers:
+        log_path = os.path.join(LOGS_DIR, log_file)
+        log_handler = RotatingFileHandler(log_path, maxBytes=1e6, backupCount=0)
+        log_handler.setFormatter(formatter)
+        log_handler.setLevel(level)
+        logger.addHandler(log_handler)
 
     return logger
 
 
-def log_full_dataframe(data: pd.DataFrame, logger: logging.Logger):
+def make_log(name: str, level: int, log_file: str, msg):
+    global loggers
+    logger = loggers.get(name)
+
+    log_levels = {
+        10: logging.DEBUG,
+        20: logging.INFO,
+        30: logging.WARNING,
+        40: logging.ERROR,
+        50: logging.CRITICAL,
+    }
+    if not logger:
+        logger = setup_logger(name, level, log_file)
+        loggers[name] = logger
+
+    log_level = log_levels.get(level, logging.DEBUG)
+    logger.log(log_level, msg)
+
+
+def log_full_dataframe(name: str, level: int, log_file: str, data: pd.DataFrame):
     """Logs whole dataframe by temporarily changing pandas settings to avoid data truncation
 
     Args:
-        data (pd.DataFrame): Pandas DataFrame
-        logger (logging.Logger): Logger instance
+        name (str): Logger instance name
+        level (int): Logging level
+        log_file (str): Log file name
+        data (pd.DataFrame): DataFrame to log
     """
+
     original_max_rows = pd.get_option("display.max_rows")
     original_max_columns = pd.get_option("display.max_columns")
     original_width = pd.get_option("display.width")
@@ -70,7 +68,7 @@ def log_full_dataframe(data: pd.DataFrame, logger: logging.Logger):
         pd.set_option("display.max_columns", None)
         pd.set_option("display.width", None)
 
-        logger.debug(f"Updating graph, current data: \n {data}")
+        make_log(name, level, log_file, f"DataFrame: \n {data}")
 
     finally:
         pd.set_option("display.max_rows", original_max_rows)
