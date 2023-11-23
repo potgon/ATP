@@ -133,7 +133,7 @@ def service_loop():
     make_log("DASH", 20, "workflow.log", f"Position open?: {type(current_pos)}")
     evaluate = get_evaluator()
     while True:
-        data = fetcher.fetch()
+        data = fetcher._fetch()
         if current_pos:
             make_log(
                 "DASH",
