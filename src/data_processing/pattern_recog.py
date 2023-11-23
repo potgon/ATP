@@ -5,9 +5,9 @@ from typing import Callable
 from utils.logger import make_log
 
 
-def find_patterns(df: pd.DataFrame, patterns: list) -> pd.DataFrame:
+def find_patterns(df: pd.DataFrame, pattern_list: list) -> pd.DataFrame:
     data = df.copy()
-    for pattern in patterns:
+    for pattern in pattern_list:
         data[pattern] = pattern_factory(pattern)(
             data["Open"], data["High"], data["Low"], data["Close"]
         )
@@ -15,13 +15,13 @@ def find_patterns(df: pd.DataFrame, patterns: list) -> pd.DataFrame:
             "CDL",
             20,
             "workflow.log",
-            f"Found {len(data[pattern])} {pattern} data points",
+            f"Found {len(data[pattern])} data points for {pattern} pattern",
         )
 
     return data
 
 
-def pattern_factory(pattern: str):
+def pattern_factory(pattern: str) -> Callable:
     if pattern == "Engulfing":
         return ta.CDLENGULFING
     elif pattern == "Doji":
