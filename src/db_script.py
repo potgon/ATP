@@ -1,6 +1,6 @@
 from aws.db import execute_sql
 from app.dash_app import retrieve_fetcher
-from app.snr import calculate_reversal_zones
+from data_processing.snr import calculate_reversal_zones
 
 fetcher = retrieve_fetcher()
 

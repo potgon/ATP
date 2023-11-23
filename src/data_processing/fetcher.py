@@ -37,10 +37,6 @@ def fetch_indicator_data(
 ) -> pd.DataFrame:
     data = yf.download(ticker, period=period, interval=interval)
     data = remove_nan_rows(data)
-
-    # data["RSI"] = ta.RSI(data["Close"], timeperiod=14)
-    # data["ATR"] = ta.ATR(data["High"], data["Low"], data["Close"], timeperiod=90)
-
     return data
 
 

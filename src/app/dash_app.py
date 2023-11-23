@@ -7,7 +7,7 @@ import threading
 import time
 
 import app.positions as pt
-from app.fetcher import Fetcher
+from data_processing.fetcher import Fetcher
 from utils.logger import make_log, log_full_dataframe
 from evaluator.evaluator_factory import get_evaluator
 
@@ -79,7 +79,7 @@ def update_graph(_):
 
     # plot_support_resistance(data, fig)
 
-    from app.snr import calculate_reversal_zones
+    from data_processing.snr import calculate_reversal_zones
 
     plot_reversal_zones(calculate_reversal_zones(avg_price), fig)
 
@@ -156,41 +156,6 @@ def service_loop():
 
         make_log("DASH", 20, "workflow.log", "Service loop sleep...")
         time.sleep(60)
-
-
-# def plot_support_resistance(data, fig):
-#     unique_supports = data["Support"].dropna().unique()
-#     unique_resistances = data["Resistance"].dropna().unique()
-
-#     # unique_supports = []
-#     # unique_resistances = []
-#     # result = execute_sql("SELECT * FROM supports")
-
-#     # for r in result:
-#     #     unique_supports.append(r[2])
-
-#     # result = execute_sql("SELECT * FROM resistances")
-
-#     # for r in result:
-#     #     unique_resistances.append(r[2])
-
-#     for support in unique_supports:
-#         fig.add_hline(
-#             y=support,
-#             line_color="green",
-#             line_dash="solid",
-#             annotation_text=f"Support",
-#             annotation_position="top right",
-#         )
-
-#     for resistance in unique_resistances:
-#         fig.add_hline(
-#             y=resistance,
-#             line_color="red",
-#             line_dash="solid",
-#             annotation_text=f"Resistance",
-#             annotation_position="bottom right",
-#         )
 
 
 def plot_reversal_zones(df, fig):
