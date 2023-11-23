@@ -1,8 +1,13 @@
-from app.dash_app import retrieve_fetcher
+import talib as ta
+import pandas as pd
 
-fetcher = retrieve_fetcher()
+from utils.logger import log_full_dataframe, make_log
 
 
-def find_engulfing():
-    data = fetcher.current_data.copy()
-    
+def find_engulfing(df: pd.DataFrame) -> pd.DataFrame:
+    data = df.copy()
+    data["Engulfing"] = ta.CDLENGULFING(
+        data["Open"], data["High"], data["Low"], data["Close"]
+    )
+
+    return data

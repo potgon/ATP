@@ -13,7 +13,7 @@ class Fetcher:
         self.current_data = self._initialise_data()
         self.data_lock = threading.Lock()
 
-    def _initialise_data(self, period="730d", interval="1h") -> pd.DataFrame:
+    def _initialise_data(self, period="90d", interval="1h") -> pd.DataFrame:
         return self._fetch_indicator_data(self.ticker, period, interval)
 
     def _fetch(self) -> pd.Series:
@@ -32,7 +32,7 @@ class Fetcher:
         return temp_data
 
     def _fetch_indicator_data(
-        self, ticker="EURUSD=X", period="730d", interval="1h"
+        self, ticker="EURUSD=X", period="90d", interval="1h"
     ) -> pd.DataFrame:
         data = yf.download(ticker, period=period, interval=interval)
         data = self._remove_nan_rows(data)

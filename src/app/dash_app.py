@@ -8,6 +8,7 @@ import time
 
 import app.positions as pt
 from data_processing.fetcher import Fetcher
+from data_processing.pattern_recog import find_engulfing
 from utils.logger import make_log, log_full_dataframe
 from evaluator.evaluator_factory import get_evaluator
 
@@ -28,13 +29,7 @@ app.layout = html.Div(
 def update_graph(_):
     try:
         with fetcher.data_lock:
-            make_log(
-                "GRAPH",
-                20,
-                "graph.log",
-                f"Original data length: {len(fetcher.current_data)}",
-            )
-            data = fetcher.current_data.copy()
+            data = find_engulfing(fetcher.current_data.copy())
         make_log(
             "GRAPH",
             20,
@@ -77,11 +72,10 @@ def update_graph(_):
     #     )
     # )
 
-    # plot_support_resistance(data, fig)
-
     from data_processing.snr import calculate_reversal_zones
 
     plot_reversal_zones(calculate_reversal_zones(avg_price), fig)
+    plot_patterns(data, fig)
 
     layout = go.Layout(
         title=f"{fetcher.ticker} Live Candlestick Chart",
@@ -169,6 +163,32 @@ def plot_reversal_zones(df, fig):
             fillcolor=color,
             opacity=0.35,
         )
+
+
+def plot_patterns(df, fig) -> None:
+    signals = df.copy()
+    bullish = signals["Engulfing"] == 100
+    bearish = signals["Engulfing"] == -100
+
+    fig.add_trace(
+        go.Scatter(
+            x=signals[bullish].index,
+            y=signals.loc[bullish, "Close"],
+            mode="markers",
+            marker=dict(color="purple", size=5),
+            name="Bullish Engulfing",
+        )
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=signals[bearish].index,
+            y=signals.loc[bearish, "Close"],
+            mode="markers",
+            marker=dict(color="purple", size=5),
+            name="Bearish Engulfing",
+        )
+    )
 
 
 def retrieve_fetcher() -> Fetcher:
