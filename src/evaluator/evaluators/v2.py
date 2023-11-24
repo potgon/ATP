@@ -1,32 +1,26 @@
-from utils.config import RSI_CONSTANT
+import talib as ta
+import pandas as pd
 
 
-def evaluate(data) -> bool:
-    alpha: int = 0
+class v2:
+    def __init__(self, fetcher):
+        self.fetcher = fetcher
 
-    # rsi_eval = evaluate_RSI(data["RSI"])
-    pass
+    def evaluate(self) -> bool:
+        alpha: int = 0
+        pass
 
+    def preprocess_data(self) -> pd.DataFrame:
+        data = self.fetcher.current_data.copy()
+        data["RSI"] = ta.RSI(data["Close"], timeperiod=14)
 
-def preprocess(data):
-    ...
+        return data
 
+    def evaluate_RSI(self, RSI) -> int:
+        return 2 if RSI <= 30 else (-2 if RSI >= 70 else 0)
 
-def sentiment_eval() -> float:
-    pass
+    def evaluate_CDL(self):
+        pass
 
-
-# def evaluate_RSI(RSI) -> bool:
-#     return RSI / RSI_CONSTANT
-
-
-def evaluate_VOL():
-    pass
-
-
-def evaluate_CDL():
-    pass
-
-
-def evaluate_SUP():
-    pass
+    def evaluate_SNR(self):
+        pass
