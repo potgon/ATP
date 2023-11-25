@@ -2,7 +2,7 @@ import time
 
 
 class Position:
-    def __init__(self, close: float, atr: float) -> None:
+    def __init__(self, close: float, atr: float):
         self.sl = calculate_atr_sl(close, atr)
         self.tp = calculate_ratio_tp(close, self._sl)
         self.timestamp = time.now()

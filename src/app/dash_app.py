@@ -8,7 +8,6 @@ import time
 
 import app.positions as pt
 from data_processing.fetcher import Fetcher
-from data_processing.pattern_recog import find_patterns
 from utils.logger import make_log, log_full_dataframe
 from evaluator.evaluator_factory import get_evaluator
 
@@ -31,8 +30,6 @@ def update_graph(_):
     try:
         with fetcher.data_lock:
             data = fetcher.current_data
-        patterns = ["Doji", "Engulfing", "Hammer"]
-        data = find_patterns(data, patterns)
         make_log(
             "GRAPH",
             20,
@@ -130,6 +127,7 @@ def service_loop():
     make_log("DASH", 20, "workflow.log", f"Position open?: {type(current_pos)}")
     evaluator = get_evaluator(fetcher)
     while True:
+        make_log("DASH", 20, "workflow.log", "Period start...")
         data = fetcher._fetch()
         if current_pos:
             make_log(
@@ -145,13 +143,13 @@ def service_loop():
                     "DASH", 20, "workflow.log", f"Position closed?: {type(current_pos)}"
                 )
         else:
-            if evaluator.evaluate(data.iloc[-1]):
+            if evaluator.evaluate():
                 current_pos = pt.Position(data["Close"], data["ATR"])
                 make_log(
                     "DASH", 20, "workflow.log", f"Position opened?: {type(current_pos)}"
                 )
 
-        make_log("DASH", 20, "workflow.log", "Service loop sleep...")
+        make_log("DASH", 20, "workflow.log", "Period sleep...")
         time.sleep(60)
 
 

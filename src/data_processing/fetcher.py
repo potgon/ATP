@@ -1,6 +1,7 @@
 import yfinance as yf
 import threading
 import pandas as pd
+import talib as ta
 
 from utils.logger import make_log
 from utils.config import FOREX_DATAFRAME_SIZE
@@ -39,6 +40,7 @@ class Fetcher:
         self, ticker="EURUSD=X", period="30d", interval="1h"
     ) -> pd.DataFrame:
         data = yf.download(ticker, period=period, interval=interval)
+        data["ATR"] = ta.ATR(data["High"], data["Low"], data["Close"], timeperiod=14)
         data = self._remove_nan_rows(data)
         return data
 
