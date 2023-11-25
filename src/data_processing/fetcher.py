@@ -3,7 +3,7 @@ import threading
 import pandas as pd
 
 from utils.logger import make_log
-from evaluator.evaluator_factory import get_evaluator
+from utils.config import FOREX_DATAFRAME_SIZE
 
 
 class Fetcher:
@@ -18,10 +18,15 @@ class Fetcher:
     def _fetch(self) -> pd.Series:
         make_log("FETCHER", 20, "workflow.log", "Fetching new data...")
         temp_data = self._fetch_data(self.ticker)
-        if temp_data.index[0] not in self.current_data.index:
-            with self.data_lock:
+        with self.data_lock:
+            if temp_data.index[0] not in self.current_data.index:
                 self.current_data = pd.concat([self.current_data, temp_data], axis=0)
             make_log("FETCHER", 20, "workflow.log", "Appended new data")
+            if len(self.current_data) > FOREX_DATAFRAME_SIZE:
+                self.current_data = self.current_data.iloc[
+                    -FOREX_DATAFRAME_SIZE:
+                ].reset_index(drop=True)
+            make_log("FETCHER", 20, "workflow.log", "Removed oldest data")
         make_log(
             "FETCHER",
             20,

@@ -15,6 +15,7 @@ from evaluator.evaluator_factory import get_evaluator
 app = dash.Dash(__name__)
 fetcher: Fetcher = Fetcher(ticker="AUDUSD=X")
 
+
 app.layout = html.Div(
     [
         dcc.Graph(id="live-graph"),
@@ -127,7 +128,7 @@ def service_loop():
     make_log("DASH", 20, "workflow.log", "Service loop start...")
     current_pos = None
     make_log("DASH", 20, "workflow.log", f"Position open?: {type(current_pos)}")
-    evaluate = get_evaluator()
+    evaluator = get_evaluator(fetcher)
     while True:
         data = fetcher._fetch()
         if current_pos:
@@ -144,7 +145,7 @@ def service_loop():
                     "DASH", 20, "workflow.log", f"Position closed?: {type(current_pos)}"
                 )
         else:
-            if evaluate(data.iloc[-1]):
+            if evaluator.evaluate(data.iloc[-1]):
                 current_pos = pt.Position(data["Close"], data["ATR"])
                 make_log(
                     "DASH", 20, "workflow.log", f"Position opened?: {type(current_pos)}"
