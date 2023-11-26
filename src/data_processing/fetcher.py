@@ -32,7 +32,7 @@ class Fetcher:
             "FETCHER",
             20,
             "workflow.log",
-            f"Fetched {len(self.current_data)} data points for {self.ticker}.",
+            f"Dataframe current size: {len(self.current_data)}",
         )
         return temp_data
 

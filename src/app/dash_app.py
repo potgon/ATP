@@ -124,11 +124,13 @@ def run():
 def service_loop():
     make_log("DASH", 20, "workflow.log", "Service loop start...")
     current_pos = None
+    fetcher.fetch()
     make_log("DASH", 20, "workflow.log", f"Position open?: {type(current_pos)}")
     evaluator = get_evaluator(fetcher)
     while True:
         make_log("DASH", 20, "workflow.log", "Period start...")
-        data = fetcher._fetch()
+        with fetcher.data_lock:
+            data = fetcher.current_data.copy()
         if current_pos:
             make_log(
                 "DASH",
@@ -144,13 +146,14 @@ def service_loop():
                 )
         else:
             if evaluator.evaluate():
+                make_log("DASH", 20, "workflow.log", "EVALUATION POSITIVE")
                 current_pos = pt.Position(data["Close"], data["ATR"])
                 make_log(
                     "DASH", 20, "workflow.log", f"Position opened?: {type(current_pos)}"
                 )
 
         make_log("DASH", 20, "workflow.log", "Period sleep...")
-        time.sleep(60)
+        time.sleep(60 * 60)
 
 
 def plot_reversal_zones(df, fig):

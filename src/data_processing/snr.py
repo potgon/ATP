@@ -7,7 +7,7 @@ from utils.config import (
     SNR_PROPORTIONALITY_RATIO,
     SNR_PERCENTAGE_RANGE,
 )
-from utils.logger import log_full_dataframe, make_log
+from utils.logger import make_log
 
 fetcher = retrieve_fetcher()
 

@@ -13,9 +13,11 @@ class Tyr:
 
     def evaluate(self) -> bool:
         data = self.preprocess_data(self.fetcher.current_data.copy())
-        return (
+        alpha = (
             self.evaluate_RSI(data) + self.evaluate_CDL(data) + self.evaluate_SNR(data)
-        ) > 5
+        )
+        make_log("TYR", 20, "workflow.log", f"α: {alpha}")
+        return alpha > 5
 
     def preprocess_data(self, data: pd.DataFrame) -> pd.DataFrame:
         patterns = [
