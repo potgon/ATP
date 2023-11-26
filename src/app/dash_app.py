@@ -124,7 +124,7 @@ def run():
 def service_loop():
     make_log("DASH", 20, "workflow.log", "Service loop start...")
     current_pos = None
-    fetcher.fetch()
+    fetcher._fetch()
     make_log("DASH", 20, "workflow.log", f"Position open?: {type(current_pos)}")
     evaluator = get_evaluator(fetcher)
     while True:
