@@ -8,7 +8,7 @@ from utils.config import FOREX_DATAFRAME_SIZE
 
 
 class Fetcher:
-    def __init__(self, ticker="AAPL") -> None:
+    def __init__(self, ticker) -> None:
         self.ticker = ticker
         self.current_data = self._initialise_data()
         self.data_lock = threading.Lock()
@@ -36,9 +36,7 @@ class Fetcher:
         )
         return temp_data
 
-    def _fetch_data(
-        self, ticker="EURUSD=X", period="30d", interval="1h"
-    ) -> pd.DataFrame:
+    def _fetch_data(self, ticker, period="30d", interval="1h") -> pd.DataFrame:
         data = yf.download(ticker, period=period, interval=interval)
         data["ATR"] = ta.ATR(data["High"], data["Low"], data["Close"], timeperiod=14)
         data = self._remove_nan_rows(data)

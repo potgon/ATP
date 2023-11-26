@@ -2,8 +2,6 @@ import talib as ta
 import pandas as pd
 from typing import Callable
 
-from utils.logger import make_log
-
 
 def find_patterns(df: pd.DataFrame, pattern_list: list) -> pd.DataFrame:
     data = df.copy()
@@ -11,13 +9,6 @@ def find_patterns(df: pd.DataFrame, pattern_list: list) -> pd.DataFrame:
         data[pattern] = pattern_factory(pattern)(
             data["Open"], data["High"], data["Low"], data["Close"]
         )
-        make_log(
-            "CDL",
-            20,
-            "workflow.log",
-            f"Found {len(data[pattern])} data points for {pattern} pattern",
-        )
-
     return data
 
 
@@ -31,7 +22,7 @@ def pattern_factory(pattern: str) -> Callable:
     elif pattern == "Inverted Hammer":
         return ta.CDLINVERTEDHAMMER
     elif pattern == "Shooting Star":
-        return ta.SHOOTINGSTAR
+        return ta.CDLSHOOTINGSTAR
     elif pattern == "Hanging Man":
         return ta.CDLHANGINGMAN
     elif pattern == "Morning Star":

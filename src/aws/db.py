@@ -33,11 +33,9 @@ def execute_sql(sql):
         try:
             with db.cursor() as cur:
                 cur.execute(sql)
-                sql_result = cur.fetchall()
-                for r in cur:
-                    make_log("RDS", 20, "db.log", r)
+                sql_result = [str(r[0]) for r in cur]
                 db.commit()
         finally:
             db.close()
-
+    make_log("RDS", 20, "workflow.log", f"Fetched {sql_result} from RDS")
     return sql_result

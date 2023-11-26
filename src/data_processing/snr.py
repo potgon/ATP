@@ -138,5 +138,4 @@ def remove_close_zones(df: pd.DataFrame, avg_price: float):
     valid_df = data[
         data["Min"].isin(filtered_prices) | data["Max"].isin(filtered_prices)
     ]
-    log_full_dataframe("REVERSAL", 20, "reversals.log", valid_df)
     return valid_df
