@@ -1,15 +1,17 @@
 import talib as ta
 import pandas as pd
 
+from aws.db import execute_sql
 from data_processing.pattern_recog import find_patterns
 from utils.config import MAX_CDL_CONTRIBUTION
+from utils.logger import make_log
 
 
 class Tyr:
     def __init__(self, fetcher):
         self.fetcher = fetcher
 
-    def evaluate(self, data) -> bool:
+    def evaluate(self) -> bool:
         data = self.preprocess_data(self.fetcher.current_data.copy())
         return (
             self.evaluate_RSI(data) + self.evaluate_CDL(data) + self.evaluate_SNR(data)
@@ -65,5 +67,35 @@ class Tyr:
         alpha = max(min(alpha, MAX_CDL_CONTRIBUTION), -MAX_CDL_CONTRIBUTION)
         return alpha
 
-    def evaluate_SNR(self):
-        pass
+    def evaluate_SNR(self, data):
+        reversal_dict = get_snr_prices(self.fetcher.ticker)
+
+        for max, min in reversal_dict.items():
+            if min <= data["Close"].iloc[-1] <= max:
+                return 3
+
+        return 0
+
+
+def get_snr_prices(ticker: str) -> dict:
+    reversal_range = {}
+    sql_result = execute_sql(
+        f"SELECT price_range_max FROM reversal_zones WHERE asset_id = (SELECT id FROM assets WHERE name = '{ticker}') "
+    )
+    reversals_max = [float(i) for i in sql_result]
+    sql_result = execute_sql(
+        f"SELECT price_range_min FROM reversal_zones WHERE asset_id = (SELECT id FROM assets WHERE name = '{ticker}')"
+    )
+    reversals_min = [float(i) for i in sql_result]
+    make_log(
+        "TYR",
+        20,
+        "workflow.log",
+        f"Max prices = {reversals_max} | Min Prices = {reversals_min}",
+    )
+    for i in range(len(reversals_max)):
+        reversal_range[reversals_max[i]] = reversals_min[i]
+
+    make_log("TYR", 20, "workflow.log", reversal_range)
+
+    return reversal_range
