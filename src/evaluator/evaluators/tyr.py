@@ -39,14 +39,14 @@ class Tyr:
 
         return data
 
-    def evaluate_RSI(self, data) -> int:
+    def evaluate_RSI(self, data: pd.DataFrame) -> int:
         return (
             3
             if data["RSI"].iloc[-1] <= 30
             else (-3 if data["RSI"].iloc[-1] >= 70 else 0)
         )
 
-    def evaluate_CDL(self, data):
+    def evaluate_CDL(self, data: pd.DataFrame):
         alpha = 0
 
         for i in range(-3, 0):
@@ -59,7 +59,7 @@ class Tyr:
         alpha = max(min(alpha, MAX_CDL_CONTRIBUTION), -MAX_CDL_CONTRIBUTION)
         return alpha
 
-    def evaluate_SNR(self, data):
+    def evaluate_SNR(self, data: pd.DataFrame):
         reversal_dict = get_snr_prices(self.fetcher.ticker)
 
         for max, min in reversal_dict.items():

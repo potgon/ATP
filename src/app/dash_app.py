@@ -8,8 +8,9 @@ import time
 
 import app.positions as pt
 from data_processing.fetcher import Fetcher
-from utils.logger import make_log, log_full_dataframe
 from evaluator.evaluator_factory import get_evaluator
+from evaluator.evaluators.tyr import get_snr_prices
+from utils.logger import make_log, log_full_dataframe
 
 app = dash.Dash(__name__)
 fetcher: Fetcher = Fetcher(ticker="AUDUSD=X")
@@ -18,7 +19,7 @@ fetcher: Fetcher = Fetcher(ticker="AUDUSD=X")
 app.layout = html.Div(
     [
         dcc.Graph(id="live-graph"),
-        dcc.Interval(id="interval-component", interval=60_000, n_intervals=0),
+        dcc.Interval(id="interval-component", interval=3_600_000, n_intervals=0),
     ]
 )
 
@@ -29,7 +30,7 @@ app.layout = html.Div(
 def update_graph(_):
     try:
         with fetcher.data_lock:
-            data = fetcher.current_data
+            data = fetcher.current_data.copy()
         make_log(
             "GRAPH",
             20,
@@ -37,7 +38,6 @@ def update_graph(_):
             f"Updating graph with received data: \n {data[-1:]}",
         )
         log_full_dataframe("PRICE", 10, "price.log", data)
-        avg_price = data["Close"].mean()
         if data.empty:
             make_log("GRAPH", 20, "graph.log", "No data available updating the graph")
             return go.Figure()
@@ -50,17 +50,7 @@ def update_graph(_):
     fig = go.Figure()
 
     make_log("GRAPH", 20, "graph.log", "Adding candlesticks...")
-
-    fig.add_trace(
-        go.Candlestick(
-            x=data.index,
-            open=data["Open"],
-            high=data["High"],
-            low=data["Low"],
-            close=data["Close"],
-            name="Price",
-        )
-    )
+    plot_cdl(data, fig)
 
     # fig.add_trace(
     #     go.Scatter(
@@ -72,9 +62,7 @@ def update_graph(_):
     #     )
     # )
 
-    from data_processing.snr import calculate_reversal_zones
-
-    plot_reversal_zones(calculate_reversal_zones(avg_price), fig)
+    plot_reversal_zones(fig)
     # plot_patterns(data, fig)
 
     layout = go.Layout(
@@ -156,15 +144,14 @@ def service_loop():
         time.sleep(60 * 60)
 
 
-def plot_reversal_zones(df, fig):
-    reversal_zones = df.dropna()
-    for index, row in reversal_zones.iterrows():
-        color = "green" if row["Type"] == "Support" else "red"
+def plot_reversal_zones(fig):
+    reversal_dict = get_snr_prices(fetcher.ticker)
+    for max, min in reversal_dict.items():
         fig.add_hrect(
-            y0=row["Min"],
-            y1=row["Max"],
+            y0=min,
+            y1=max,
             line_width=0,
-            fillcolor=color,
+            fillcolor="green",
             opacity=0.35,
         )
 
@@ -181,6 +168,19 @@ def plot_reversal_zones(df, fig):
 #             name="Doji",
 #         )
 #     )
+
+
+def plot_cdl(data, fig):
+    fig.add_trace(
+        go.Candlestick(
+            x=data.index,
+            open=data["Open"],
+            high=data["High"],
+            low=data["Low"],
+            close=data["Close"],
+            name="Price",
+        )
+    )
 
 
 def retrieve_fetcher() -> Fetcher:
