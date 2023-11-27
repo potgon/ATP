@@ -5,6 +5,7 @@ import dash_html_components as html
 import plotly.graph_objs as go
 import threading
 import time
+from queue import Queue
 
 import app.positions as pt
 from data_processing.fetcher import Fetcher
@@ -14,6 +15,7 @@ from utils.logger import make_log, log_full_dataframe
 
 app = dash.Dash(__name__)
 fetcher: Fetcher = Fetcher(ticker="AUDUSD=X")
+buy_signals_queue = Queue()
 
 
 app.layout = html.Div(
@@ -45,25 +47,16 @@ def update_graph(_):
         make_log("GRAPH", 20, "graph.log", f"Error updating the graph: {e}")
         return go.Figure()
 
-    # buy_data = data[get_evaluator()(data)]
-
     fig = go.Figure()
 
     make_log("GRAPH", 20, "graph.log", "Adding candlesticks...")
     plot_cdl(data, fig)
-
-    # fig.add_trace(
-    #     go.Scatter(
-    #         x=buy_data.index,
-    #         y=buy_data["Close"],
-    #         mode="markers",
-    #         name="Buy Signal",
-    #         marker=dict(color="purple", size=20, symbol="circle-open"),
-    #     )
-    # )
-
     plot_reversal_zones(fig)
     # plot_patterns(data, fig)
+
+    while not buy_signals_queue.empty():
+        buy_signals_queue.get()
+        plot_buy_signal(fig, data)
 
     layout = go.Layout(
         title=f"{fetcher.ticker} Live Candlestick Chart",
@@ -134,7 +127,13 @@ def service_loop():
                 )
         else:
             if evaluator.evaluate():
-                make_log("DASH", 20, "workflow.log", "EVALUATION POSITIVE")
+                buy_signals_queue.put(1)
+                make_log(
+                    "DASH",
+                    20,
+                    "workflow.log",
+                    f"EVALUATION POSITIVE, current queue: {buy_signals_queue.qsize()}",
+                )
                 current_pos = pt.Position(data["Close"], data["ATR"])
                 make_log(
                     "DASH", 20, "workflow.log", f"Position opened?: {type(current_pos)}"
@@ -179,6 +178,18 @@ def plot_cdl(data, fig):
             low=data["Low"],
             close=data["Close"],
             name="Price",
+        )
+    )
+
+
+def plot_buy_signal(fig, data):
+    fig.add_trace(
+        go.Scatter(
+            x=[data.index[-1]],
+            y=[data["Close"].iloc[-1]],
+            mode="markers",
+            name="Buy Signal",
+            marker=dict(color="purple", size=20, symbol="circle-open"),
         )
     )
 
