@@ -23,7 +23,7 @@ def get_connection(tunnel: SSHTunnelForwarder):
 
 def execute_sql(sql):
     with SSHTunnelForwarder(
-        ("ec2-34-250-215-95.eu-west-1.compute.amazonaws.com"),
+        ("ec2-54-73-101-181.eu-west-1.compute.amazonaws.com"),
         ssh_username="ec2-user",
         ssh_pkey="./aws/ATP-key.pem",
         remote_bind_address=(RDS_HOSTNAME, RDS_PORT),
