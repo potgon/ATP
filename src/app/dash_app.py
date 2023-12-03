@@ -155,20 +155,6 @@ def plot_reversal_zones(fig):
         )
 
 
-# def plot_patterns(df, fig) -> None:
-#     signals = df.copy()
-
-#     fig.add_trace(
-#         go.Scatter(
-#             x=signals[signals["Doji"] == 100].index,
-#             y=signals.loc[signals["Doji"] == 100, "Close"],
-#             mode="markers",
-#             marker=dict(color="purple", size=5),
-#             name="Doji",
-#         )
-#     )
-
-
 def plot_cdl(data, fig):
     fig.add_trace(
         go.Candlestick(
