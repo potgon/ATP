@@ -91,7 +91,7 @@ def run():
         )
 
         web_app_thread = threading.Thread(
-            target=app.run,
+            target=lambda: app.run_server(debug=True, host="0.0.0.0", port=80),
         )
         web_app_thread.setDaemon(True)
         web_app_thread.start()
