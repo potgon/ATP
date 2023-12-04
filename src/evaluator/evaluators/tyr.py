@@ -23,12 +23,14 @@ patterns = {
 class Tyr:
     def __init__(self, fetcher):
         self.fetcher = fetcher
+        self.alpha = 0
 
     def evaluate(self) -> bool:
         data = self.preprocess_data(self.fetcher.current_data.copy())
         alpha = (
             self.evaluate_RSI(data) + self.evaluate_CDL(data) + self.evaluate_SNR(data)
         )
+        self.alpha = alpha
         make_log("TYR", 20, "workflow.log", f"alpha: {alpha}")
         return alpha > 5
 
