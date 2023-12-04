@@ -1,4 +1,4 @@
-LOGS_DIR = "/tmp/logs"
+LOGS_DIR = "../logs"
 
 EVALUATOR_VERSION = "Tyr"
 
