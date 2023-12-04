@@ -25,11 +25,19 @@ def execute_sql(sql, params=None):
     try:
         with db.cursor() as cur:
             cur.execute(sql, params)
-            sql_result = [str(r[0]) for r in cur]
-            db.commit()
+            if sql.lower().startswith("select"):
+                sql_result = [str(r[0]) for r in cur]
+                make_log("RDS", 20, "workflow.log", f"Fetched {sql_result} from RDS")
+                return sql_result
+            else:
+                rows_affected = cur.rowcount
+                db.commit()
+                make_log(
+                    "RDS",
+                    20,
+                    "workflow.log",
+                    f"Executed {sql} in RDS, affected {rows_affected} rows",
+                )
+                return rows_affected
     finally:
         db.close()
-    make_log("RDS", 20, "workflow.log", f"Executed {sql} in RDS")
-    if sql.lower().starswith("select"):
-        make_log("RDS", 20, "workflow.log", f"Fetched {sql_result} from RDS")
-    return sql_result
