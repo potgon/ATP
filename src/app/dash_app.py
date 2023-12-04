@@ -11,6 +11,7 @@ import app.positions as pt
 from data_processing.fetcher import Fetcher
 from evaluator.evaluator_factory import get_evaluator
 from evaluator.evaluators.tyr import get_snr_prices
+from utils.algo_tracker import insert_transaction, alter_transaction
 from utils.logger import make_log, log_full_dataframe
 
 app = dash.Dash(__name__)
@@ -120,6 +121,7 @@ def service_loop():
                 f"Current position attributes: {current_pos.sl}, {current_pos.tp}",
             )
             if pt.close_position(data, current_pos.sl, current_pos.tp):
+                alter_transaction(data.iloc[-1])
                 current_pos.close()
                 current_pos = None
                 make_log(
@@ -128,6 +130,7 @@ def service_loop():
         else:
             if evaluator.evaluate():
                 buy_signals_queue.put(1)
+                insert_transaction(data.iloc[-1], evaluator.alpha)
                 make_log(
                     "DASH",
                     20,
