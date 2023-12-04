@@ -76,11 +76,13 @@ class Tyr:
 def get_snr_prices(ticker: str) -> dict:
     reversal_range = {}
     sql_result = execute_sql(
-        f"SELECT price_range_max FROM reversal_zones WHERE asset_id = (SELECT id FROM assets WHERE name = '{ticker}') "
+        "SELECT price_range_max FROM reversal_zones WHERE asset_id = (SELECT id FROM assets WHERE name = %s)",
+        (ticker,),
     )
     reversals_max = [float(i) for i in sql_result]
     sql_result = execute_sql(
-        f"SELECT price_range_min FROM reversal_zones WHERE asset_id = (SELECT id FROM assets WHERE name = '{ticker}')"
+        "SELECT price_range_min FROM reversal_zones WHERE asset_id = (SELECT id FROM assets WHERE name = %s)",
+        (ticker,),
     )
     reversals_min = [float(i) for i in sql_result]
     make_log(
