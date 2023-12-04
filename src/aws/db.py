@@ -20,15 +20,16 @@ def get_connection():
     )
 
 
-def execute_sql(sql):
+def execute_sql(sql, params=None):
     db = get_connection()
-
     try:
         with db.cursor() as cur:
-            cur.execute(sql)
+            cur.execute(sql, params)
             sql_result = [str(r[0]) for r in cur]
             db.commit()
     finally:
         db.close()
-    make_log("RDS", 20, "workflow.log", f"Fetched {sql_result} from RDS")
+    make_log("RDS", 20, "workflow.log", f"Executed {sql} in RDS")
+    if sql.lower().starswith("select"):
+        make_log("RDS", 20, "workflow.log", f"Fetched {sql_result} from RDS")
     return sql_result
