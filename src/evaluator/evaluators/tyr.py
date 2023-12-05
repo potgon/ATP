@@ -38,9 +38,6 @@ class Tyr:
 
     def _preprocess_data(self, data: pd.DataFrame) -> pd.DataFrame:
         data = find_patterns(data, list(patterns.keys()))
-        make_log(
-            "TYR", 20, "workflow.log", f"Patterns analyzed: {list(patterns.keys())}"
-        )
         data["RSI"] = ta.RSI(data["Close"], timeperiod=14)
 
         return data

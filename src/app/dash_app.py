@@ -91,7 +91,7 @@ def run():
         )
 
         web_app_thread = threading.Thread(
-            target=lambda: app.run_server(debug=True, host="0.0.0.0", port=80),
+            target=lambda: app.run_server(debug=False, host="0.0.0.0", port=8080),
         )
         web_app_thread.setDaemon(True)
         web_app_thread.start()
@@ -109,7 +109,7 @@ def service_loop():
     make_log("DASH", 20, "workflow.log", f"Position open?: {type(current_pos)}")
     evaluator = get_evaluator(fetcher)
     while True:
-        make_log("DASH", 20, "workflow.log", "Period start...")
+        make_log("DASH", 20, "workflow.log", "Period start..." + "\n" + ("-" * 20))
         with fetcher.data_lock:
             data = fetcher.current_data.copy()
         if current_pos:
