@@ -65,12 +65,12 @@ class Tyr:
         make_log("TYR", 20, "workflow.log", f"CDL contribution: {alpha}")
         return alpha
 
-    def evaluate_SNR(self, data: pd.DataFrame):
+    def _evaluate_SNR(self, data: pd.DataFrame):
         reversal_dict = get_snr_prices(self.fetcher.ticker)
 
         for max, min in reversal_dict.items():
             if min <= data["Close"].iloc[-1] <= max:
-                make_log("TYR", 20, "workflow.log", f"RSI contribution: 3")
+                make_log("TYR", 20, "workflow.log", f"SNR contribution: 3")
                 return 3
 
         return 0
