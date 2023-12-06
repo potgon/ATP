@@ -5,6 +5,7 @@ import talib as ta
 from requests.exceptions import HTTPError, ConnectionError, Timeout
 from retrying import retry
 
+from aws.cdwatch import send_custom_metric
 from utils.logger import make_log
 from utils.config import FOREX_DATAFRAME_SIZE
 
@@ -50,19 +51,19 @@ class Fetcher:
         except (HTTPError, ConnectionError, Timeout) as e:
             make_log(
                 "FETCHER",
-                20,
+                40,
                 "workflow.log",
-                f"Network error while fetching {ticker} data with {period}/{interval}: {e}",
+                f"Network error while fetching {ticker} data with {period}/{interval}: {e} -> Retrying...",
             )
-            return None
+            raise
         except Exception as e:
             make_log(
                 "FETCHER",
-                20,
+                40,
                 "workflow.log",
-                f"Unknown exception while fetching {ticker} data with {period}/{interval}: {e}",
+                f"Unknown exception while fetching {ticker} data with {period}/{interval}: {e} -> Retrying...",
             )
-            return None
+            raise
         else:
             data["ATR"] = ta.ATR(
                 data["High"], data["Low"], data["Close"], timeperiod=14

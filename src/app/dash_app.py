@@ -7,6 +7,7 @@ import time
 from queue import Queue
 
 import app.positions as pt
+from aws.cdwatch import send_custom_metric
 from data_processing.fetcher import Fetcher
 from evaluator.evaluator_factory import get_evaluator
 from evaluator.evaluators.tyr import get_snr_prices
@@ -111,7 +112,11 @@ def service_loop():
     while True:
         make_log("DASH", 20, "workflow.log", "Period start...")
         with fetcher.data_lock:
-            data = fetcher.current_data.copy()
+            try:
+                data = fetcher.current_data.copy()
+            except Exception:
+                data = None
+                send_custom_metric("Dataframe Fetch Alert", 1)
         if data is None:
             make_log("DASH", 20, "workflow.log", "Data is empty, skipping interval...")
         else:
