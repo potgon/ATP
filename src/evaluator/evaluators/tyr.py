@@ -26,31 +26,32 @@ class Tyr:
         self.alpha = 0
 
     def evaluate(self) -> bool:
-        data = self.preprocess_data(self.fetcher.current_data.copy())
+        data = self._preprocess_data(self.fetcher.current_data.copy())
         alpha = (
-            self.evaluate_RSI(data) + self.evaluate_CDL(data) + self.evaluate_SNR(data)
+            self._evaluate_RSI(data)
+            + self._evaluate_CDL(data)
+            + self._evaluate_SNR(data)
         )
         self.alpha = alpha
         make_log("TYR", 20, "workflow.log", f"alpha: {alpha}")
         return alpha > 5
 
-    def preprocess_data(self, data: pd.DataFrame) -> pd.DataFrame:
+    def _preprocess_data(self, data: pd.DataFrame) -> pd.DataFrame:
         data = find_patterns(data, list(patterns.keys()))
-        make_log(
-            "TYR", 20, "workflow.log", f"Patterns analyzed: {list(patterns.keys())}"
-        )
         data["RSI"] = ta.RSI(data["Close"], timeperiod=14)
 
         return data
 
-    def evaluate_RSI(self, data: pd.DataFrame) -> int:
-        return (
+    def _evaluate_RSI(self, data: pd.DataFrame) -> int:
+        alpha = (
             3
             if data["RSI"].iloc[-1] <= 30
             else (-3 if data["RSI"].iloc[-1] >= 70 else 0)
         )
+        make_log("TYR", 20, "workflow.log", f"RSI contribution: {alpha}")
+        return alpha
 
-    def evaluate_CDL(self, data: pd.DataFrame):
+    def _evaluate_CDL(self, data: pd.DataFrame):
         alpha = 0
 
         for i in range(-3, 0):
@@ -61,13 +62,15 @@ class Tyr:
                     alpha -= value
 
         alpha = max(min(alpha, MAX_CDL_CONTRIBUTION), -MAX_CDL_CONTRIBUTION)
+        make_log("TYR", 20, "workflow.log", f"CDL contribution: {alpha}")
         return alpha
 
-    def evaluate_SNR(self, data: pd.DataFrame):
+    def _evaluate_SNR(self, data: pd.DataFrame):
         reversal_dict = get_snr_prices(self.fetcher.ticker)
 
         for max, min in reversal_dict.items():
             if min <= data["Close"].iloc[-1] <= max:
+                make_log("TYR", 20, "workflow.log", f"SNR contribution: 3")
                 return 3
 
         return 0
@@ -85,15 +88,14 @@ def get_snr_prices(ticker: str) -> dict:
         (ticker,),
     )
     reversals_min = [float(i) for i in sql_result]
+    for i in range(len(reversals_max)):
+        reversal_range[reversals_max[i]] = reversals_min[i]
+
     make_log(
         "TYR",
         20,
         "workflow.log",
-        f"Max prices = {reversals_max} | Min Prices = {reversals_min}",
+        f"Fetched: {len(reversal_range)} reversal zones for {ticker}",
     )
-    for i in range(len(reversals_max)):
-        reversal_range[reversals_max[i]] = reversals_min[i]
-
-    make_log("TYR", 20, "workflow.log", reversal_range)
 
     return reversal_range

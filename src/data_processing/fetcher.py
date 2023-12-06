@@ -22,7 +22,12 @@ class Fetcher:
         with self.data_lock:
             if temp_data.index[0] not in self.current_data.index:
                 self.current_data = pd.concat([self.current_data, temp_data], axis=0)
-            make_log("FETCHER", 20, "workflow.log", "Appended new data")
+            make_log(
+                "FETCHER",
+                20,
+                "workflow.log",
+                f"Appended new data: \n {self.current_data.iloc[-1]}",
+            )
             if len(self.current_data) > FOREX_DATAFRAME_SIZE:
                 self.current_data = self.current_data.iloc[
                     -FOREX_DATAFRAME_SIZE:
