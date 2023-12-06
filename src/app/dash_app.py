@@ -109,39 +109,48 @@ def service_loop():
     make_log("DASH", 20, "workflow.log", f"Position open?: {type(current_pos)}")
     evaluator = get_evaluator(fetcher)
     while True:
-        make_log("DASH", 20, "workflow.log", "Period start..." + "\n" + ("-" * 20))
+        make_log("DASH", 20, "workflow.log", "Period start...")
         with fetcher.data_lock:
             data = fetcher.current_data.copy()
-        if current_pos:
-            make_log(
-                "DASH",
-                20,
-                "workflow.log",
-                f"Current position attributes: {current_pos.sl}, {current_pos.tp}",
-            )
-            if pt.close_position(data, current_pos.sl, current_pos.tp):
-                alter_transaction(data.iloc[-1])
-                current_pos.close()
-                current_pos = None
-                make_log(
-                    "DASH", 20, "workflow.log", f"Position closed?: {type(current_pos)}"
-                )
+        if data is None:
+            make_log("DASH", 20, "workflow.log", "Data is empty, skipping interval...")
         else:
-            if evaluator.evaluate():
-                buy_signals_queue.put(1)
-                insert_transaction(data.iloc[-1], evaluator.alpha)
+            if current_pos:
                 make_log(
                     "DASH",
                     20,
                     "workflow.log",
-                    f"EVALUATION POSITIVE, current queue: {buy_signals_queue.qsize()}",
+                    f"Current position attributes: {current_pos.sl}, {current_pos.tp}",
                 )
-                current_pos = pt.Position(data["Close"], data["ATR"])
-                make_log(
-                    "DASH", 20, "workflow.log", f"Position opened?: {type(current_pos)}"
-                )
+                if pt.close_position(data, current_pos.sl, current_pos.tp):
+                    alter_transaction(data.iloc[-1])
+                    current_pos.close()
+                    current_pos = None
+                    make_log(
+                        "DASH",
+                        20,
+                        "workflow.log",
+                        f"Closing position...: {type(current_pos)}",
+                    )
+            else:
+                if evaluator.evaluate():
+                    buy_signals_queue.put(1)
+                    insert_transaction(data.iloc[-1], evaluator.alpha)
+                    make_log(
+                        "DASH",
+                        20,
+                        "workflow.log",
+                        f"EVALUATION POSITIVE, current queue: {buy_signals_queue.qsize()}",
+                    )
+                    current_pos = pt.Position(data["Close"], data["ATR"])
+                    make_log(
+                        "DASH",
+                        20,
+                        "workflow.log",
+                        f"Opening position...: {type(current_pos)}",
+                    )
 
-        make_log("DASH", 20, "workflow.log", "Period sleep...")
+        make_log("DASH", 20, "workflow.log", "Period sleep..." + "\n" + ("-" * 20))
         time.sleep(60 * 60)
 
 

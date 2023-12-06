@@ -2,6 +2,8 @@ import yfinance as yf
 import threading
 import pandas as pd
 import talib as ta
+from requests.exceptions import HTTPError, ConnectionError, Timeout
+from retrying import retry
 
 from utils.logger import make_log
 from utils.config import FOREX_DATAFRAME_SIZE
@@ -41,11 +43,31 @@ class Fetcher:
         )
         return temp_data
 
+    @retry(stop_max_attempt_number=3, wait_fixed=2000)
     def _fetch_data(self, ticker, period="30d", interval="1h") -> pd.DataFrame:
-        data = yf.download(ticker, period=period, interval=interval)
-        data["ATR"] = ta.ATR(data["High"], data["Low"], data["Close"], timeperiod=14)
-        data = self._remove_nan_rows(data)
-        return data
+        try:
+            data = yf.download(ticker, period=period, interval=interval)
+        except (HTTPError, ConnectionError, Timeout) as e:
+            make_log(
+                "FETCHER",
+                20,
+                "workflow.log",
+                f"Network error while fetching {ticker} data with {period}/{interval}: {e}",
+            )
+            return None
+        except Exception as e:
+            make_log(
+                "FETCHER",
+                20,
+                "workflow.log",
+                f"Unknown exception while fetching {ticker} data with {period}/{interval}: {e}",
+            )
+            return None
+        else:
+            data["ATR"] = ta.ATR(
+                data["High"], data["Low"], data["Close"], timeperiod=14
+            )
+            return self._remove_nan_rows(data)
 
     def _remove_nan_rows(self, data: pd.DataFrame) -> pd.DataFrame:
         updated_data = data.copy()
