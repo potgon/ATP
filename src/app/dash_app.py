@@ -106,7 +106,7 @@ def run():
 def service_loop():
     make_log("DASH", 20, "workflow.log", "Service loop start...")
     current_pos = None
-    fetcher._fetch()
+    fetcher.fetch()
     make_log("DASH", 20, "workflow.log", f"Position open?: {type(current_pos)}")
     evaluator = get_evaluator(fetcher)
     while True:
@@ -120,6 +120,7 @@ def service_loop():
         if data is None:
             make_log("DASH", 20, "workflow.log", "Data is empty, skipping interval...")
         else:
+            send_custom_metric("Dataframe Fetch Alert", 0)
             if current_pos:
                 make_log(
                     "DASH",

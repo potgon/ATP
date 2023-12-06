@@ -5,7 +5,6 @@ import talib as ta
 from requests.exceptions import HTTPError, ConnectionError, Timeout
 from retrying import retry
 
-from aws.cdwatch import send_custom_metric
 from utils.logger import make_log
 from utils.config import FOREX_DATAFRAME_SIZE
 
@@ -19,7 +18,7 @@ class Fetcher:
     def _initialise_data(self, period="30d", interval="1h") -> pd.DataFrame:
         return self._fetch_data(self.ticker, period, interval)
 
-    def _fetch(self) -> pd.Series:
+    def fetch(self) -> pd.Series:
         make_log("FETCHER", 20, "workflow.log", "Fetching new data...")
         temp_data = self._fetch_data(self.ticker)
         with self.data_lock:
