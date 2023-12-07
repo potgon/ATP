@@ -48,7 +48,12 @@ class Tyr:
             if data["RSI"].iloc[-1] <= 30
             else (-3 if data["RSI"].iloc[-1] >= 70 else 0)
         )
-        make_log("TYR", 20, "workflow.log", f"RSI contribution: {alpha}")
+        make_log(
+            "TYR",
+            20,
+            "workflow.log",
+            f"RSI: {data['RSI'].iloc[-1]} | Contribution: {alpha}",
+        )
         return alpha
 
     def _evaluate_CDL(self, data: pd.DataFrame):

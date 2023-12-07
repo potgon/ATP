@@ -34,9 +34,7 @@ def execute_sql(sql, params=None):
                 cur.execute(sql, params)
                 if sql.lower().startswith("select"):
                     sql_result = [str(r[0]) for r in cur]
-                    make_log(
-                        "RDS", 20, "workflow.log", f"Fetched {sql_result} from RDS"
-                    )
+                    make_log("RDS", 20, "rds.log", f"Fetched {sql_result} from RDS")
                     return sql_result
                 else:
                     rows_affected = cur.rowcount
@@ -44,7 +42,7 @@ def execute_sql(sql, params=None):
                     make_log(
                         "RDS",
                         20,
-                        "workflow.log",
+                        "rds.log",
                         f"Executed {sql} in RDS, affected {rows_affected} rows",
                     )
                     return rows_affected
