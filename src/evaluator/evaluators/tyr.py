@@ -1,5 +1,7 @@
 import talib as ta
 import pandas as pd
+from cachetools import TTLCache
+from functools import lru_cache
 
 from aws.db import execute_sql
 from data_processing.pattern_recog import find_patterns
@@ -18,6 +20,8 @@ patterns = {
     "Shooting Star": -1,
     "Hanging Man": -1,
 }
+
+cache = TTLCache(maxsize=100, ttl=10800)
 
 
 class Tyr:
@@ -81,20 +85,17 @@ class Tyr:
         return 0
 
 
+@lru_cache(maxsize=100)
 def get_snr_prices(ticker: str) -> dict:
-    reversal_range = {}
+    if ticker in cache:
+        return cache[ticker]
+
     sql_result = execute_sql(
-        "SELECT price_range_max FROM reversal_zones WHERE asset_id = (SELECT id FROM assets WHERE name = %s)",
+        "SELECT rz.price_range_max, rz.price_range_min FROM reversal_zones rz JOIN assets a on rz.asset_id = a.id WHERE a.name = %s",
         (ticker,),
     )
-    reversals_max = [float(i) for i in sql_result]
-    sql_result = execute_sql(
-        "SELECT price_range_min FROM reversal_zones WHERE asset_id = (SELECT id FROM assets WHERE name = %s)",
-        (ticker,),
-    )
-    reversals_min = [float(i) for i in sql_result]
-    for i in range(len(reversals_max)):
-        reversal_range[reversals_max[i]] = reversals_min[i]
+    reversal_range = {float(max_val): float(min_val) for max_val, min_val in sql_result}
+    cache[ticker] = reversal_range
 
     make_log(
         "TYR",

@@ -4,6 +4,10 @@ EVALUATOR_VERSION = "Tyr"
 
 ALPACA_ENV = "PAPER"
 
+EC2_INSTANCE = "ec2-3-251-101-46.eu-west-1.compute.amazonaws.com"
+
+EC2_USER = "ec2-user"
+
 RDS_DB_NAME = "ebdb"
 
 RDS_HOSTNAME = "ec2-rds-test.czyo2rubv0y9.eu-west-1.rds.amazonaws.com"
