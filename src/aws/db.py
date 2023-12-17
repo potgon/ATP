@@ -21,7 +21,7 @@ def execute_sql(sql, params=None):
                     "DB",
                     20,
                     "rds.log",
-                    f"Executed {sql, params} \n and fetched {sql_result} from RDS",
+                    f"Executed: {sql, params} \n Fetched: {sql_result} from RDS",
                 )
                 return sql_result
             else:
@@ -29,7 +29,7 @@ def execute_sql(sql, params=None):
                     "DB",
                     20,
                     "rds.log",
-                    f"Executed {sql} in RDS, affected {rows_affected} rows",
+                    f"Executed: {sql} \n Affected: {rows_affected} rows",
                 )
                 return result.rowcount
     except SQLAlchemyError as e:

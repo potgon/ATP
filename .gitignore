@@ -166,3 +166,4 @@ pyright.json
 *.toml
 *.lock
 /atp-2Zj6IGNO-py3.9/
+nohup.out

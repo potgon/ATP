@@ -1,5 +1,6 @@
 import talib as ta
 import pandas as pd
+import datetime
 from functools import lru_cache
 
 from aws.db import execute_sql
@@ -80,6 +81,12 @@ class Tyr:
                 return 3
 
         return 0
+    
+    def custom_metric_handler(val):
+        week_day = datetime.datetime.today().weekday()
+        if week_day >= 5:
+            return 2
+        return val
 
 
 @lru_cache(maxsize=100)
