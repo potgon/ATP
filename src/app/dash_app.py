@@ -92,7 +92,7 @@ def run():
         )
 
         web_app_thread = threading.Thread(
-            target=lambda: app.run_server(debug=False, host="0.0.0.0", port=8080),
+            target=lambda: app.run_server(debug=False, host="0.0.0.0", port=8050),
         )
         web_app_thread.setDaemon(True)
         web_app_thread.start()
@@ -109,18 +109,19 @@ def service_loop():
     evaluator = get_evaluator(fetcher)
     while True:
         make_log("DASH", 20, "workflow.log", "Period start...")
+        evaluator.fetch_error = False
         fetcher.fetch()
         make_log("DASH", 20, "workflow.log", f"Position open?: {type(current_pos)}")
         with fetcher.data_lock:
             try:
                 data = fetcher.current_data.copy()
             except Exception:
+                evaluator.fetch_error = True
                 data = None
-                send_custom_metric("Dataframe Fetch Alert", 1)
+        send_custom_metric("Dataframe Fetch Alert", custom_handler=evaluator.custom_metric_handler)
         if data is None:
             make_log("DASH", 20, "workflow.log", "Data is empty, skipping interval...")
         else:
-            send_custom_metric("Dataframe Fetch Alert", 0)
             if current_pos:
                 make_log(
                     "DASH",
