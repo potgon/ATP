@@ -12,7 +12,7 @@ from data_processing.fetcher import Fetcher
 from evaluator.evaluator_factory import get_evaluator
 from evaluator.evaluators.tyr import get_snr_prices
 from utils.algo_tracker import insert_transaction, alter_transaction
-from utils.logger import make_log, log_full_dataframe
+from utils.logger import make_log, log_full_dataframe, get_current_git_branch
 
 app = dash.Dash(__name__)
 fetcher: Fetcher = Fetcher(ticker="AUDUSD=X")
@@ -78,6 +78,7 @@ def update_graph(_):
 
 
 def run():
+    port = 8080 if get_current_git_branch() == "main" else 8050
     try:
         make_log(
             "DASH",
@@ -92,7 +93,7 @@ def run():
         )
 
         web_app_thread = threading.Thread(
-            target=lambda: app.run_server(debug=False, host="0.0.0.0", port=8050),
+            target=lambda: app.run_server(debug=False, host="0.0.0.0", port=port),
         )
         web_app_thread.setDaemon(True)
         web_app_thread.start()
