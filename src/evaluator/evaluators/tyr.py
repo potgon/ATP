@@ -4,6 +4,8 @@ from functools import lru_cache
 
 from aws.db import execute_sql
 from data_processing.pattern_recog import find_patterns
+from .base import TradingAlgorithm
+from markets.forex import is_forex_day
 from utils.config import MAX_CDL_CONTRIBUTION
 from utils.logger import make_log
 from utils.periodic import clear_cache
@@ -21,13 +23,14 @@ patterns = {
     "Hanging Man": -1,
 }
 
-class Tyr:
+class Tyr(TradingAlgorithm):
     def __init__(self, fetcher):
         self.fetcher = fetcher
         self.alpha = 0
+        self.fetch_error = False
 
     def evaluate(self) -> bool:
-        data = self._preprocess_data(self.fetcher.current_data.copy())
+        data = self.preprocess_data(self.fetcher.current_data.copy())
         alpha = (
             self._evaluate_RSI(data)
             + self._evaluate_CDL(data)
@@ -37,7 +40,7 @@ class Tyr:
         make_log("TYR", 20, "workflow.log", f"alpha: {alpha}")
         return alpha > 5
 
-    def _preprocess_data(self, data: pd.DataFrame) -> pd.DataFrame:
+    def preprocess_data(self, data: pd.DataFrame) -> pd.DataFrame:
         data = find_patterns(data, list(patterns.keys()))
         data["RSI"] = ta.RSI(data["Close"], timeperiod=14)
 
@@ -80,7 +83,14 @@ class Tyr:
                 return 3
 
         return 0
-
+    
+    def custom_metric_handler(self) -> int:
+        if self.fetch_error and is_forex_day():
+            return 2
+        elif not is_forex_day():
+            return 1
+        else:
+            return 0
 
 @lru_cache(maxsize=100)
 def get_snr_prices(ticker: str) -> dict:

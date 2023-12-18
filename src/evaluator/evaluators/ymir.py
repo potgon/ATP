@@ -1,8 +1,10 @@
 import talib as ta
 import pandas as pd
 
+from .base import TradingAlgorithm
 
-class Ymir:
+
+class Ymir(TradingAlgorithm):
     def __init__(self, fetcher):
         self.fetcher = fetcher
 
@@ -17,6 +19,9 @@ class Ymir:
         data["RSI"] = ta.RSI(data["Close"], timeperiod=14)
 
         return data
+    
+    def custom_metric_handler(self):
+        pass
 
     def bbands_relative_value(self, data):
         return (data["Close"] - data["Lower"]) / (data["Middle"] - data["Lower"])
