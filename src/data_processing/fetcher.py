@@ -28,7 +28,7 @@ class Fetcher:
                 "FETCHER",
                 20,
                 "workflow.log",
-                f"Appended new data: \n {self.current_data['Close'].iloc[-1]}",
+                f"Appended new data: {self.current_data['Close'].iloc[-1]}",
             )
             if len(self.current_data) > FOREX_DATAFRAME_SIZE:
                 self.current_data = self.current_data.iloc[
