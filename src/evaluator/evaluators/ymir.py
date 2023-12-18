@@ -6,7 +6,7 @@ from .base import TradingAlgorithm
 
 class Ymir(TradingAlgorithm):
     def __init__(self, fetcher):
-        self.fetcher = fetcher
+        super().__init__(fetcher)
 
     def evaluate(self) -> bool:
         data = self.preprocess()
