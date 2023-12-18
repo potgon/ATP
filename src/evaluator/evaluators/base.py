@@ -3,6 +3,11 @@ from abc import ABC, abstractmethod
 class TradingAlgorithm(ABC):
     
     @abstractmethod
+    def __init__(self, fetcher):
+        self.fetcher = fetcher
+        self.fetch_error = False
+    
+    @abstractmethod
     def evaluate(self):
         """Evaluate the current data and send a trading signal"""
         pass

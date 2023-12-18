@@ -40,7 +40,6 @@ def update_graph(_):
             "graph.log",
             f"Updating graph with received data: \n {data[-1:]}",
         )
-        log_full_dataframe("PRICE", 10, "price.log", data)
         if data.empty:
             make_log("GRAPH", 20, "graph.log", "No data available updating the graph")
             return go.Figure()
@@ -123,6 +122,7 @@ def service_loop():
         if data is None:
             make_log("DASH", 20, "workflow.log", "Data is empty, skipping interval...")
         else:
+            log_full_dataframe("PRICE", 10, "price.log", data)
             if current_pos:
                 make_log(
                     "DASH",

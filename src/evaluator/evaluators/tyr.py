@@ -25,9 +25,8 @@ patterns = {
 
 class Tyr(TradingAlgorithm):
     def __init__(self, fetcher):
-        self.fetcher = fetcher
+        super().__init__(fetcher)
         self.alpha = 0
-        self.fetch_error = False
 
     def evaluate(self) -> bool:
         data = self.preprocess_data(self.fetcher.current_data.copy())
