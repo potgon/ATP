@@ -79,6 +79,7 @@ spacy = "^3.7.2"
 pymysql = "^1.1.0"
 sshtunnel = "^0.4.0"
 ta-lib = "^0.4.28"
+mysqlclient = "^2.2.1"
 
 [build-system]
 requires = ["poetry-core"]
