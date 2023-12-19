@@ -5,7 +5,7 @@ import talib as ta
 from requests.exceptions import HTTPError, ConnectionError, Timeout
 from retrying import retry
 
-from app.settings import FOREX_DATAFRAME_SIZE
+from django.conf import settings
 from utils.logger import make_log
 
 
@@ -30,9 +30,9 @@ class Fetcher:
                 "workflow.log",
                 f"Appended new data: {self.current_data['Close'].iloc[-1]}",
             )
-            if len(self.current_data) > FOREX_DATAFRAME_SIZE:
+            if len(self.current_data) > settings.FOREX_DATAFRAME_SIZE:
                 self.current_data = self.current_data.iloc[
-                    -FOREX_DATAFRAME_SIZE:
+                    -(settings.FOREX_DATAFRAME_SIZE):
                 ].reset_index(drop=True)
             make_log("FETCHER", 20, "workflow.log", "Removed oldest data")
         make_log(
