@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class DataProcessingConfig(AppConfig):
+class AwsIntegrationConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'data_processing'
+    name = 'aws_integration'
