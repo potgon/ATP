@@ -1,9 +1,8 @@
-from django.conf import settings
-from tyr.models import Tyr
+from tyr.tyr import Tyr
 from trading_data.services.fetcher import Fetcher
 
-def get_evaluator(fetcher: Fetcher):
-    if settings.EVALUATOR_VERSION == 'Tyr':
+def get_evaluator(fetcher: Fetcher, algo_name):
+    if algo_name == "TYR":
         return Tyr(fetcher)
     else:
-        raise Exception("Unknown evaluator algorithm", settings.EVALUATOR_VERSION)
+        raise Exception("Unknown evaluator algorithm", algo_name)
