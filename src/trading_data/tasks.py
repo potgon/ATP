@@ -31,12 +31,13 @@ def manage_algorithm(algo_name, ticker):
             log_full_dataframe("PRICE", 10, "price.log")
         
             if current_pos:
-                if current_pos.should_close(current_pos):
-                    current_pos.close()
+                if current_pos.should_close(data["Low"], data["High"]):
+                    current_pos.close_db(data["Close"])
+                    current_pos.close_broker()
                     current_pos = None
-                    
             else: 
                 if evaluator.evalaute():
-                    current_pos = open_position(ticker)
+                    current_pos = Position(data["Close"], data["ATR"], evaluator.alpha)
+                    current_pos.open_broker()
                 
         time.sleep(60 * 60) # Make generic, should work for every algorithm   
