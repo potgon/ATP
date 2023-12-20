@@ -15,15 +15,28 @@ class Position(models.Model):
         self.alpha = alpha
         self.date_open = datetime.now()
     
-    def close_position_db(self, close_price):
+    #API implementation to open broker's position
+    def open_position_broker():
+        pass
+    
+    def close_position_db(self, close_price: float):
         self.date_close = models.DateTimeField.now()
         self.close_price = close_price
-        self.net_profit = self.calculate_net_profit()
+        self.net_profit = self.calculate_net_profit(close_price)
         self.save()
         
-    def calculate_net_profit(self) -> float:
-        return self.close_price - self.open_price
+    #API implementation to close broker's position
+    def close_position_broker():
+        pass
+        
+    def calculate_net_profit(self, close_price: float) -> float:
+        return close_price - self.open_price
     
+    def should_close(self, close: float, atr: float) -> bool:
+        sl = calculate_sl(close, atr)
+        tp = calculate_tp(close, sl)
+        return low <= sl or high >= tp
+
     @staticmethod
     def calculate_sl(close: float, atr: float) -> float:
         return close - (atr * 2)
@@ -32,8 +45,5 @@ class Position(models.Model):
     def calculate_tp(close: float, sl: float) -> float:
         return (abs(close - sl) * 1.5) + close
     
-    @staticmethod
-    def should_close(low, high, sl: float, tp: float) -> bool:
-        data = data.iloc[-1]
-        return low <= sl or high >= tp 
+ 
     
