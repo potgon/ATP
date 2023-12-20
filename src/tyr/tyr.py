@@ -3,9 +3,8 @@ import pandas as pd
 from functools import lru_cache
 from django.conf import settings
 
-from aws.db import execute_sql
 from data_processing.pattern_recog import find_patterns
-from .base import TradingAlgorithm
+from evaluation_core.base import TradingAlgorithm
 from markets.forex import is_forex_day
 from utils.logger import make_log
 from utils.periodic import clear_cache
