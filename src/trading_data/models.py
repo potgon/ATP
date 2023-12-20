@@ -11,13 +11,13 @@ class Position(models.Model): # Whole class might need a variable name refactor
     sl = models.DecimalField(max_digits=18, decimal_places=5)
     tp = models.DecimalField(max_digits=18, decimal_places=5)
     
-    def __init__(self, *args, close, atr, alpha, **kwargs):
+    def __init__(self, *args, open_price, atr, alpha, **kwargs):
         super(Position, self).__init__(*args, **kwargs)
         self.open_price = open_price
         self.alpha = alpha
         self.date_open = datetime.now()
-        self.sl = Position.calculate_sl(close, atr)
-        self.tp = Position.calculate_tp(close, self.sl)
+        self.sl = Position.calculate_sl(open_price, atr)
+        self.tp = Position.calculate_tp(open_price, self.sl)
     
     #API implementation to open broker's position
     def open_position_broker():
