@@ -18,6 +18,7 @@ class Position(models.Model): # Whole class might need a variable name refactor
         self.date_open = datetime.now()
         self.sl = Position.calculate_sl(open_price, atr)
         self.tp = Position.calculate_tp(open_price, self.sl)
+        self.save()
     
     #API implementation to open broker's position
     def open_broker():
