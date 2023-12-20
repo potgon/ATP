@@ -3,7 +3,7 @@ from django.db import models
 class Position(models.Model):
     date_open = models.DateTimeField(auto_now_add=True)
     date_close = models.DateTimeField(null=True, blank=True)
-    open_price = models.DecimalFiled(max_digits=18, decimal_places=5)
+    open_price = models.DecimalField(max_digits=18, decimal_places=5)
     close_price = models.DecimalField(max_digits=18, decimal_places=5, null=True, blank=True)
     alpha = models.IntegerField()
     net_profit = models.DecimalField(max_digits=18, decimal_places=5, null=True, blank=True)

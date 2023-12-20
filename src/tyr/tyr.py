@@ -1,12 +1,12 @@
 import talib as ta
 import pandas as pd
 from functools import lru_cache
+from django.conf import settings
 
 from aws.db import execute_sql
 from data_processing.pattern_recog import find_patterns
 from .base import TradingAlgorithm
 from markets.forex import is_forex_day
-from utils.config import MAX_CDL_CONTRIBUTION
 from utils.logger import make_log
 from utils.periodic import clear_cache
 
@@ -69,7 +69,7 @@ class Tyr(TradingAlgorithm):
                 elif data[pattern].iloc[-1] == -100:
                     alpha -= value
 
-        alpha = max(min(alpha, MAX_CDL_CONTRIBUTION), -MAX_CDL_CONTRIBUTION)
+        alpha = max(min(alpha, settings.MAX_CDL_CONTRIBUTION), -(settings.MAX_CDL_CONTRIBUTION))
         make_log("TYR", 20, "workflow.log", f"CDL contribution: {alpha}")
         return alpha
 
