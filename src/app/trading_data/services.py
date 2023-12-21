@@ -13,7 +13,7 @@ def open_broker(): # API Implementation to open position in broker
 def close_broker(): # API Implementation to close position in broker
     pass
 
-def eval_period(evaluator):
+def eval_period(evaluator, algo_name, ticker):
     current_pos = None
     make_log("ALGO", 20, "workflow.log", f"Instantiation start: \n Evaluator: {algo_name} \n Fetcher pointing to: {ticker}")
     
