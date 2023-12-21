@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class AwsIntegrationConfig(AppConfig):
+class TyrConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'aws_integration'
+    name = 'app.tyr'

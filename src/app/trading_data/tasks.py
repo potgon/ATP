@@ -29,11 +29,11 @@ def manage_algorithm(algo_name, ticker):
                 
         send_custom_metric("Dataframe Fetch Alert", custom_handler=evaluator.custom_metric_handler)
         
-        if evaluator.fetch_error == True:
+        if evaluator.fetch_error:
             make_log("EVAL_LOOP", 30, "workflow.log", "Failure on fetching new data, skipping interval...")
         else:    
             log_full_dataframe("PRICE", 10, "price.log")
-            make_log("ALGO", 20, "workflow.log", f"Position open? {'No' if current_pos == None else 'Yes'}")
+            make_log("ALGO", 20, "workflow.log", f"Position open? {'No' if not current_pos else 'Yes'}")
             
             if current_pos:
                 if current_pos.should_close(data["Low"], data["High"]):

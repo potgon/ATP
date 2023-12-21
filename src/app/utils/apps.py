@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class TyrConfig(AppConfig):
+class UtilsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'tyr'
+    name = 'app.utils'

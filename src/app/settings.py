@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-e1fa330da^j*r-w#cltb!n!(#(8_e75=646%f9q_5oohp)2m)9
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -37,13 +37,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "dashboard",
-    "trading_data",
-    "aws_integration",
-    "evaluation",
-    "tyr",
-    "utils",
-    "market_data",
+    "app.dashboard",
+    "app.trading_data",
+    "app.aws_integration",
+    "app.evaluation",
+    "app.tyr",
+    "app.utils",
+    "app.market_data",
 ]
 
 MIDDLEWARE = [

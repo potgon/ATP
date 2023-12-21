@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class MarketDataConfig(AppConfig):
+class EvaluationCoreConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'market_data'
+    name = 'app.evaluation_core'

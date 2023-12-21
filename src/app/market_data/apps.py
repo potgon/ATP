@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class TradingDataConfig(AppConfig):
+class MarketDataConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'trading_data'
+    name = 'app.market_data'
