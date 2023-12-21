@@ -1,7 +1,7 @@
-import talib as ta
-import pandas as pd
-from functools import lru_cache
 from django.conf import settings
+from functools import lru_cache
+import pandas as pd
+import talib as ta
 
 from data_processing.pattern_recog import find_patterns
 from evaluation_core.base import TradingAlgorithm
