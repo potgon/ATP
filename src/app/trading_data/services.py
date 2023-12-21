@@ -1,78 +1,54 @@
-import yfinance as yf
-import threading
-import pandas as pd
-import talib as ta
-from requests.exceptions import HTTPError, ConnectionError, Timeout
-from retrying import retry
+from .fetcher import Fetcher
+from .models import Position
+from aws_integration.services import send_custom_metric
+from evaluation_core.factories import get_evaluator
+from utils.logger import make_log, log_full_dataframe
 
-from django.conf import settings
-from utils.logger import make_log
+def instantiate_algo(algo_name, ticker):
+    return get_evaluator(Fetcher(ticker), algo_name.upper())
 
+def open_broker(): # API Implementation to open position in broker
+    pass
 
-class Fetcher:
-    def __init__(self, ticker) -> None:
-        self.ticker = ticker
-        self.current_data = self._initialise_data()
-        self.data_lock = threading.Lock()
+def close_broker(): # API Implementation to close position in broker
+    pass
 
-    def _initialise_data(self, period="30d", interval="1h") -> pd.DataFrame:
-        return self._fetch_data(self.ticker, period, interval)
-
-    def fetch(self) -> pd.Series:
-        make_log("FETCHER", 20, "workflow.log", "Fetching new data...")
-        temp_data = self._fetch_data(self.ticker)
-        with self.data_lock:
-            if temp_data.index[-1] not in self.current_data.index:
-                self.current_data = pd.concat([self.current_data, temp_data], axis=0)
-            make_log(
-                "FETCHER",
-                20,
-                "workflow.log",
-                f"Appended new data: {self.current_data['Close'].iloc[-1]}",
-            )
-            if len(self.current_data) > settings.FOREX_DATAFRAME_SIZE:
-                self.current_data = self.current_data.iloc[
-                    -(settings.FOREX_DATAFRAME_SIZE):
-                ].reset_index(drop=True)
-            make_log("FETCHER", 20, "workflow.log", "Removed oldest data")
-        make_log(
-            "FETCHER",
-            20,
-            "workflow.log",
-            f"Dataframe current size: {len(self.current_data)}"
-        )
-        return temp_data
-
-    @retry(stop_max_attempt_number=3, wait_fixed=2000)
-    def _fetch_data(self, ticker, period="30d", interval="1h") -> pd.DataFrame:
-        try:
-            data = yf.download(ticker, period=period, interval=interval)
-        except (HTTPError, ConnectionError, Timeout) as e:
-            make_log(
-                "FETCHER",
-                40,
-                "workflow.log",
-                f"Network error while fetching {ticker} data with {period}/{interval}: {e} -> Retrying...",
-            )
-            raise
-        except Exception as e:
-            make_log(
-                "FETCHER",
-                40,
-                "workflow.log",
-                f"Unknown exception while fetching {ticker} data with {period}/{interval}: {e} -> Retrying...",
-            )
-            raise
-        else:
-            data["ATR"] = ta.ATR(
-                data["High"], data["Low"], data["Close"], timeperiod=14
-            )
-            return self._remove_nan_rows(data)
-
-    def _remove_nan_rows(self, data: pd.DataFrame) -> pd.DataFrame:
-        updated_data = data.copy()
-        if self.ticker[-2:] != "=X":
-            updated_data = updated_data[updated_data["Volume"] != 0]
-        updated_data.reset_index(inplace=True)
-
-        return updated_data
+def eval_period(evaluator):
+    current_pos = None
+    make_log("ALGO", 20, "workflow.log", f"Instantiation start: \n Evaluator: {algo_name} \n Fetcher pointing to: {ticker}")
+    
+    while True:
+        make_log("ALGO", 20, "workflow.log", f"{algo_name} algorithm period start") # Make a different log file for each algorithm?
+        evaluator.fetch_error = False
+        
+        with fetcher.data_lock:
+            try:
+                make_log("ALGO", 20, "workflow.log", f"{algo_name} is attempting data fetch for {ticker}")
+                fetcher.fetch()
+                data = fetcher.current_data.copy()
+                make_log("ALGO", 20, "workflow.log", "Successful data fetch!")
+            except Exception:
+                evaluator.fetch_error = True
+                
+        send_custom_metric("Dataframe Fetch Alert", custom_handler=evaluator.custom_metric_handler)
+        
+        if evaluator.fetch_error:
+            make_log("EVAL_LOOP", 30, "workflow.log", "Failure on fetching new data, skipping interval...")
+        else:    
+            log_full_dataframe("PRICE", 10, "price.log")
+            make_log("ALGO", 20, "workflow.log", f"Position open? {'No' if not current_pos else 'Yes'}")
+            
+            if current_pos:
+                if current_pos.should_close(data["Low"], data["High"]):
+                    current_pos.close_db(data["Close"])
+                    make_log("EVAL_LOOP", 30, "workflow.log", "Closing position in database")
+                    close_broker()
+                    make_log("EVAL_LOOP", 30, "workflow.log", "Closing position in broker")
+                    current_pos = None
+            else: 
+                if evaluator.evalaute():
+                    current_pos = Position(data["Close"], data["ATR"], evaluator.alpha)
+                    make_log("EVAL_LOOP", 30, "workflow.log", f"Instantiating position...: {'Success!' if current_pos is not None else 'Failure'}")
+                    open_broker()
+                    make_log("EVAL_LOOP", 30, "workflow.log", "Opening Position in broker...")
+                    
