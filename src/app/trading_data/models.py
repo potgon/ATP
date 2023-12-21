@@ -20,19 +20,11 @@ class Position(models.Model): # Whole class might need a variable name refactor
         self.tp = Position.calculate_tp(open_price, self.sl)
         self.save()
     
-    #API implementation to open broker's position
-    def open_broker():
-        pass
-    
     def close_db(self, close_price: float):
         self.date_close = models.DateTimeField.now()
         self.close_price = close_price
         self.net_profit = self.calculate_net_profit(close_price)
         self.save()
-        
-    #API implementation to close broker's position
-    def close_broker():
-        pass
         
     def calculate_net_profit(self, close_price: float) -> float:
         return close_price - self.open_price
