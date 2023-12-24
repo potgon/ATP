@@ -9,7 +9,6 @@ from evaluation_core.intervals import AlgorithmInterval
 from fetcher import Fetcher
 from utils.logger import make_log, log_full_dataframe
 
-
 operative_algos = {}
 active_assets = {}
 
@@ -23,6 +22,6 @@ def manage_algorithm(algo_name, ticker):
         operative_algos[algo_name] = evaluator
 
     active_assets[ticker] = algo_name
-    evaluator = operative_algos[algo_name] 
-    eval_period(evaluator, algo_name, ticker)         
+    evaluator = operative_algos[algo_name]
+    eval_period(evaluator, algo_name, ticker)
     time.sleep(AlgorithmInterval[algo_name].value)

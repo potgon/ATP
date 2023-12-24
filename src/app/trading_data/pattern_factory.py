@@ -6,13 +6,13 @@ from typing import Callable
 def find_patterns(df: pd.DataFrame, pattern_list: list) -> pd.DataFrame:
     data = df.copy()
     for pattern in pattern_list:
-        data[pattern] = pattern_factory(pattern)(
+        data[pattern] = get_pattern(pattern)(
             data["Open"], data["High"], data["Low"], data["Close"]
         )
     return data
 
 
-def pattern_factory(pattern: str) -> Callable:
+def get_pattern(pattern: str) -> Callable:
     if pattern == "Engulfing":
         return ta.CDLENGULFING
     elif pattern == "Doji":

@@ -3,9 +3,10 @@ from functools import lru_cache
 import pandas as pd
 import talib as ta
 
+from ..models import Asset, ReversalZone
 from evaluation_core.base import TradingAlgorithm
 from market_data.services import is_forex_day
-from trading_data.pattern_recog import find_patterns
+from trading_data.pattern_factory import find_patterns
 from utils.logger import make_log
 from utils.periodic import clear_cache
 
