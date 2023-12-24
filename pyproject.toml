@@ -82,6 +82,7 @@ ta-lib = "^0.4.28"
 mysqlclient = "^2.2.1"
 celery = "^5.3.6"
 mysqldump = "^0.0.10"
+python-dotenv = "^1.0.0"
 
 [build-system]
 requires = ["poetry-core"]

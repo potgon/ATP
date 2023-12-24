@@ -26,8 +26,8 @@ class Position(models.Model): # Whole class might need a variable name refactor
         self.net_profit = self.calculate_net_profit(close_price)
         self.save()
         
-    def calculate_net_profit(self, close_price: float) -> float:
-        return close_price - self.open_price
+    def calculate_net_profit(self) -> float:
+        return self.close_price - self.open_price
     
     def should_close(self, low: float, high: float) -> bool:
         return low <= self.sl or high >= self.tp
