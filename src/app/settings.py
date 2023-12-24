@@ -82,10 +82,10 @@ WSGI_APPLICATION = "app.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "ebdb",
-        "USER": "admin",
+        "NAME": "prodtest",
+        "USER": "admin", # Use AWS Secrets
         "PASSWORD": "admin1234",
-        "HOST": "ec2-rds-test.czyo2rubv0y9.eu-west-1.rds.amazonaws.com",
+        "HOST": "atp-prodtest.czyo2rubv0y9.eu-west-1.rds.amazonaws.com",
         "PORT": "3306",
     }
 }

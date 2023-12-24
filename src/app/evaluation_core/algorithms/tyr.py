@@ -94,21 +94,17 @@ class Tyr(TradingAlgorithm):
 @lru_cache(maxsize=100)
 def get_snr_prices(ticker: str) -> dict:
     clear_cache(get_snr_prices, 432000)
-    sql_result = execute_sql(
-        "SELECT rz.price_range_max, rz.price_range_min FROM reversal_zones rz JOIN assets a ON rz.asset_id = a.id WHERE a.name = :ticker",
-        {'ticker': ticker}
-    )
-    reversal_range = {}
-    for row in sql_result:
-        max_val = row['price_range_max']
-        min_val = row['price_range_min']
-        reversal_range[float(max_val)] = float(min_val)
-
-    make_log(
-        "TYR",
-        20,
-        "workflow.log",
-        f"Fetched: {len(reversal_range)} reversal zones for {ticker}",
-    )
-
-    return reversal_range
+    try:
+        asset = Asset.objects.get(name=ticker)
+        reversal_zones = ReversalZone.objects.filter(asset=asset)
+        reversal_range = {}
+        for rz in reversal_zones:
+            max_val = rz.price_range_max
+            min_val = rz.price_range_min
+            reversal_range[float(max_val)] = float(min_val)   
+        make_log("TYR", 20, "workflow.log", f"Fetched: {len(reversal_range)} reversal zones for {ticker}")
+        return reversal_range
+    
+    except Asset.DoesNotExist:
+        make_log("TYR", 20, "error.log", f"No asset found for ticker: {ticker}")
+        return {}
