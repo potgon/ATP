@@ -23,7 +23,7 @@ class Position(models.Model): # Whole class might need a variable name refactor
     def close_db(self, close_price: float):
         self.date_close = models.DateTimeField.now()
         self.close_price = close_price
-        self.net_profit = self.calculate_net_profit(close_price)
+        self.net_profit = self.calculate_net_profit()
         self.save()
         
     def calculate_net_profit(self) -> float:
