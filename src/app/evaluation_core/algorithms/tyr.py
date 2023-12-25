@@ -4,11 +4,11 @@ import pandas as pd
 import talib as ta
 
 from ..models import Asset, ReversalZone
-from evaluation_core.base import TradingAlgorithm
-from market_data.services import is_forex_day
-from trading_data.pattern_factory import find_patterns
-from utils.logger import make_log
-from utils.periodic import clear_cache
+from app.evaluation_core.base import TradingAlgorithm
+from app.market_data.services import is_forex_day
+from app.trading_data.pattern_factory import find_patterns
+from app.utils.logger import make_log
+from app.utils.periodic import clear_cache
 
 patterns = {
     "Engulfing": 2,

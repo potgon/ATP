@@ -1,8 +1,8 @@
 from .fetcher import Fetcher
 from .models import Position
-from aws_integration.services import send_custom_metric
-from evaluation_core.factories import get_evaluator
-from utils.logger import make_log, log_full_dataframe
+from app.aws_integration.services import send_custom_metric
+from app.evaluation_core.factories import get_evaluator
+from app.utils.logger import make_log, log_full_dataframe
 
 def instantiate_algo(algo_name, ticker):
     return get_evaluator(Fetcher(ticker), algo_name.upper())

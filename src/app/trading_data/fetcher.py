@@ -6,7 +6,7 @@ from requests.exceptions import HTTPError, ConnectionError, Timeout
 from retrying import retry
 from django.conf import settings
 
-from utils.logger import make_log
+from app.utils.logger import make_log
 
 
 class Fetcher:

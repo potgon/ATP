@@ -3,11 +3,11 @@ from celery import shared_task
 from .models import Position
 from .services import eval_period, instantiate_algo
 from .exceptions import DuplicateAssetException
-from aws_integration.services import send_custom_metric
-from evaluation_core.factories import get_evaluator
-from evaluation_core.intervals import AlgorithmInterval
-from fetcher import Fetcher
-from utils.logger import make_log, log_full_dataframe
+from .fetcher import Fetcher
+from app.aws_integration.services import send_custom_metric
+from app.evaluation_core.factories import get_evaluator
+from app.evaluation_core.intervals import AlgorithmInterval
+from app.utils.logger import make_log, log_full_dataframe
 
 operative_algos = {}
 active_assets = {}
