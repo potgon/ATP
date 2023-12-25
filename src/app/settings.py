@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     "app.evaluation_core",
     "app.market_data",
     "app.trading_data",
-    "app.utils",
 ]
 
 MIDDLEWARE = [
