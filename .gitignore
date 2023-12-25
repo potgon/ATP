@@ -165,3 +165,4 @@ pyright.json
 /.vscode/
 /atp-2Zj6IGNO-py3.9/
 nohup.out
+lint_res.txt
