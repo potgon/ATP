@@ -15,7 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from app.evaluation_core.views import ListAlgorithmsView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/algorithms/", ListAlgorithmsView.as_view(), name='list-algorithms'),
 ]
