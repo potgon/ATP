@@ -1,7 +1,9 @@
 from django.db import models
 
 class Asset(models.Model):
+    ticker = models.CharField(max_length=10, unique=True)
     name = models.CharField(max_length=15)
+    asset_type = models.CharField(max_length=20)
     
 class ZoneType(models.TextChoices):
     SUPPORT = "Support", "Support"
@@ -14,6 +16,7 @@ class ReversalZone(models.Model):
     zone_type = models.CharField(max_length=10, choices=ZoneType.choices, default=ZoneType.SUPPORT)
     price_range_max = models.DecimalField(max_digits=18, decimal_places=5)
     price_range_min = models.DecimalField(max_digits=18, decimal_places=5)
+    last_break_date = models.DateTimeField(null=True)
     
 class Algorithm(models.Model):
     name = models.CharField(max_length=30, unique=True)
