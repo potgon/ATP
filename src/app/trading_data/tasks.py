@@ -7,21 +7,20 @@ from .fetcher import Fetcher
 from app.aws_integration.services import send_custom_metric
 from app.evaluation_core.factories import get_evaluator
 from app.evaluation_core.intervals import AlgorithmInterval
-from app.utils.logger import make_log, log_full_dataframe
+from app.utils.logger import make_log
 
-operative_algos = {}
-active_assets = {}
+active_evaluators = {}
+algo_ticker_pair = {}
 
 @shared_task
 def manage_algorithm(algo_name, ticker):
-    if ticker in active_assets:
+    if ticker in algo_ticker_pair.values():
         raise DuplicateAssetException(ticker)
     
-    if algo_name not in operative_algos:
-        evaluator = instantiate_algo(algo_name, ticker)
-        operative_algos[algo_name] = evaluator
+    if algo_name not in active_evaluators.keys():
+        active_evaluators[algo_name] = instantiate_algo(algo_name, ticker)
+        algo_ticker_pair[algo_name] = ticker
 
-    active_assets[ticker] = algo_name
-    evaluator = operative_algos[algo_name]
+    evaluator = active_evaluators[algo_name]
     eval_period(evaluator, algo_name, ticker)
     time.sleep(AlgorithmInterval[algo_name].value)
