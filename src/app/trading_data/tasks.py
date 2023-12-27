@@ -23,4 +23,3 @@ def manage_algorithm(algo_name, ticker):
 
     evaluator = active_evaluators[algo_name]
     eval_period(evaluator, algo_name, ticker)
-    time.sleep(AlgorithmInterval[algo_name].value)

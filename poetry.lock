@@ -495,7 +495,6 @@ click-plugins = ">=1.1.1"
 click-repl = ">=0.2.0"
 kombu = ">=5.3.4,<6.0"
 python-dateutil = ">=2.8.2"
-redis = {version = ">=4.5.2,<4.5.5 || >4.5.5,<6.0.0", optional = true, markers = "extra == \"redis\""}
 tzdata = ">=2022.7"
 vine = ">=5.1.0,<6.0"
 
@@ -3711,4 +3710,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.13"
-content-hash = "a30225c64d15f1700aa58a12c4d9ecd13e511dbe299c79f449d8590ed69a5658"
+content-hash = "4fb1053c3979b1913288f7ef60305ecc7b1e321d621aaed6eed1210705ea0da1"

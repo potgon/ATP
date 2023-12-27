@@ -80,7 +80,7 @@ pymysql = "^1.1.0"
 sshtunnel = "^0.4.0"
 ta-lib = "^0.4.28"
 mysqlclient = "^2.2.1"
-celery = {extras = ["redis"], version = "^5.3.6"}
+celery = {extras = ["beat"], version = "^5.3.6"}
 mysqldump = "^0.0.10"
 python-dotenv = "^1.0.0"
 pylint = "^3.0.3"

@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
-from app.utils.logger import setup_logger
+from app.utils.logger import setup_logger, get_current_git_branch, LOGS_DIR_DEV, LOGS_DIR_PROD
 
 load_dotenv()
 
@@ -151,6 +151,20 @@ CELERY_TASK_SERIALIZER = 'json'
 
 CELERY_RESULT_SERIALIZER = 'json'
 
+# Config variables
+
+ALPACA_ENV = "PAPER"
+
+SNR_MIN_BOUNCES = 3
+
+SNR_PERCENTAGE_RANGE = 0.0015
+
+SNR_PROPORTIONALITY_RATIO = 0.01630670069286707431128287177532
+
+FOREX_DATAFRAME_SIZE = 480
+
+MAX_CDL_CONTRIBUTION = 3
+
 # Logging configuration
 
 LOG_DIR = LOGS_DIR_PROD if get_current_git_branch() == 'main' else LOGS_DIR_DEV
@@ -175,22 +189,3 @@ LOGGING = {
         },
     },
 }
-
-
-# CONFIG VARIABLES
-
-LOGS_DIR_PROD = "/var/app/ATP/logs/prod"
-
-LOGS_DIR_DEV = "/var/app/ATP/logs/dev"
-
-ALPACA_ENV = "PAPER"
-
-SNR_MIN_BOUNCES = 3
-
-SNR_PERCENTAGE_RANGE = 0.0015
-
-SNR_PROPORTIONALITY_RATIO = 0.01630670069286707431128287177532
-
-FOREX_DATAFRAME_SIZE = 480
-
-MAX_CDL_CONTRIBUTION = 3

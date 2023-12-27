@@ -4,8 +4,9 @@ from logging.handlers import RotatingFileHandler
 import pandas as pd
 import subprocess
 
-from app.settings import LOGS_DIR_PROD, LOGS_DIR_DEV
+LOGS_DIR_PROD = "/var/app/ATP/logs/prod"
 
+LOGS_DIR_DEV = "/var/app/ATP/logs/dev"
 
 loggers = {}
 

@@ -1,33 +1,50 @@
 from django.db import models
+from django.conf import settings
 from datetime import datetime
 
+from app.evaluation_core.models import Asset, Algorithm
+
 class Position(models.Model): # Whole class might need a variable name refactor
-    date_open = models.DateTimeField(auto_now_add=True)
-    date_close = models.DateTimeField(null=True, blank=True)
-    open_price = models.DecimalField(max_digits=18, decimal_places=5)
-    close_price = models.DecimalField(max_digits=18, decimal_places=5, null=True, blank=True)
+    STATUS_CHOICES = [
+        ("OPEN", "Open"),
+        ("CLOSED", "Closed")
+    ]
+    
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
+    algorithm = models.ForeignKey(Algorithm, on_delete=models.CASCADE)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES)
+    entry_date = models.DateTimeField(auto_now_add=True)
+    exit_date = models.DateTimeField(null=True, blank=True)
+    entry_price = models.DecimalField(max_digits=18, decimal_places=5)
+    exit_price = models.DecimalField(max_digits=18, decimal_places=5, null=True, blank=True)
     alpha = models.IntegerField()
     net_profit = models.DecimalField(max_digits=18, decimal_places=5, null=True, blank=True)
     sl = models.DecimalField(max_digits=18, decimal_places=5)
     tp = models.DecimalField(max_digits=18, decimal_places=5)
     
-    def __init__(self, *args, open_price, atr, alpha, **kwargs):
+    class Meta:
+        indexes = [
+            models.Index(fields=["user", "asset", "algorithm"])
+        ]
+    
+    def __init__(self, *args, entry_price, atr, alpha, **kwargs):
         super(Position, self).__init__(*args, **kwargs)
-        self.open_price = open_price
+        self.entry_price = entry_price
         self.alpha = alpha
-        self.date_open = datetime.now()
+        self.entry_date = datetime.now()
         self.sl = Position.calculate_sl(open_price, atr)
         self.tp = Position.calculate_tp(open_price, self.sl)
         self.save()
     
-    def close_db(self, close_price: float):
-        self.date_close = models.DateTimeField.now()
-        self.close_price = close_price
+    def close_db(self, exit_price: float):
+        self.exit_date = models.DateTimeField.now()
+        self.exit_price = exit_price
         self.net_profit = self.calculate_net_profit()
         self.save()
         
     def calculate_net_profit(self) -> float:
-        return self.close_price - self.open_price
+        return self.exit_price - self.entry_price
     
     def should_close(self, low: float, high: float) -> bool:
         return low <= self.sl or high >= self.tp

@@ -28,5 +28,6 @@ class Algorithm(models.Model):
     active_users = models.IntegerField(default=0)
     status = models.CharField(max_length=50, default='active')
     version = models.CharField(max_length=50, blank=True, null=True)
+    exec_interval = models.IntegerField(default=60)
     creation_date = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
