@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from app.utils.logger import setup_logger
 
 load_dotenv()
 
@@ -138,18 +139,51 @@ STATIC_URL = "/static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Celery configuration
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+CELERY_ACCEPT_CONTENT = ['application/json']
+
+CELERY_TASK_SERIALIZER = 'json'
+
+CELERY_RESULT_SERIALIZER = 'json'
+
+# Logging configuration
+
+LOG_DIR = LOGS_DIR_PROD if get_current_git_branch() == 'main' else LOGS_DIR_DEV
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOG_DIR, 'django.log'),
+            'maxBytes': 1e6,
+            'backupCount': 1,
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
 
 # CONFIG VARIABLES
 
-LOGS_DIR_PROD = "../logs/prod"
+LOGS_DIR_PROD = "/var/app/ATP/logs/prod"
 
-LOGS_DIR_DEV = "../logs/dev"
-
-EVALUATOR_VERSION = "Tyr"
+LOGS_DIR_DEV = "/var/app/ATP/logs/dev"
 
 ALPACA_ENV = "PAPER"
-
-RDS_PORT = 3306
 
 SNR_MIN_BOUNCES = 3
 

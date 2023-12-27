@@ -21,11 +21,11 @@ def eval_period(evaluator, algo_name, ticker):
         make_log("ALGO", 20, "workflow.log", f"{algo_name} algorithm period start") # Make a different log file for each algorithm?
         evaluator.fetch_error = False
         
-        with fetcher.data_lock:
+        with evaluator.fetcher.data_lock:
             try:
                 make_log("ALGO", 20, "workflow.log", f"{algo_name} is attempting data fetch for {ticker}")
-                fetcher.fetch()
-                data = fetcher.current_data.copy()
+                evaluator.fetcher.fetch()
+                data = evaluator.fetcher.current_data.copy()
                 make_log("ALGO", 20, "workflow.log", "Successful data fetch!")
             except Exception:
                 evaluator.fetch_error = True

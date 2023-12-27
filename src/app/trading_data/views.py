@@ -17,7 +17,7 @@ class OpenPositionView(APIView):
             return Response({"error":"Missing ticker"}, status=status.HTTP_400_BAD_REQUEST)
         if not Algorithm.objects.filter(name=algo_name).exists():
             return Response({"error":"Algorithm does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-        if not Algorithm.objects.filter(name=algo_name).status == "Active":
+        if not Algorithm.objects.get(name=algo_name).status == "Active":
             return Response({"error":"Algorithm is not currently operative"})
         
         try:

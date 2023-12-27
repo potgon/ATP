@@ -22,5 +22,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/algorithms/", ListAlgorithmsView.as_view(), name="list-algorithms"),
     path("api/assets/", ListAssetsView.as_view(), name="list-assets"),
-    path("api/open-position/", OpenPositionView.as_view(), name="open-position"),
+    path("api/trade/open/", OpenPositionView.as_view(), name="open-position"),
 ]
