@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
-from app.utils.logger import setup_logger, get_current_git_branch, LOGS_DIR_DEV, LOGS_DIR_PROD
+from app.utils.logger import get_current_git_branch, LOGS_DIR_DEV, LOGS_DIR_PROD
 
 load_dotenv()
 

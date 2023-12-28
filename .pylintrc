@@ -57,7 +57,7 @@ ignore-paths=
 # Files or directories matching the regular expression patterns are skipped.
 # The regex matches against base names, not paths. The default value ignores
 # Emacs file locks
-ignore-patterns=**/migrations/*.py
+ignore-patterns=
 
 # List of module names for which member attributes should not be checked
 # (useful for modules/projects where namespaces are manipulated during runtime
@@ -174,7 +174,7 @@ const-naming-style=UPPER_CASE
 
 # Minimum line length for functions/classes that require docstrings, shorter
 # ones are exempt.
-docstring-min-length=-1
+docstring-min-length=0
 
 # Naming style matching correct function names.
 function-naming-style=snake_case
@@ -432,7 +432,8 @@ disable=raw-checker-failed,
         use-implicit-booleaness-not-comparison-to-string,
         use-implicit-booleaness-not-comparison-to-zero,
         missing-module-docstring,
-        missing-function-docstring
+        missing-function-docstring,
+        missing-class-docstring
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

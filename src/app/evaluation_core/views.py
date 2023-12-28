@@ -9,7 +9,7 @@ class ListAlgorithmsView(APIView):
         algorithms = Algorithm.objects.all()
         serializer = AlgorithmSerializer(algorithms, many=True)
         return Response(serializer.data)
-    
+
 class ListAssetsView(APIView):
     def get(self, request, *args, **kwargs) -> Response:
         assets = Asset.objects.all()

@@ -1,14 +1,14 @@
-from django.conf import settings
 from functools import lru_cache
+from django.conf import settings
 import pandas as pd
 import talib as ta
 
-from ..models import Asset, ReversalZone
 from app.evaluation_core.base import TradingAlgorithm
 from app.market_data.services import is_forex_day
 from app.trading_data.pattern_factory import find_patterns
 from app.utils.logger import make_log
 from app.utils.periodic import clear_cache
+from ..models import Asset, ReversalZone
 
 patterns = {
     "Engulfing": 2,
@@ -78,11 +78,11 @@ class Tyr(TradingAlgorithm):
 
         for max, min in reversal_dict.items():
             if min <= data["Close"].iloc[-1] <= max:
-                make_log("TYR", 20, "workflow.log", f"SNR contribution: 3")
+                make_log("TYR", 20, "workflow.log", "SNR contribution: 3")
                 return 3
 
         return 0
-    
+
     def custom_metric_handler(self) -> int:
         if self.fetch_error and is_forex_day():
             return 2
@@ -101,10 +101,10 @@ def get_snr_prices(ticker: str) -> dict:
         for rz in reversal_zones:
             max_val = rz.price_range_max
             min_val = rz.price_range_min
-            reversal_range[float(max_val)] = float(min_val)   
+            reversal_range[float(max_val)] = float(min_val)
         make_log("TYR", 20, "workflow.log", f"Fetched: {len(reversal_range)} reversal zones for {ticker}")
         return reversal_range
-    
+
     except Asset.DoesNotExist:
         make_log("TYR", 20, "error.log", f"No asset found for ticker: {ticker}")
         return {}

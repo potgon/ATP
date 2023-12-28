@@ -7,7 +7,7 @@ def send_custom_metric(name, custom_handler=None):
     val = 0
     if custom_handler:
         val = custom_handler()
-    
+
     cloudwatch.put_metric_data(
         MetricData=[
             {

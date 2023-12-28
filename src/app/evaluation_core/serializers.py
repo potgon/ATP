@@ -5,7 +5,7 @@ class AlgorithmSerializer(serializers.ModelSerializer):
     class Meta:
         model = Algorithm
         fields = '__all__'
-        
+
 class AssetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Asset
