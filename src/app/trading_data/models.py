@@ -4,16 +4,15 @@ from datetime import datetime
 
 from app.evaluation_core.models import Asset, Algorithm
 
-class Position(models.Model): # Whole class might need a variable name refactor
-    STATUS_CHOICES = [
-        ("OPEN", "Open"),
-        ("CLOSED", "Closed")
-    ]
-    
+class StatusChoices(models.TextChoices):
+    OPEN = "Open", "Open"
+    CLOSED = "Closed", "Closed"
+
+class Position(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
     algorithm = models.ForeignKey(Algorithm, on_delete=models.CASCADE)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES)
+    status = models.CharField(max_length=10, choices=StatusChoices.choices, default=StatusChoices.CLOSED)
     entry_date = models.DateTimeField(auto_now_add=True)
     exit_date = models.DateTimeField(null=True, blank=True)
     entry_price = models.DecimalField(max_digits=18, decimal_places=5)
