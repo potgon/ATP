@@ -13,7 +13,7 @@ active_evaluators = {}
 algo_ticker_pair = {}
 
 @shared_task
-def manage_algorithm(algo_name, ticker):
+def manage_algorithm(algo_name, ticker, broker):
     if ticker in algo_ticker_pair.values():
         raise DuplicateAssetException(ticker)
     
@@ -22,4 +22,4 @@ def manage_algorithm(algo_name, ticker):
         algo_ticker_pair[algo_name] = ticker
 
     evaluator = active_evaluators[algo_name]
-    eval_period(evaluator, algo_name, ticker)
+    eval_period(evaluator, algo_name, ticker, broker)

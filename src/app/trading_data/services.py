@@ -7,13 +7,7 @@ from app.utils.logger import make_log, log_full_dataframe
 def instantiate_algo(algo_name, ticker):
     return get_evaluator(Fetcher(ticker), algo_name.upper())
 
-def open_broker(): # API Implementation to open position in broker
-    pass
-
-def close_broker(): # API Implementation to close position in broker
-    pass
-
-def eval_period(evaluator, algo_name, ticker):
+def eval_period(evaluator, algo_name, ticker, broker):
     current_pos = None
     make_log("ALGO", 20, "workflow.log", f"Instantiation start: \n Evaluator: {algo_name} \n Fetcher pointing to: {ticker}")
     
@@ -42,13 +36,13 @@ def eval_period(evaluator, algo_name, ticker):
                 if current_pos.should_close(data["Low"], data["High"]):
                     current_pos.close_db(data["Close"])
                     make_log("EVAL_LOOP", 30, "workflow.log", "Closing position in database")
-                    close_broker()
+                    broker.close_pos()
                     make_log("EVAL_LOOP", 30, "workflow.log", "Closing position in broker")
                     current_pos = None
             else: 
                 if evaluator.evalaute():
                     current_pos = Position(data["Close"], data["ATR"], evaluator.alpha)
                     make_log("EVAL_LOOP", 30, "workflow.log", f"Instantiating position...: {'Success!' if current_pos is not None else 'Failure'}")
-                    open_broker()
+                    broker.open_pos()
                     make_log("EVAL_LOOP", 30, "workflow.log", "Opening Position in broker...")
                     
