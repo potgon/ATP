@@ -43,12 +43,10 @@ class ClosePositionView(APIView):
             Broker().close_pos(pos)
         except Exception: # Broker's exception if position couldn't be closed
             return Response({"error":"Position couldn't be closed"},status=status.HTTP_400_BAD_REQUEST)
-        # This block is supopsed to retrieve the exit_price, but I should think of something more efficient
-        ticker = retrieve_single_record(Asset, id=pos.asset_id).ticker
-        fetcher = Fetcher(ticker)
-        with fetcher.data_lock:
-            exit_price = fetcher.current_data["Close"]
-            
+        try:
+            exit_price = Fetcher.get_latest_close(retrieve_single_record(Asset, id=pos.asset_id).ticker)
+        except Exception as e:
+            return Response({"error":"Failed to retrieve exit price for current asset"})
         pos.close_db(exit_price)
         
         return Response({"message":"Position closed successfully"}, status=status.HTTP_202_ACCEPTED)

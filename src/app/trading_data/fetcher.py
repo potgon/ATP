@@ -76,3 +76,7 @@ class Fetcher:
         updated_data.reset_index(inplace=True)
 
         return updated_data
+    
+    @staticmethod
+    def get_latest_result(ticker, column):
+        return yf.Ticker(ticker).history(period="1d")[column].iloc[-1]
