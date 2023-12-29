@@ -7,13 +7,14 @@ from .exceptions import DuplicateAssetException
 from app.evaluation_core.models import Algorithm, Asset
 from .models import Position
 from .broker import Broker
+from .fetcher import Fetcher
 from app.utils.db_utils import retrieve_single_record, retrieve_multiple_records
 
 class OpenPositionView(APIView):
     def post(self, request, *args, **kwargs):
         algo_name = request.data.get("algo_name")
         ticker = request.data.get("ticker")
-        user = request.data.get("user") # Change to whatever method I'll use to auth
+        user = request.data.get("user_id") # Change to whatever method I'll use to auth
         
         if not algo_name:
             return Response({"error":"Missing algorithm"}, status=status.HTTP_400_BAD_REQUEST)
@@ -37,14 +38,18 @@ class OpenPositionView(APIView):
     
 class ClosePositionView(APIView):
     def delete(self, request, *args, **kwargs):
-        try:
-            pos = Position.objects.get(id=request.data.get("id"))
-        except Position.DoesNotExist:
-            return Response({"error":"Position not found"},status=status.HTTP_400_BAD_REQUEST)
+        pos = retrieve_single_record(Position, id=request.data.get("id"), user_id=request.data.get("user_id"))
         try:
             Broker().close_pos(pos)
         except Exception: # Broker's exception if position couldn't be closed
             return Response({"error":"Position couldn't be closed"},status=status.HTTP_400_BAD_REQUEST)
+        # This block is supopsed to retrieve the exit_price, but I should think of something more efficient
+        ticker = retrieve_single_record(Asset, id=pos.asset_id).ticker
+        fetcher = Fetcher(ticker)
+        with fetcher.data_lock:
+            exit_price = fetcher.current_data["Close"]
+            
+        pos.close_db(exit_price)
         
         return Response({"message":"Position closed successfully"}, status=status.HTTP_202_ACCEPTED)
         

@@ -40,6 +40,7 @@ class Position(models.Model):
         self.exit_date = models.DateTimeField.now()
         self.exit_price = exit_price
         self.net_profit = self.calculate_net_profit()
+        self.status = StatusChoices.CLOSED
         self.save()
         
     def calculate_net_profit(self) -> float:
