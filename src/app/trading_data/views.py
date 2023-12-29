@@ -12,14 +12,15 @@ from app.utils.db_utils import retrieve_single_record, retrieve_multiple_records
 
 class OpenPositionView(APIView):
     def post(self, request, *args, **kwargs):
-        algo_name = request.data.get("algo_name")
-        ticker = request.data.get("ticker")
-        user = request.data.get("user_id") # Change to whatever method I'll use to auth
+        try:
+            algo_name = request.data.get("algo_name")
+            ticker = request.data.get("ticker")
+            user = request.data.get("user_id") # Change to whatever method I'll use to auth
+        except KeyError as e:
+            return Response({"error":f"Missing required field {e.args[0]}"}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error":str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-        if not algo_name:
-            return Response({"error":"Missing algorithm"}, status=status.HTTP_400_BAD_REQUEST)
-        if not ticker:
-            return Response({"error":"Missing ticker"}, status=status.HTTP_400_BAD_REQUEST)
         if not retrieve_record(Algorithm, name=algo_name).status == "Active":
             return Response({"error":"Algorithm is not currently operative"})
         
@@ -38,7 +39,15 @@ class OpenPositionView(APIView):
     
 class ClosePositionView(APIView):
     def delete(self, request, *args, **kwargs):
-        pos = retrieve_single_record(Position, id=request.data.get("id"), user_id=request.data.get("user_id"))
+        try:
+            pos_id = request.data.get("id")
+            user_id = request.data.get("user_id")
+        except KeyError as e:
+            return Response({"error":f"Missing required field {e.args[0]}"}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error":str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        pos = retrieve_single_record(Position, id=pos_id, user_id=user_id)
         try:
             Broker().close_pos(pos)
         except Exception: # Broker's exception if position couldn't be closed
