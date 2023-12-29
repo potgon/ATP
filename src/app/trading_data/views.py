@@ -7,6 +7,7 @@ from .exceptions import DuplicateAssetException
 from app.evaluation_core.models import Algorithm, Asset
 from .models import Position
 from .broker import Broker
+from app.utils.db_utils import retrieve_single_record, retrieve_multiple_records
 
 class OpenPositionView(APIView):
     def post(self, request, *args, **kwargs):
@@ -17,13 +18,8 @@ class OpenPositionView(APIView):
         if not algo_name:
             return Response({"error":"Missing algorithm"}, status=status.HTTP_400_BAD_REQUEST)
         if not ticker:
-            return Response({"error":"Missing ticker"}, status=status.HTTP_400_BAD_REQUEST)        
-        try:
-            Algorithm.objects.get(name=algo_name)
-        except Algorithm.DoesNotExist:
-            return Response({"error":"Algorithm does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        if not Algorithm.objects.get(name=algo_name).status == "Active":
+            return Response({"error":"Missing ticker"}, status=status.HTTP_400_BAD_REQUEST)
+        if not retrieve_record(Algorithm, name=algo_name).status == "Active":
             return Response({"error":"Algorithm is not currently operative"})
         
         try:
@@ -33,8 +29,8 @@ class OpenPositionView(APIView):
         except Exception as e:
             return Response({"error":str(e)}, status=status.HTTP_409_CONFLICT)
         
-        if Position.objects.filter(user=user, asset=Asset.objects.get(ticker=ticker),status=StatusChoices.OPEN):
-                return Response({"error":"An open position already exists for this asset"}, status=status.HTTP_400_BAD_REQUEST)
+        if retrieve_multiple_records(Position, user_id=user, asset_id=retrieve_single_record(Asset, ticker=ticker), status=StatusChoices.OPEN):        
+            return Response({"error":"An open position already exists for this asset"}, status=status.HTTP_400_BAD_REQUEST)
             
         schedule_algo.delay(algo_name, ticker, Broker())
         return Response({"message":f"{algo_name} algorithm successfully started for {ticker}"}, status=status.HTTP_202_ACCEPTED)
