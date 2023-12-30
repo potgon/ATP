@@ -19,7 +19,7 @@ class OpenPositionView(APIView):
         except Exception as e:
             return Response({"error":str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-        if not retrieve_record(Algorithm, name=fields["algo_name"]).status == "Active":
+        if not retrieve_record(Algorithm, 1, name=fields["algo_name"]).status == "Active":
             return Response({"error":"Algorithm is not currently operative"})
 
         try:
@@ -29,7 +29,7 @@ class OpenPositionView(APIView):
         except Exception as e:
             return Response({"error":str(e)}, status=status.HTTP_409_CONFLICT)
 
-        if retrieve_multiple_records(Position, user_id=fields["user"], asset_id=retrieve_single_record(Asset, ticker=fields["ticker"]), status=StatusChoices.OPEN):        
+        if retrieve_multiple_records(Position, 0, user_id=fields["user"], asset_id=retrieve_single_record(Asset, 1, ticker=fields["ticker"]), status=StatusChoices.OPEN):        
             return Response({"error":"An open position already exists for this asset"}, status=status.HTTP_400_BAD_REQUEST)
 
         schedule_algo.delay(fields["algo_name"], fields["ticker"], Broker())
@@ -43,13 +43,13 @@ class ClosePositionView(APIView):
         except Exception as e:
             return Response({"error":str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        pos = retrieve_single_record(Position, id=fields["pos_id"], user_id=fields["user_id"])
+        pos = retrieve_single_record(Position, 1, id=fields["pos_id"], user_id=fields["user_id"])
         try:
             Broker().close_pos(pos)
         except Exception: # Broker's exception if position couldn't be closed
             return Response({"error":"Position couldn't be closed"},status=status.HTTP_400_BAD_REQUEST)
         try:
-            exit_price = Fetcher.get_latest_close(retrieve_single_record(Asset, id=pos.asset).ticker)
+            exit_price = Fetcher.get_latest_close(retrieve_single_record(Asset, 1, id=pos.asset).ticker)
         except Exception as e:
             return Response({"error":"Failed to retrieve exit price for current asset"})
         pos.close_db(exit_price)
