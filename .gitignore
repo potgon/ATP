@@ -163,7 +163,6 @@ cython_debug/
 pyright.json
 *.pem
 /.vscode/
-*.toml
-*.lock
 /atp-2Zj6IGNO-py3.9/
 nohup.out
+lint_res.txt
