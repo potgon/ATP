@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -7,6 +8,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from app.utils.api_utils import get_required_fields
 
 class LoginView(APIView):
+    def get(self, request, *args, **kwargs):
+        return render(request, "login.html")
+    
     def post(self, request, *args, **kwargs):
         req_fields = ["username", "password"]
         try:

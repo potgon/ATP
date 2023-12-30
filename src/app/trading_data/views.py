@@ -19,20 +19,21 @@ class OpenPositionView(APIView):
         except Exception as e:
             return Response({"error":str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-        if not retrieve_record(Algorithm, 1, name=fields["algo_name"]).status == "Active":
+        if not retrieve_single_record(Algorithm, 1, name=fields["algo_name"]).status == "Active":
             return Response({"error":"Algorithm is not currently operative"})
 
         try:
-            manage_request(fields["algo_name"], fields["ticker"])
+            manage_request(fields["algo_name"].upper(), fields["ticker"])
         except DuplicateAssetException as e:
             return Response({"error":str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error":str(e)}, status=status.HTTP_409_CONFLICT)
 
-        if retrieve_multiple_records(Position, 0, user_id=fields["user"], asset_id=retrieve_single_record(Asset, 1, ticker=fields["ticker"]), status=StatusChoices.OPEN):        
+        if retrieve_multiple_records(Position, 0, user_id=fields["user"], asset_id=retrieve_single_record(Asset, 1, ticker=fields["ticker"]), status="Open"):
+            print(retrieve_multiple_records(Position, 0, user_id=fields["user"], asset_id=retrieve_single_record(Asset, 1, ticker=fields["ticker"]), status="Open"))        
             return Response({"error":"An open position already exists for this asset"}, status=status.HTTP_400_BAD_REQUEST)
 
-        schedule_algo.delay(fields["algo_name"], fields["ticker"], Broker()) # Wrap this around a try-except?
+        schedule_algo.delay(fields["algo_name"].upper(), fields["ticker"], Broker()) # Wrap this around a try-except?
         return Response({"message":f"{fields['algo_name']} algorithm successfully started for {fields['ticker']}"}, status=status.HTTP_202_ACCEPTED)
 
 class ClosePositionView(APIView):
