@@ -16,11 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from app.evaluation_core.views import ListAlgorithmsView, ListAssetsView
-from app.trading_data.views import OpenPositionView
+from app.trading_data.views import OpenPositionView, ClosePositionView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/algorithms/", ListAlgorithmsView.as_view(), name="list-algorithms"),
     path("api/assets/", ListAssetsView.as_view(), name="list-assets"),
     path("api/trade/open/", OpenPositionView.as_view(), name="open-position"),
+    path("api/trade/close/<int:trade_id>/", ClosePositionView.as_view(), name="close-position"),
 ]

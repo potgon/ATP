@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django_celery_beat.models",
+    "django_celery_beat",
     "rest_framework",
     "app.aws_integration",
     "app.dashboard",
