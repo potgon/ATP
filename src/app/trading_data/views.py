@@ -32,7 +32,7 @@ class OpenPositionView(APIView):
         if retrieve_multiple_records(Position, 0, user_id=fields["user"], asset_id=retrieve_single_record(Asset, 1, ticker=fields["ticker"]), status=StatusChoices.OPEN):        
             return Response({"error":"An open position already exists for this asset"}, status=status.HTTP_400_BAD_REQUEST)
 
-        schedule_algo.delay(fields["algo_name"], fields["ticker"], Broker())
+        schedule_algo.delay(fields["algo_name"], fields["ticker"], Broker()) # Wrap this around a try-except?
         return Response({"message":f"{fields['algo_name']} algorithm successfully started for {fields['ticker']}"}, status=status.HTTP_202_ACCEPTED)
 
 class ClosePositionView(APIView):

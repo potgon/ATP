@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from app.dashboard.views import LoginView
 from app.evaluation_core.views import ListAlgorithmsView, ListAssetsView
 from app.trading_data.views import OpenPositionView, ClosePositionView
 
@@ -24,4 +25,5 @@ urlpatterns = [
     path("api/assets/", ListAssetsView.as_view(), name="list-assets"),
     path("api/trade/open/", OpenPositionView.as_view(), name="open-position"),
     path("api/trade/close/<int:trade_id>/", ClosePositionView.as_view(), name="close-position"),
+    path("login/", LoginView.as_view(), name="login"),
 ]
