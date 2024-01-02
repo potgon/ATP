@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Login</title>
+    <title>Login or Register</title>
 </head>
 
 <body>
@@ -15,6 +15,7 @@
         <input type="password" id="password" name="password"><br><br>
         <button type="submit">Login</button>
     </form>
+    <button onclick="location.href='{% url 'register' %}'">Register</button>
 </body>
 
 </html>
