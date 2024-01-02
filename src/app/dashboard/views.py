@@ -30,15 +30,15 @@ class RegisterView(APIView):
         return render(request, "register.html")
     
     def post(self, request, *args, **kwargs):
-        req_fields = ["username, email, first_name, second_name, password"]
+        req_fields = ["username", "email", "first_name", "last_name", "password"]
         try:
             fields = get_required_fields(request, req_fields)
         except Exception as e:
-            return Response({"error":str(e)}, status=HTTP_400_BAD_REQUEST)
+            return Response({"error":str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
         if User.objects.filter(username=fields["username"]).exists():
             return Response({"error":"Username already exists"}, status=status.HTTP_400_BAD_REQUEST)
         
-        if User.objects.create(username=fields["username"], email=fields["email"], first_name=fields["first_name"], second_name=fields["second_name"], password=make_password(fields["password"])):
-            return Response({"message":"User created successfully"}, status=HTTP_201_CREATED)
-        return Response({"error":"User creation failed"}) # Log failure info
+        if User.objects.create(username=fields["username"], email=fields["email"], first_name=fields["first_name"], last_name=fields["last_name"], password=make_password(fields["password"])):
+            return Response({"message":"User created successfully"}, status=status.HTTP_201_CREATED)
+        return Response({"error":"User creation failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) # Log failure info
