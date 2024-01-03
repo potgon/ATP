@@ -14,10 +14,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from app.dashboard.views import RegisterUserView
-from app.dashboard.views import LoginView
+from rest_framework.authtoken.views import ObtainAuthToken
+
+from app.dashboard.views import RegisterUserView, login_page
 from app.evaluation_core.views import ListAlgorithmsView, ListAssetsView
 from app.trading_data.views import OpenPositionView, ClosePositionView
 
@@ -30,6 +31,7 @@ urlpatterns = [
     path("api/assets/", ListAssetsView.as_view(), name="list-assets"),
     path("api/trade/open/", OpenPositionView.as_view(), name="open-position"),
     path("api/trade/close/<int:trade_id>/", ClosePositionView.as_view(), name="close-position"),
-    path("login/", LoginView.as_view(), name="login"),
+    path("login/", ObtainAuthToken.as_view(), name="login"),
+    path("login-page/", login_page, name="login-page"),
     path('', include(router.urls))
 ]
