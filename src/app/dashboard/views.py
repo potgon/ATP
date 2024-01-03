@@ -6,8 +6,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.mixins import CreateModelMixin
+from rest_framework.viewsets import GenericViewSet
 
 from app.utils.api_utils import get_required_fields
+from .serializers import UserSerializer
 
 class LoginView(APIView):
     def get(self, request, *args, **kwargs):
@@ -25,20 +28,8 @@ class LoginView(APIView):
             return Response({'refresh': str(refresh), 'access': str(refresh.access_token)}, status=status.HTTP_200_OK)
         return Response({"error": "Invalid Credentials"}, status=status.HTTP_400_BAD_REQUEST)
     
-class RegisterView(APIView):
-    def get(self, request, *args, **kwargs):
-        return render(request, "register.html")
-    
-    def post(self, request, *args, **kwargs):
-        req_fields = ["username", "email", "first_name", "last_name", "password"]
-        try:
-            fields = get_required_fields(request, req_fields)
-        except Exception as e:
-            return Response({"error":str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
-        if User.objects.filter(username=fields["username"]).exists():
-            return Response({"error":"Username already exists"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        if User.objects.create(username=fields["username"], email=fields["email"], first_name=fields["first_name"], last_name=fields["last_name"], password=make_password(fields["password"])):
-            return Response({"message":"User created successfully"}, status=status.HTTP_201_CREATED)
-        return Response({"error":"User creation failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) # Log failure info
+class RegisterUserView(GenericViewSet, CreateModelMixin):
+    serializer = UserSerializer
+    queryset = User.objects.all()
+    authentication_classes = []
+    permission_classes = []
