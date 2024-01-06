@@ -55,6 +55,3 @@ class Position(models.Model):
     @staticmethod
     def calculate_tp(close: float, sl: float) -> float:
         return (abs(close - sl) * 1.5) + close
-    
- 
-    

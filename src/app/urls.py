@@ -20,13 +20,12 @@ from rest_framework.routers import DefaultRouter
 
 from app.dashboard.views import RegisterUserView, login_page, register_page
 from app.evaluation_core.views import ListAlgorithmsView, ListAssetsView
-from app.trading_data.views import OpenPositionView, ClosePositionView
+from app.trading_data.views import ClosePositionViewSet
 
 router = DefaultRouter()
 router.register(r"algorithms", ListAlgorithmsView, basename="algorithms")
 router.register(r"assets", ListAssetsView, basename="assets")
-router.register(r"trade/open", OpenPositionView, basename="open-position")
-router.register(r"trade/close/<int:trade-id>", ClosePositionView, basename="close-position")
+router.register(r"trade/close/<int:trade-id>", ClosePositionViewSet, basename="close-position")
 
 urlpatterns = [
     path("admin/", admin.site.urls),

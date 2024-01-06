@@ -6,25 +6,15 @@ from rest_framework.viewsets import GenericViewSet
 from .tasks import manage_request, schedule_algo
 from app.evaluation_core.models import Algorithm, Asset
 from .models import Position
-from .broker import Broker
 from .fetcher import Fetcher
-from .serializers import OpenPositionSerializer, ClosePositionSerializer
-   
+from .serializers import ClosePositionSerializer
+from app.utils.api_utils import get_required_fields
 
-class OpenPositionView(GenericViewSet, CreateModelMixin):
-    serializer_class = OpenPositionSerializer
-    
-    def create(self, serializer):
-        algo_name = serializer.validated_data["algo_name"].upper()
-        ticker = serializer.validated_data["ticker"]
-        manage_request(algo_name, ticker)
-        schedule_algo.delay(algo_name, ticker, Broker())
-
-class ClosePositionView(APIView):
-    serializer_class = ClosePositionSerializer
-    
+class ClosePositionViewSet(GenericViewSet):
     @action(detail=True, methods=["post"])
-    def close(self, request, *args, **kwargs):
-        serializer = ClosePositionSerializer(data=request.data)
-        if serializer.is_valid():
-            pos = Position
+    def close(self, request, *args, **kwargs):  
+        serializer = ClosePositionSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid(raise_exception=True):
+            position = serializer.validated_data['pos_id']
+            serializer.update(position, validated_data=serializer.validated_data)
+            return Response({"message": "Position closed successfully"}, status=status.HTTP_202_ACCEPTED)
