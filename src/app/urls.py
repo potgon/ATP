@@ -15,15 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
 from rest_framework.authtoken.views import ObtainAuthToken
 
-from app.dashboard.views import RegisterUserView, login_page
+from app.dashboard.views import RegisterUserView, login_page, register_page
 from app.evaluation_core.views import ListAlgorithmsView, ListAssetsView
 from app.trading_data.views import OpenPositionView, ClosePositionView
-
-router = DefaultRouter()
-router.register(r'register', RegisterUserView, basename='register')
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -33,5 +29,6 @@ urlpatterns = [
     path("api/trade/close/<int:trade_id>/", ClosePositionView.as_view(), name="close-position"),
     path("login/", ObtainAuthToken.as_view(), name="login"),
     path("login-page/", login_page, name="login-page"),
-    path('', include(router.urls))
+    path("register/", RegisterUserView.as_view({"post": "create"}), name="register"),
+    path("register-page/", register_page, name="register-page"),
 ]

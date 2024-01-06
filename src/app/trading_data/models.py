@@ -34,7 +34,6 @@ class Position(models.Model):
         self.entry_date = datetime.now()
         self.sl = Position.calculate_sl(open_price, atr)
         self.tp = Position.calculate_tp(open_price, self.sl)
-        self.save()
     
     def close_db(self, exit_price: float):
         self.exit_date = models.DateTimeField.now()
