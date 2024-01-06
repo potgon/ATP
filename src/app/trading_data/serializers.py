@@ -15,5 +15,8 @@ class ClosePositionSerializer(serializers.Serializer):
         return position
 
     def update(self, instance, validated_data):
-        instance.close_db(get_latest_result(ticker=instance.asset.ticker), column="Close")
-        return instance
+        if isinstance(instance, Position):
+            instance.close_db(get_latest_result(ticker=instance.asset.ticker), column="Close")
+            return instance
+        else:
+            raise TypeError("Expected a Position instance")
