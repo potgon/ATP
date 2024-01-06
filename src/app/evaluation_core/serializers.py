@@ -16,3 +16,8 @@ class AssetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Asset
         fields = '__all__'
+
+    def validate(self, data):
+        if not Asset.objects.filter(name=data["name"]) or Asset.objects.filter(ticker=data["ticker"]).exists():
+            raise serializers.ValidationError("Asset does not exist")
+        return data
