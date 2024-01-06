@@ -25,15 +25,14 @@ from app.trading_data.views import OpenPositionView, ClosePositionView
 router = DefaultRouter()
 router.register(r"algorithms", ListAlgorithmsView, basename="algorithms")
 router.register(r"assets", ListAssetsView, basename="assets")
+router.register(r"trade/open", OpenPositionView, basename="open-position")
+router.register(r"trade/close/<int:trade-id>", ClosePositionView, basename="close-position")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/algorithms/", ListAlgorithmsView.as_view(), name="list-algorithms"),
-    path("api/assets/", ListAssetsView.as_view(), name="list-assets"),
-    path("api/trade/open/", OpenPositionView.as_view(), name="open-position"),
-    path("api/trade/close/<int:trade_id>/", ClosePositionView.as_view(), name="close-position"),
     path("login/", ObtainAuthToken.as_view(), name="login"),
     path("login-page/", login_page, name="login-page"),
     path("register/", RegisterUserView.as_view({"post": "create"}), name="register"),
     path("register-page/", register_page, name="register-page"),
-] + router.urls
+    path("api/", include(router.urls))
+] 
