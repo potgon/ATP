@@ -22,7 +22,7 @@ def manage_request(algo_name, ticker):
         algo_ticker_pair[algo_name] = ticker
 
 @shared_task
-def schedule_algo(algo_name, ticker, broker):
+def schedule_algo(algo_name, broker):
     evaluator = get_evaluator(active_evaluators[algo_name])
     schedule, created = IntervalSchedule.objects.get_or_create(
         every=Algorithm.objects.get(name=algo_name).exec_interval,
