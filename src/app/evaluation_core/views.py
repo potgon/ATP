@@ -5,14 +5,14 @@ from rest_framework import status
 from rest_framework.decorators import action
 
 from .models import Algorithm, Asset
-from .serializers import AlgorithmSerializer, AssetSerializer
+from .serializers import RunAlgorithmSerializer, AlgorithmSerializer, AssetSerializer
 from app.trading_data.broker import Broker
 from app.trading_data.tasks import manage_request, schedule_algo
 
 class RunAlgorithmView(GenericViewSet):    
     @action(detail=True, methods=["post"])
     def run(self, request, *args, **kwargs):
-        serializer = AlgorithmSerializer(data=request.data)
+        serializer = RunAlgorithmSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             manage_request(serializer.validated_data.get("algo_name"), serializer.validated_data.get("ticker"))
             schedule_algo.delay(serializer.validated_data.get("algo_name"), serializer.validated_data.get("ticker"), Broker())

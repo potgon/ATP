@@ -2,8 +2,6 @@ from rest_framework import serializers
 from .models import Algorithm, Asset
 
 class AlgorithmSerializer(serializers.ModelSerializer):
-    ticker = serializers.CharField(required=True)
-
     class Meta:
         model = Algorithm
         fields = '__all__'
@@ -22,4 +20,11 @@ class AssetSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if not Asset.objects.filter(name=data["name"]) or Asset.objects.filter(ticker=data["ticker"]).exists():
             raise serializers.ValidationError("Asset does not exist")
+        return data
+
+class RunAlgorithmSerializer(AlgorithmSerializer):
+    ticker = serializers.CharField(required=True, max_length=30)
+    
+    def validate(self, data):
+        data = super().validate(data)
         return data
