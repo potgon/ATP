@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import Algorithm, Asset
 
 class AlgorithmSerializer(serializers.ModelSerializer):
+    ticker = serializers.CharField(required=True)
+
     class Meta:
         model = Algorithm
         fields = '__all__'
