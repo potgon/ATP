@@ -4,8 +4,10 @@ from .models import Position
 from .fetcher import get_latest_result
 from app.evaluation_core.models import Algorithm, Asset
 
-class ClosePositionSerializer(serializers.Serializer):
-    pos_id = serializers.IntegerField()
+class ClosePositionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Position
+        fields = '[id]'
 
     def validate_pos_id(self, pos_id):
         try:
