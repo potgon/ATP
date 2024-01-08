@@ -23,12 +23,12 @@ def manage_request(algo_name, ticker):
 
 @shared_task
 def schedule_algo(algo_name, ticker, broker):
-    evaluator = active_evaluators[algo_name]
+    evaluator = get_evaluator(active_evaluators[algo_name])
     schedule, created = IntervalSchedule.objects.get_or_create(
         every=Algorithm.objects.get(name=algo_name).exec_interval,
         period=IntervalSchedule.MINUTES,
     )
     PeriodicTask.objects.update_or_create(
-            name=f"Run Algorithm: {algo.name}",
+            name=f"Run Algorithm: {algo_name}",
             defaults={'interval': interval, 'task': 'app.trading_data.tasks.schedule_algo'}
         )
