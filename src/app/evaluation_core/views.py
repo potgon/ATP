@@ -1,16 +1,16 @@
 from rest_framework.response import Response
-from rest_framework.generics import GenericViewSet
+from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import ListModelMixin
 from rest_framework import status
 from rest_framework.decorators import action
 
 from .models import Algorithm, Asset
 from .serializers import AlgorithmSerializer, AssetSerializer
-from app.trading_data_broker import Broker
+from app.trading_data.broker import Broker
 from app.trading_data.tasks import manage_request, schedule_algo
 
 class RunAlgorithmView(GenericViewSet):    
-    @action(details=True, methods=["post"])
+    @action(detail=True, methods=["post"])
     def run(self, request, *args, **kwargs):
         serializer = AlgorithmSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):

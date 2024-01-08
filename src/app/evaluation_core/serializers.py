@@ -12,7 +12,7 @@ class AlgorithmSerializer(serializers.ModelSerializer):
         if not Algorithm.objects.filter(name=data["algo_name"], status="Active").exists():
             raise serializers.ValidationError("Algorithm is not currently operative")
     
-    return data
+        return data
 
 class AssetSerializer(serializers.ModelSerializer):
     class Meta:

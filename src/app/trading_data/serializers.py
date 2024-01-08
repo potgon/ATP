@@ -1,8 +1,7 @@
 from rest_framework import serializers
 
 from .models import Position
-from .models.Position import ClosePositionViewSet
-from .fetcher import get_latest_result
+from .fetcher import Fetcher
 from app.evaluation_core.models import Algorithm, Asset
 
 class ClosePositionSerializer(serializers.ModelSerializer):
@@ -17,9 +16,9 @@ class ClosePositionSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Position does not exist or you do not have permission to close it")
         return position
 
-    def update(self, instance, validated_data):
+    def update(self, instance):
         if isinstance(instance, Position):
-            instance.close_db(get_latest_result(ticker=instance.asset.ticker), column="Close")
+            instance.close_db(Fetcher.get_latest_result(ticker=instance.asset.ticker), column="Close")
             return instance
         else:
             raise TypeError("Expected a Position instance")

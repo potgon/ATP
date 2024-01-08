@@ -8,7 +8,7 @@ from .fetcher import Fetcher
 from .serializers import ClosePositionSerializer
 
 class ClosePositionViewSet(GenericViewSet, UpdateModelMixin):
-    queryset = Positon.objects.all()
+    queryset = Position.objects.all()
     serializer_class = ClosePositionSerializer
 
     def update(self, request, *args, **kwargs):
