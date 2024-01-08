@@ -1,13 +1,14 @@
 from rest_framework import serializers
 
 from .models import Position
+from .models.Position import ClosePositionViewSet
 from .fetcher import get_latest_result
 from app.evaluation_core.models import Algorithm, Asset
 
 class ClosePositionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Position
-        fields = '[id]'
+        fields = ['id']
 
     def validate_pos_id(self, pos_id):
         try:
