@@ -14,8 +14,8 @@ class RunAlgorithmView(GenericViewSet):
     def run(self, request, *args, **kwargs):
         serializer = RunAlgorithmSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            manage_request(serializer.validated_data.get("algo_name"), serializer.validated_data.get("ticker"))
-            schedule_algo.delay(serializer.validated_data.get("algo_name"), serializer.validated_data.get("ticker"), Broker())
+            manage_request(serializer.validated_data.get("algo_name"), Asset.objects.filter(name=serializer.validated_data.get("name")).ticker)
+            schedule_algo.delay(serializer.validated_data.get("algo_name"), Broker())
             return Response({"message":f"{serializer.validated_data.get('algo_name')} started successfully"})
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

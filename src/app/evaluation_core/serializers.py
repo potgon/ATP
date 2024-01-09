@@ -1,3 +1,5 @@
+from django.contrib.auth.models import User
+
 from rest_framework import serializers
 from .models import Algorithm, Asset
 
@@ -23,8 +25,16 @@ class AssetSerializer(serializers.ModelSerializer):
         return data
 
 class RunAlgorithmSerializer(AlgorithmSerializer):
-    ticker = serializers.CharField(required=True, max_length=30)
+    name = serializers.CharField(required=True, max_length=30)
     
     def validate(self, data):
         data = super().validate(data)
+        try:
+            user = User.objects.filter(id=self.context["request"].user.id)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("Logged user is required to run an algorithm")
+        try:
+            asset = Asset.objects.filter(name=data["name"])
+        except Asset.DoesNotExist:
+            raise serializers.ValidationError("Asset does not exist or is not supported yet")
         return data
