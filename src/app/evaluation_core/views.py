@@ -1,24 +1,30 @@
+from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import ListModelMixin
 from rest_framework import status
 from rest_framework.decorators import action
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.utils.decorators import method_decorator
 
 from .models import Algorithm, Asset
 from .serializers import RunAlgorithmSerializer, AlgorithmSerializer, AssetSerializer
 from app.trading_data.broker import Broker
 from app.trading_data.tasks import manage_request, schedule_algo
 
-class RunAlgorithmView(GenericViewSet):    
-    @action(detail=True, methods=["post"])
+class RunAlgorithmView(GenericViewSet):
+    @method_decorator(ensure_csrf_cookie)
+    @action(detail=True, methods=["get", "post"])
     def run(self, request, *args, **kwargs):
-        serializer = RunAlgorithmSerializer(data=request.data)
-        if serializer.is_valid():
-            manage_request(serializer.validated_data.get("algo_name"), Asset.objects.get(name=serializer.validated_data.get("name")).ticker)
-            schedule_algo.delay(serializer.validated_data.get("algo_name"), Broker())
-            return Response({"message":f"{serializer.validated_data.get('algo_name')} started successfully"})
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if request.method == "POST":
+            serializer = RunAlgorithmSerializer(data=request.data)
+            if serializer.is_valid():
+                manage_request(serializer.validated_data.get("algo_name"), Asset.objects.get(name=serializer.validated_data.get("name".upper())).ticker)
+                schedule_algo.delay(serializer.validated_data.get("algo_name"), Broker())
+                return Response({"message":f"{serializer.validated_data.get('algo_name')} started successfully"})
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return render(request, "run_algorithm.html")
 
 class ListAlgorithmsView(GenericViewSet, ListModelMixin):
     queryset = Algorithm.objects.all()

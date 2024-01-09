@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Run Algorithm</title>
+    <style>
+        label,
+        input,
+        button {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Run Algorithm</h2>
+    <form id="runAlgorithmForm" method="post" action="{% url 'run-algorithm' %}">
+        {% csrf_token %}
+
+        <label for="algo_name">Algorithm Name:</label><br>
+        <input type="text" id="algo_name" name="algo_name" required><br><br>
+
+        <label for="name">Asset Name:</label><br>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <button type="submit">Run Algorithm</button>
+    </form>
+
+    <button onclick="location.href='{% url 'login-page' %}'">Login Page</button>
+</body>
+
+</html>

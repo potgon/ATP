@@ -34,5 +34,6 @@ urlpatterns = [
     path("login-page/", login_page, name="login-page"),
     path("register/", RegisterUserView.as_view({"post": "create"}), name="register"),
     path("register-page/", register_page, name="register-page"),
+    path("run-algo-page/", RunAlgorithmView.as_view({"get":"run", "post":"run"}), name="run-algorithm"),
     path("api/", include(router.urls))
 ] 
