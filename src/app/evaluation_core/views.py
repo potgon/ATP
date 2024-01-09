@@ -13,7 +13,7 @@ class RunAlgorithmView(GenericViewSet):
     @action(detail=True, methods=["post"])
     def run(self, request, *args, **kwargs):
         serializer = RunAlgorithmSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
+        if serializer.is_valid():
             manage_request(serializer.validated_data.get("algo_name"), Asset.objects.get(name=serializer.validated_data.get("name")).ticker)
             schedule_algo.delay(serializer.validated_data.get("algo_name"), Broker())
             return Response({"message":f"{serializer.validated_data.get('algo_name')} started successfully"})
