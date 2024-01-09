@@ -29,12 +29,8 @@ class RunAlgorithmSerializer(AlgorithmSerializer):
     
     def validate(self, data):
         data = super().validate(data)
-        try:
-            user = User.objects.filter(id=self.context["request"].user.id)
-        except User.DoesNotExist:
+        if not User.objects.get(id=self.context["request"].user.id).exists():
             raise serializers.ValidationError("Logged user is required to run an algorithm")
-        try:
-            asset = Asset.objects.filter(name=data["name"])
-        except Asset.DoesNotExist:
-            raise serializers.ValidationError("Asset does not exist or is not supported yet")
+        if not Asset.objects.get(name=data["name"]).exists():
+            raise serializers.ValidationError("Asset does not exist or is not currently supported")
         return data
