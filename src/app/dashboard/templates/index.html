@@ -1,106 +1,12 @@
+{% load static %} 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <title>Algorithmic Trading Platform</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9; /* Subtle contrast background */
-            font-family: Arial, sans-serif;
-        }
-
-        .nav-header {
-            background-color: #0047ab; /* Cobalt blue */
-            height: 60px; /* Static toolbar height */
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 10; /* Ensure it stays on top */
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Add shadow for depth */
-        }
-
-        .logo-placeholder {
-            height: 40px;
-            width: 40px;
-            background-color: white;
-            border-radius: 50%;
-        }
-
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-        }
-
-        .intro-text {
-            text-align: center;
-            padding-top: 100px; /* Below the static toolbar */
-            color: black; /* Ensure texts are black */
-        }
-
-        .intro-text h1, .intro-text p {
-            color: black;
-            margin-bottom: 0.5em;
-        }
-
-        .sign-up-button {
-            display: inline-block;
-            background-color: #007bff; /* Matching the toolbar color */
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-            margin-bottom: 2em; /* Add space before halves */
-        }
-
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            padding-top: 0;
-        }
-
-        .half-section {
-            width: 90%;
-            margin: 20px 0;
-            border-radius: 10px;
-            overflow: hidden;
-            position: relative;
-            height: 200px; /* Adjusted for image background */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .half-section img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            position: absolute;
-            z-index: 1;
-        }
-
-        .button {
-            z-index: 2;
-            position: relative;
-            background-color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            color: black;
-            font-weight: bold;
-        }
-    </style>
 </head>
 <body>
     <div class="nav-header">
