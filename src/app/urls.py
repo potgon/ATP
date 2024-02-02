@@ -18,7 +18,7 @@ from django.urls import path, include
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.routers import DefaultRouter
 
-from app.dashboard.views import RegisterUserView, login_page, register_page
+from app.dashboard.views import RegisterUserView, login_page, register_page, index_page
 from app.evaluation_core.views import ListAlgorithmsView, ListAssetsView, RunAlgorithmView
 from app.trading_data.views import ClosePositionViewSet
 
@@ -30,6 +30,7 @@ router.register(r"trade/close/<int:trade-id>", ClosePositionViewSet, basename="c
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("", index_page, name="main-page"),
     path("login/", ObtainAuthToken.as_view(), name="login"),
     path("login-page/", login_page, name="login-page"),
     path("register/", RegisterUserView.as_view({"post": "create"}), name="register"),
