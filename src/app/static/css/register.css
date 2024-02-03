@@ -23,12 +23,12 @@ h2 {
 }
 label {
     margin: 10px 0 5px;
-    color: #333; /* Darker color for better visibility */
+    color: #333;
 }
 input, button {
     width: 100%;
     padding: 8px;
-    margin-bottom: 20px; /* Reduce space between fields */
+    margin-bottom: 10px;
     border-radius: 5px;
     border: 1px solid #ccc;
 }
@@ -40,4 +40,14 @@ button {
 }
 button:hover {
     background-color: #007bff;
+}
+.login-text{
+    color: #007bff;
+    text-align: center;
+}
+.login-text a {
+    color: #0049a8;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 10px;
 }

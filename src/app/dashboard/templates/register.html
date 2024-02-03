@@ -10,6 +10,7 @@
 <body>
     <div class="form-container">
         <h2>Register</h2>
+        <div class="login-text">Already have an account? <a href="{% url 'login-page' %}">Log in</a></div>
         {% csrf_token %}
         <form method="post" action="{% url 'register' %}">
             <label for="username">Username:</label>
@@ -24,7 +25,6 @@
             <input type="password" id="password" name="password">
             <button type="submit">Register</button>
         </form>
-        <button onclick="location.href='{% url 'login-page' %}'">Login</button>
     </div>
 </body>
 </html>
