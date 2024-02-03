@@ -1,7 +1,21 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body>
+    <form id="loginForm" onsubmit="handleLogin(event)">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username"><br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password"><br><br>
+        <button type="submit">Login</button>
+        <button type="button" onclick="location.href='{% url 'register-page' %}'">Register</button>
+    </form>
     <script type="text/javascript">
         function handleLogin(event) {
             event.preventDefault();  
@@ -27,16 +41,5 @@
             });
         }
     </script>
-</head>
-<body>
-    <h2>Login</h2>
-    <form id="loginForm" onsubmit="handleLogin(event)">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username"><br><br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password"><br><br>
-        <button type="submit">Login</button>
-        <button onclick="location.href='{% url 'register-page' %}'">Register</button>
-    </form>
 </body>
 </html>
