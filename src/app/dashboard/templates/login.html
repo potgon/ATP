@@ -35,12 +35,28 @@
                 },
                 body: JSON.stringify(formData)
             })
-            .then(response => response.json())
+            .then(response => response.json()) // Make sure to parse the response as JSON
             .then(data => {
-                console.log('Success:', data);
+                if (data.token) {
+                    // Login successful
+                    alert('Login successful!');
+                    console.log('Login successful:', data);
+                    // Optionally, redirect the user or store the token
+                    // location.href = '/dashboard-page';
+                } else if (data.non_field_errors) {
+                    // Handle common login error (e.g., wrong credentials)
+                    alert('Login failed: ' + data.non_field_errors.join(' '));
+                    console.error('Login failed:', data);
+                } else {
+                    // Handle other errors (e.g., missing username or password)
+                    alert('Login failed: Please check your input.');
+                    console.error('Login failed:', data);
+                }
             })
             .catch((error) => {
+                // Handle network error or error in the fetch operation
                 console.error('Error:', error);
+                alert('An error occurred. Please try again.');
             });
         }
     </script>
