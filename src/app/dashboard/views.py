@@ -13,10 +13,10 @@ class RegisterUserView(GenericViewSet, CreateModelMixin):
     permission_classes = []
     
 def login_page(request):
-    return render(request, "login.html")
+    return render(request, "web_index.html")
 
 def register_page(request):
-    return render(request, "register.html")
+    return render(request, "web_index.html")
 
 def index_page(request):
     return render(request, "index.html")
