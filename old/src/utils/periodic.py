@@ -2,6 +2,7 @@ import time
 
 last_cache_clear_times = {}
 
+
 def clear_cache(cached_func, interval_in_seconds: int):
     global last_cache_clear_times
     current_time = time.time()

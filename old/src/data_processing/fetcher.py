@@ -1,12 +1,12 @@
-import yfinance as yf
 import threading
+
 import pandas as pd
 import talib as ta
-from requests.exceptions import HTTPError, ConnectionError, Timeout
+import yfinance as yf
+from requests.exceptions import ConnectionError, HTTPError, Timeout
 from retrying import retry
-
-from utils.logger import make_log
 from utils.config import FOREX_DATAFRAME_SIZE
+from utils.logger import make_log
 
 
 class Fetcher:
@@ -23,13 +23,14 @@ class Fetcher:
         temp_data = self._fetch_data(self.ticker)
         with self.data_lock:
             if temp_data.index[-1] not in self.current_data.index:
-                self.current_data = pd.concat([self.current_data, temp_data], axis=0)
+                self.current_data = pd.concat(
+                    [self.current_data, temp_data], axis=0)
             make_log(
                 "FETCHER",
                 20,
                 "workflow.log",
                 f"Appended new data: {self.current_data['Close'].iloc[-1]}",
-            )   
+            )
             if len(self.current_data) > FOREX_DATAFRAME_SIZE:
                 self.current_data = self.current_data.iloc[
                     -FOREX_DATAFRAME_SIZE:

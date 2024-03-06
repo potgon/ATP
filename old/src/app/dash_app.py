@@ -1,18 +1,19 @@
-from dash.dependencies import Input, Output
-import dash
-from dash import dcc, html
-import plotly.graph_objs as go
 import threading
 import time
 from queue import Queue
 
-import app.positions as pt
+import dash
+import plotly.graph_objs as go
 from aws.cdwatch import send_custom_metric
+from dash import dcc, html
+from dash.dependencies import Input, Output
 from data_processing.fetcher import Fetcher
 from evaluator.evaluator_factory import get_evaluator
 from evaluator.evaluators.tyr import get_snr_prices
-from utils.algo_tracker import insert_transaction, alter_transaction
-from utils.logger import make_log, log_full_dataframe, get_current_git_branch
+from utils.algo_tracker import alter_transaction, insert_transaction
+from utils.logger import get_current_git_branch, log_full_dataframe, make_log
+
+import app.positions as pt
 
 app = dash.Dash(__name__)
 fetcher: Fetcher = Fetcher(ticker="AUDUSD=X")
@@ -22,13 +23,15 @@ buy_signals_queue = Queue()
 app.layout = html.Div(
     [
         dcc.Graph(id="live-graph"),
-        dcc.Interval(id="interval-component", interval=3_600_000, n_intervals=0),
+        dcc.Interval(id="interval-component",
+                     interval=3_600_000, n_intervals=0),
     ]
 )
 
 
 @app.callback(
-    Output("live-graph", "figure"), [Input("interval-component", "n_intervals")]
+    Output("live-graph",
+           "figure"), [Input("interval-component", "n_intervals")]
 )
 def update_graph(_):
     try:
@@ -41,7 +44,8 @@ def update_graph(_):
             f"Updating graph with received data: \n {data[-1:]}",
         )
         if data.empty:
-            make_log("GRAPH", 20, "graph.log", "No data available updating the graph")
+            make_log("GRAPH", 20, "graph.log",
+                     "No data available updating the graph")
             return go.Figure()
     except Exception as e:
         make_log("GRAPH", 20, "graph.log", f"Error updating the graph: {e}")
@@ -92,7 +96,8 @@ def run():
         )
 
         web_app_thread = threading.Thread(
-            target=lambda: app.run_server(debug=False, host="127.0.0.1", port=port),
+            target=lambda: app.run_server(
+                debug=False, host="127.0.0.1", port=port),
         )
         web_app_thread.setDaemon(True)
         web_app_thread.start()
@@ -100,7 +105,8 @@ def run():
         make_log("DASH", 20, "workflow.log", "Running service loop...")
         service_loop()
     finally:
-        make_log("DASH", 20, "workflow.log", "Dash web app shutdown successful")
+        make_log("DASH", 20, "workflow.log",
+                 "Dash web app shutdown successful")
 
 
 def service_loop():
@@ -111,16 +117,20 @@ def service_loop():
         make_log("DASH", 20, "workflow.log", "Period start...")
         evaluator.fetch_error = False
         fetcher.fetch()
-        make_log("DASH", 20, "workflow.log", f"Position open?: {type(current_pos)}")
+        make_log("DASH", 20, "workflow.log",
+                 f"Position open?: {type(current_pos)}")
         with fetcher.data_lock:
             try:
                 data = fetcher.current_data.copy()
             except Exception:
                 evaluator.fetch_error = True
                 data = None
-        send_custom_metric("Dataframe Fetch Alert", custom_handler=evaluator.custom_metric_handler)
+        send_custom_metric(
+            "Dataframe Fetch Alert", custom_handler=evaluator.custom_metric_handler
+        )
         if data is None:
-            make_log("DASH", 20, "workflow.log", "Data is empty, skipping interval...")
+            make_log("DASH", 20, "workflow.log",
+                     "Data is empty, skipping interval...")
         else:
             log_full_dataframe("PRICE", 10, "price.log", data)
             if current_pos:
@@ -158,7 +168,8 @@ def service_loop():
                         f"Opening position...: {type(current_pos)}",
                     )
 
-        make_log("DASH", 20, "workflow.log", "Period sleep..." + "\n" + ("-" * 20))
+        make_log("DASH", 20, "workflow.log",
+                 "Period sleep..." + "\n" + ("-" * 20))
         time.sleep(60 * 60)
 
 

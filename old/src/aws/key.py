@@ -1,7 +1,7 @@
-import boto3
 import json
-from botocore.exceptions import ClientError
 
+import boto3
+from botocore.exceptions import ClientError
 from utils.config import ALPACA_ENV
 
 
@@ -22,10 +22,12 @@ def get_api_key():
     region_name = "eu-west-1"
 
     session = boto3.session.Session()
-    client = session.client(service_name="secretsmanager", region_name=region_name)
+    client = session.client(
+        service_name="secretsmanager", region_name=region_name)
 
     try:
-        get_secret_value_response = client.get_secret_value(SecretId=secret_name)
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name)
     except ClientError as e:
         if e.response["Error"]["Code"] == "ResourceNotFoundException":
             print("The requested secret " + secret_name + " was not found")
@@ -43,10 +45,12 @@ def get_db_credentials():
     region_name = "eu-west-1"
 
     session = boto3.session.Session()
-    client = session.client(service_name="secretsmanager", region_name=region_name)
+    client = session.client(
+        service_name="secretsmanager", region_name=region_name)
 
     try:
-        get_secret_value_response = client.get_secret_value(SecretId=secret_name)
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name)
     except ClientError as e:
         print(e)
 

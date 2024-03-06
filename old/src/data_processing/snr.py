@@ -1,13 +1,13 @@
 import numpy as np
 import pandas as pd
-
-from app.dash_app import retrieve_fetcher
 from utils.config import (
     SNR_MIN_BOUNCES,
-    SNR_PROPORTIONALITY_RATIO,
     SNR_PERCENTAGE_RANGE,
+    SNR_PROPORTIONALITY_RATIO,
 )
 from utils.logger import make_log
+
+from app.dash_app import retrieve_fetcher
 
 fetcher = retrieve_fetcher()
 
@@ -45,7 +45,8 @@ def get_pivots():
     data["Resistance"] = data["High"].apply(
         lambda x: x if x in filtered_highs else np.nan
     )
-    data["Support"] = data["Low"].apply(lambda x: x if x in filtered_lows else np.nan)
+    data["Support"] = data["Low"].apply(
+        lambda x: x if x in filtered_lows else np.nan)
 
     return data
 
@@ -129,11 +130,13 @@ def remove_close_zones(df: pd.DataFrame, avg_price: float):
     data = df.copy()
     combined_c_factor = avg_price * SNR_PROPORTIONALITY_RATIO
     combined_prices = (
-        pd.concat([data["Min"], data["Max"]]).sort_values().reset_index(drop=True)
+        pd.concat([data["Min"], data["Max"]]
+                  ).sort_values().reset_index(drop=True)
     )
     price_diffs = combined_prices.diff().abs()
     valid_prices = price_diffs > combined_c_factor
-    make_log("SNR", 20, "workflow.log", f"Current range threshold: {combined_c_factor}")
+    make_log("SNR", 20, "workflow.log",
+             f"Current range threshold: {combined_c_factor}")
     filtered_prices = combined_prices[valid_prices]
     valid_df = data[
         data["Min"].isin(filtered_prices) | data["Max"].isin(filtered_prices)

@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
-import pandas as pd
 
+import pandas as pd
 from aws.db import execute_sql
 from utils.logger import make_log
 

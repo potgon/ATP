@@ -1,13 +1,13 @@
 import logging
 import os
-from logging.handlers import RotatingFileHandler
-import pandas as pd
 import subprocess
+from logging.handlers import RotatingFileHandler
 
-from utils.config import LOGS_DIR_PROD, LOGS_DIR_DEV
-
+import pandas as pd
+from utils.config import LOGS_DIR_DEV, LOGS_DIR_PROD
 
 loggers = {}
+
 
 def setup_logger(name: str, level: int, log_file: str) -> logging.Logger:
     log_env_dir = LOGS_DIR_PROD if get_current_git_branch() == "main" else LOGS_DIR_DEV
@@ -23,7 +23,8 @@ def setup_logger(name: str, level: int, log_file: str) -> logging.Logger:
 
     if not logger.handlers:
         log_path = os.path.join(log_env_dir, log_file)
-        log_handler = RotatingFileHandler(log_path, maxBytes=1e6, backupCount=1)
+        log_handler = RotatingFileHandler(
+            log_path, maxBytes=1e6, backupCount=1)
         log_handler.setFormatter(formatter)
         log_handler.setLevel(level)
         logger.addHandler(log_handler)
@@ -76,9 +77,15 @@ def log_full_dataframe(name: str, level: int, log_file: str, data: pd.DataFrame)
         pd.set_option("display.max_columns", original_max_columns)
         pd.set_option("display.width", original_width)
 
+
 def get_current_git_branch():
     try:
-        branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode().strip()
+        branch = (
+            subprocess.check_output(
+                ["git", "rev-parse", "--abbrev-ref", "HEAD"])
+            .decode()
+            .strip()
+        )
         return branch
     except subprocess.CalledProcessError:
         return "unknown"

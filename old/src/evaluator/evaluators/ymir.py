@@ -1,5 +1,5 @@
-import talib as ta
 import pandas as pd
+import talib as ta
 
 from .base import TradingAlgorithm
 
@@ -19,7 +19,7 @@ class Ymir(TradingAlgorithm):
         data["RSI"] = ta.RSI(data["Close"], timeperiod=14)
 
         return data
-    
+
     def custom_metric_handler(self):
         pass
 

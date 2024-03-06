@@ -1,5 +1,6 @@
 import datetime
 
+
 def is_forex_day(date=None) -> bool:
     """
     Determines whether Forex market is operating
@@ -8,16 +9,15 @@ def is_forex_day(date=None) -> bool:
     """
     if not date:
         date = datetime.datetime.utcnow()
-        
+
     weekday = date.weekday
     time = date.time()
-    
-    if weekday == 4 and time >= datetime.time(22,0):
+
+    if weekday == 4 and time >= datetime.time(22, 0):
         return False
     elif weekday == 5:
         return False
-    elif weekday == 6 and time < datetime.time(22,0):
+    elif weekday == 6 and time < datetime.time(22, 0):
         return False
-    
+
     return True
-    

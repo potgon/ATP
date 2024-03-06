@@ -1,14 +1,15 @@
-import talib as ta
-import pandas as pd
 from functools import lru_cache
 
+import pandas as pd
+import talib as ta
 from aws.db import execute_sql
 from data_processing.pattern_recog import find_patterns
-from .base import TradingAlgorithm
 from markets.forex import is_forex_day
 from utils.config import MAX_CDL_CONTRIBUTION
 from utils.logger import make_log
 from utils.periodic import clear_cache
+
+from .base import TradingAlgorithm
 
 patterns = {
     "Engulfing": 2,
@@ -22,6 +23,7 @@ patterns = {
     "Shooting Star": -1,
     "Hanging Man": -1,
 }
+
 
 class Tyr(TradingAlgorithm):
     def __init__(self, fetcher):
@@ -82,7 +84,7 @@ class Tyr(TradingAlgorithm):
                 return 3
 
         return 0
-    
+
     def custom_metric_handler(self) -> int:
         if self.fetch_error and is_forex_day():
             return 2
@@ -91,17 +93,18 @@ class Tyr(TradingAlgorithm):
         else:
             return 0
 
+
 @lru_cache(maxsize=100)
 def get_snr_prices(ticker: str) -> dict:
     clear_cache(get_snr_prices, 432000)
     sql_result = execute_sql(
         "SELECT rz.price_range_max, rz.price_range_min FROM reversal_zones rz JOIN assets a ON rz.asset_id = a.id WHERE a.name = :ticker",
-        {'ticker': ticker}
+        {"ticker": ticker},
     )
     reversal_range = {}
     for row in sql_result:
-        max_val = row['price_range_max']
-        min_val = row['price_range_min']
+        max_val = row["price_range_max"]
+        min_val = row["price_range_min"]
         reversal_range[float(max_val)] = float(min_val)
 
     make_log(
