@@ -1,11 +1,12 @@
-from rest_framework import serializers
-from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User
+from rest_framework import serializers
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'password')
+        fields = ("username", "email", "first_name", "last_name", "password")
 
     def validate_password(self, value):
         if len(value) < 5:
@@ -13,5 +14,6 @@ class UserSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        validated_data['password'] = make_password(validated_data.get('password'))
+        validated_data["password"] = make_password(
+            validated_data.get("password"))
         return super(UserSerializer, self).create(validated_data)

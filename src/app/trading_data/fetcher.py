@@ -1,10 +1,11 @@
-import yfinance as yf
 import threading
+
 import pandas as pd
 import talib as ta
-from requests.exceptions import HTTPError, ConnectionError, Timeout
-from retrying import retry
+import yfinance as yf
 from django.conf import settings
+from requests.exceptions import ConnectionError, HTTPError, Timeout
+from retrying import retry
 
 from app.utils.logger import make_log
 
@@ -23,7 +24,8 @@ class Fetcher:
         temp_data = self._fetch_data(self.ticker)
         with self.data_lock:
             if temp_data.index[-1] not in self.current_data.index:
-                self.current_data = pd.concat([self.current_data, temp_data], axis=0)
+                self.current_data = pd.concat(
+                    [self.current_data, temp_data], axis=0)
             make_log(
                 "FETCHER",
                 20,
@@ -76,7 +78,7 @@ class Fetcher:
         updated_data.reset_index(inplace=True)
 
         return updated_data
-    
+
     @staticmethod
     def get_latest_result(ticker, column):
         return yf.Ticker(ticker).history(period="1d")[column].iloc[-1]

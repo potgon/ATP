@@ -10,10 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
+
 from dotenv import load_dotenv
-from app.utils.logger import get_current_git_branch, LOGS_DIR_DEV, LOGS_DIR_PROD
+
+from app.utils.logger import LOGS_DIR_DEV  # , LOGS_DIR_PROD
 
 load_dotenv()
 
@@ -63,7 +65,7 @@ MIDDLEWARE = [
 ]
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES" : [
+    "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ]
 }
@@ -73,9 +75,7 @@ ROOT_URLCONF = "app.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [
-            os.path.join(BASE_DIR, "app/dashboard/templates")
-            ],
+        "DIRS": [os.path.join(BASE_DIR, "app/dashboard/templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -98,7 +98,7 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": os.environ.get("DB_NAME"),
-        "USER": os.environ.get("DB_USER"), # Use AWS Secrets
+        "USER": os.environ.get("DB_USER"),  # Use AWS Secrets
         "PASSWORD": os.environ.get("DB_PASSWORD"),
         "HOST": os.environ.get("DB_HOST"),
         "PORT": os.environ.get("DB_PORT"),
@@ -144,7 +144,9 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
-STATICFILES_DIRS = [BASE_DIR / "app/static",]
+STATICFILES_DIRS = [
+    BASE_DIR / "app/static",
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -153,15 +155,15 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Celery configuration
 
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = "redis://localhost:6379/0"
 
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 
-CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_ACCEPT_CONTENT = ["application/json"]
 
-CELERY_TASK_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = "json"
 
-CELERY_RESULT_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = "json"
 
 # Config variables
 
@@ -179,25 +181,25 @@ MAX_CDL_CONTRIBUTION = 3
 
 # Logging configuration
 
-LOG_DIR = LOGS_DIR_PROD if get_current_git_branch() == 'main' else LOGS_DIR_DEV
+LOG_DIR = LOGS_DIR_DEV
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(LOG_DIR, 'django.log'),
-            'maxBytes': 1e6,
-            'backupCount': 1,
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(LOG_DIR, "django.log"),
+            "maxBytes": 1e6,
+            "backupCount": 1,
         },
     },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "DEBUG",
+            "propagate": True,
         },
     },
 }

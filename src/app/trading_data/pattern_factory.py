@@ -1,6 +1,7 @@
-import talib as ta
-import pandas as pd
 from typing import Callable
+
+import pandas as pd
+import talib as ta
 
 
 def find_patterns(df: pd.DataFrame, pattern_list: list) -> pd.DataFrame:

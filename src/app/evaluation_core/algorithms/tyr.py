@@ -1,13 +1,15 @@
 from functools import lru_cache
-from django.conf import settings
+
 import pandas as pd
 import talib as ta
+from django.conf import settings
 
 from app.evaluation_core.base import TradingAlgorithm
 from app.market_data.services import is_forex_day
 from app.trading_data.pattern_factory import find_patterns
 from app.utils.logger import make_log
 from app.utils.periodic import clear_cache
+
 from ..models import Asset, ReversalZone
 
 patterns = {
@@ -22,6 +24,7 @@ patterns = {
     "Shooting Star": -1,
     "Hanging Man": -1,
 }
+
 
 class Tyr(TradingAlgorithm):
     def __init__(self, fetcher):
@@ -69,7 +72,10 @@ class Tyr(TradingAlgorithm):
                 elif data[pattern].iloc[-1] == -100:
                     alpha -= value
 
-        alpha = max(min(alpha, settings.MAX_CDL_CONTRIBUTION), -(settings.MAX_CDL_CONTRIBUTION))
+        alpha = max(
+            min(alpha, settings.MAX_CDL_CONTRIBUTION), -
+            (settings.MAX_CDL_CONTRIBUTION)
+        )
         make_log("TYR", 20, "workflow.log", f"CDL contribution: {alpha}")
         return alpha
 
@@ -91,6 +97,7 @@ class Tyr(TradingAlgorithm):
         else:
             return 0
 
+
 @lru_cache(maxsize=100)
 def get_snr_prices(ticker: str) -> dict:
     clear_cache(get_snr_prices, 432000)
@@ -102,9 +109,15 @@ def get_snr_prices(ticker: str) -> dict:
             max_val = rz.price_range_max
             min_val = rz.price_range_min
             reversal_range[float(max_val)] = float(min_val)
-        make_log("TYR", 20, "workflow.log", f"Fetched: {len(reversal_range)} reversal zones for {ticker}")
+        make_log(
+            "TYR",
+            20,
+            "workflow.log",
+            f"Fetched: {len(reversal_range)} reversal zones for {ticker}",
+        )
         return reversal_range
 
     except Asset.DoesNotExist:
-        make_log("TYR", 20, "error.log", f"No asset found for ticker: {ticker}")
+        make_log("TYR", 20, "error.log",
+                 f"No asset found for ticker: {ticker}")
         return {}
