@@ -14,8 +14,9 @@ RUN apt-get update && apt-get install -y \
     libmariadb-dev-compat \
     pkg-config
 
-RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz -O /tmp/ta-lib-0.4.0-src.tar.gz && \
-    tar -xzf /tmp/ta-lib-0.4.0-src.tar.gz -C /tmp && \
+COPY static_dependencies/ta-lib-0.4.0-src.tar.gz /tmp/ta-lib-0.4.0-src.tar.gz
+
+RUN tar -xzf /tmp/ta-lib-0.4.0-src.tar.gz -C /tmp && \
     cd /tmp/ta-lib && \
     ./configure --prefix=/usr && \
     make && \
