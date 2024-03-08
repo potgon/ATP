@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views import View
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.mixins import ListModelMixin
@@ -9,6 +10,9 @@ from rest_framework.viewsets import GenericViewSet
 
 from app.trading_data.broker import Broker
 from app.trading_data.tasks import manage_request, schedule_algo
+from app.evaluation_core.scripts.debug_algo import draw_fig
+
+# from scripts.debug_algo import
 
 from .models import Algorithm, Asset
 from .serializers import AlgorithmSerializer, AssetSerializer, RunAlgorithmSerializer
@@ -54,3 +58,10 @@ class ListAssetsView(GenericViewSet, ListModelMixin):
 
     def list(self, request, *args, **kwargs):
         return super(ListAssetsView, self).list(request, *args, **kwargs)
+
+
+class DebugAlgoView(View):
+    def get(self, request, *args, **kwargs):
+        img = draw_fig()
+        context = {"image_base64": img}
+        return render(request, "debug_algo.html", context)

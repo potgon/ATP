@@ -24,6 +24,7 @@ from app.evaluation_core.views import (
     ListAlgorithmsView,
     ListAssetsView,
     RunAlgorithmView,
+    DebugAlgoView,
 )
 from app.trading_data.views import ClosePositionViewSet
 
@@ -40,13 +41,13 @@ urlpatterns = [
     path("", index_page, name="main-page"),
     path("login/", ObtainAuthToken.as_view(), name="login"),
     path("login-page/", login_page, name="login-page"),
-    path("register/",
-         RegisterUserView.as_view({"post": "create"}), name="register"),
+    path("register/", RegisterUserView.as_view({"post": "create"}), name="register"),
     path("register-page/", register_page, name="register-page"),
     path(
         "run-algo-page/",
         RunAlgorithmView.as_view({"get": "run", "post": "run"}),
         name="run-algorithm",
     ),
+    path("debug-algo/", DebugAlgoView.as_view(), name="debug-algo"),
     path("api/", include(router.urls)),
 ]

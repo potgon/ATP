@@ -3,8 +3,6 @@ from django.shortcuts import render
 from rest_framework.mixins import CreateModelMixin
 from rest_framework.viewsets import GenericViewSet
 
-from app.utils.api_utils import get_required_fields
-
 from .serializers import UserSerializer
 
 
