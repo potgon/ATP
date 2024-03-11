@@ -35,4 +35,4 @@ class NatgasARIMAModel:
         self.arima_trainer.trained_model = self.trained_model
 
     def predict(self, steps=5):
-        return self.arima_trainer.predict(steps)
+        return self.arima_trainer.predict(steps) 
