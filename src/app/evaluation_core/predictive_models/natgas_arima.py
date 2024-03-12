@@ -1,3 +1,5 @@
+import numpy as np
+import pandas as pd
 import yfinance as yf
 from joblib import dump, load
 
@@ -17,7 +19,18 @@ class NatgasARIMAModel:
         self.trained_model = None
 
     def data_init(self, ticker="NG=F", start_date="2019-01-01", end_date="2022-01-01"):
-        data = yf.download(ticker, start=start_date, end=end_date)["Close"]
+        data = yf.download(ticker, start=start_date, end=end_date)[["Close"]].copy()
+        # Best model:  ARIMA(1,0,0)(2,1,0)[12]
+        timestamp_s = data.index.map(pd.Timestamp.timestamp)
+
+        year = (365.2425) * 24 * 60 * 60
+        data["year_sin"] = np.sin(timestamp_s * (2 * np.pi / year))
+        data["year_cos"] = np.cos(timestamp_s * (2 * np.pi / year))
+
+        data = data.astype("float32")
+
+        make_log("NATData", 20, "data.log", f"Dataframe: {data}")
+
         return data
 
     def train(self, data):
