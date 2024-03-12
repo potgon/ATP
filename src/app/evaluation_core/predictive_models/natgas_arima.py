@@ -9,7 +9,9 @@ from app.evaluation_core.model_trainers.arima_trainer import ARIMATrainer
 
 class NatgasARIMAModel:
     def __init__(self, order=None, seasonal_order=None, auto_arima_enabled=False):
-        self.order = None if auto_arima_enabled else order
+        self.order = (
+            None if auto_arima_enabled else order
+        )  # Keep this logic only in arima_trainer
         self.seasonal_order = seasonal_order
         self.auto_arima_enabled = auto_arima_enabled
         self.arima_trainer = ARIMATrainer(
