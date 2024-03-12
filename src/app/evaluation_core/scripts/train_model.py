@@ -4,8 +4,8 @@ from app.evaluation_core.predictive_models.natgas_arima import NatgasARIMAModel
 
 
 def train_and_evaluate():
-    model = NatgasARIMAModel(order=(1, 1, 1), auto_arima_enabled=True)
-    data = model.fetch_data(start_date="2019-01-01", end_date="2021-12-31")
+    model = NatgasARIMAModel(auto_arima_enabled=True)
+    data = model.data_init(start_date="2019-01-01", end_date="2021-12-31")
 
     split_idx = int(len(data) * 0.8)
     train_data, test_data = data[:split_idx], data[split_idx:]
