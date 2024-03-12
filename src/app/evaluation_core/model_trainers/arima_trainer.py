@@ -23,9 +23,9 @@ class ARIMATrainer(ModelTrainer):
                                     suppress_warnings=True, 
                                     stepwise=True)
             # fmt: on
-            self.order = auto_model.order()
-            self.seasonal_order = auto_model.seasonal_order()
-            self.trained_model = model.fit()
+            self.order = auto_model.order
+            self.seasonal_order = auto_model.seasonal_order
+            self.trained_model = auto_model.fit()
         else:
             model = ARIMA(data, order=self.order, seasonal_order=self.seasonal_order)
             self.trained_model = model.fit()
