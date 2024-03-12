@@ -34,8 +34,19 @@ class NatgasARIMAModel:
         dump(self.trained_model, filepath)
 
     def load_model(self, filepath):
-        self.trained_model = load(filepath)
-        self.arima_trainer.trained_model = self.trained_model
+        try:
+            self.trained_model = load(filepath)
+            self.arima_trainer.trained_model = self.trained_model
+        except FileNotFoundError:
+            print(
+                f"Failed to load model from {filepath}"
+            )  # Check logger module and implement custom logging
 
     def predict(self, steps=5):
-        return self.arima_trainer.predict(steps)
+        if self.trained_model:
+            return self.arima_trainer.predict(steps)
+        else:
+            print(
+                "Model not trained/loaded"
+            )  # Check logger module and implement custom logging
+            return None
