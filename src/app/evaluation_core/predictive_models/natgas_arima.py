@@ -1,5 +1,4 @@
 import yfinance as yf
-from sklearn.model_selection import train_test_split
 from joblib import dump, load
 
 from app.evaluation_core.model_trainers.arima_trainer import ARIMATrainer
@@ -33,21 +32,16 @@ class NatgasARIMAModel:
             self.trained_model = load(filepath)
             self.arima_trainer.trained_model = self.trained_model
         except FileNotFoundError:
-            print(
-                f"Failed to load model from {filepath}"
-            )  # Keeping print for now, will implement custom logging later
-            # make_log(
-            #     f"NATGASARIMA",
-            #     20,
-            #     "algorithm.log",
-            #     "Failed to load model from {filepath}",
-            # )
+            make_log(
+                f"NATGASARIMA",
+                20,
+                "algorithm.log",
+                "Failed to load model from {filepath}",
+            )
 
     def predict(self, steps=5):
         if self.trained_model:
             return self.arima_trainer.predict(steps)
         else:
-            print("Model not trained/loaded")
-            # Keeping print for now, will implement custom logging later
-            # make_log("NATGASARIMA", 20, "algorithm.log", "Model not trained/loaded")
+            make_log("NATGASARIMA", 20, "algorithm.log", "Model not trained/loaded")
             return None
