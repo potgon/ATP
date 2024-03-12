@@ -17,3 +17,5 @@ services:
     env_file:
       - .env
     command: ["poetry", "run", "python", "src/app/evaluation_core/scripts/train_model.py"]
+    environment:
+      - PYTHONPATH=/app/src

@@ -1,8 +1,8 @@
 from pmdarima import auto_arima
-
-from evaluation_core.model_base import ModelTrainer
 from statsmodels.tsa.arima.model import ARIMA
 from sklearn.metrics import mean_absolute_error
+
+from app.evaluation_core.model_base import ModelTrainer
 
 
 class ARIMATrainer(ModelTrainer):
