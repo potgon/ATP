@@ -9,3 +9,11 @@ services:
       - "8000:8000"
     env_file:
       - .env
+
+  model-trainer:
+    build: .
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    command: ["poetry", "run", "python", "src/app/evaluation_core/scripts/train_model.py"]

@@ -1,7 +1,5 @@
 import pandas as pd
 
-from pmdarima import auto_arima
-
 from app.evaluation_core.base import TradingAlgorithm
 
 
