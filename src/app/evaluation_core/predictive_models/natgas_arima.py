@@ -8,8 +8,8 @@ from app.evaluation_core.model_trainers.arima_trainer import ARIMATrainer
 
 
 class NatgasARIMAModel:
-    def __init__(self, order, seasonal_order=None, auto_arima_enabled=False):
-        self.order = order
+    def __init__(self, order=None, seasonal_order=None, auto_arima_enabled=False):
+        self.order = None if auto_arima_enabled else order
         self.seasonal_order = seasonal_order
         self.auto_arima_enabled = auto_arima_enabled
         self.arima_trainer = ARIMATrainer(
@@ -24,7 +24,10 @@ class NatgasARIMAModel:
         return data
 
     def train(self, data):
-        self.arima_trainer(data)
+        self.arima_trainer.train(data)
+        if self.auto_arima_enabled:
+            self.order = self.arima_trainer.order
+            self.seasonal_order = self.arima_trainer.seasonal_order
         self.trained_model = self.arima_trainer.trained_model
 
     def save_model(self, filepath):
@@ -35,4 +38,4 @@ class NatgasARIMAModel:
         self.arima_trainer.trained_model = self.trained_model
 
     def predict(self, steps=5):
-        return self.arima_trainer.predict(steps) 
+        return self.arima_trainer.predict(steps)
