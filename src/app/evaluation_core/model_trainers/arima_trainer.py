@@ -8,9 +8,13 @@ from app.evaluation_core.model_base import ModelTrainer
 class ARIMATrainer(ModelTrainer):
     def __init__(self, order=None, seasonal_order=None, auto_arima_enabled=False):
         super().__init__()
-        self.order = order
-        self.seasonal_order = seasonal_order
         self.auto_arima_enabled = auto_arima_enabled
+        if not self.auto_arima_enabled:
+            self.order = order
+            self.seasonal_order = seasonal_order
+        else:
+            self.order = None
+            self.seasonal_order = None
         self.trained_model = None
 
     def train(self, data):
@@ -25,10 +29,10 @@ class ARIMATrainer(ModelTrainer):
             # fmt: on
             self.order = auto_model.order
             self.seasonal_order = auto_model.seasonal_order
-            self.trained_model = auto_model.fit()
+            self.trained_model = auto_model.fit(data)
         else:
             model = ARIMA(data, order=self.order, seasonal_order=self.seasonal_order)
-            self.trained_model = model.fit()
+            self.trained_model = model.fit(data)
 
     def evaluate(self, actual, forecasted):
         return mean_absolute_error(actual, forecasted)
