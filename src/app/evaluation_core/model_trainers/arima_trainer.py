@@ -19,14 +19,12 @@ class ARIMATrainer(ModelTrainer):
 
     def train(self, data):
         if self.auto_arima_enabled:
-            # fmt: off
             auto_model = auto_arima(data, start_p=1, start_q=1,
                                     max_p=5, max_q=5, m=12,
                                     start_P=0, seasonal=True, D=1, trace=True,
                                     error_action='ignore',  
                                     suppress_warnings=True, 
                                     stepwise=True)
-            # fmt: on
             self.order = auto_model.order
             self.seasonal_order = auto_model.seasonal_order
             self.trained_model = auto_model.fit(data)
