@@ -2,9 +2,9 @@ import tensorflow as tf
 
 from src.app.evaluation_core.model_core.model_base import ModelTrainer
 
-class LSTMModel(ModelTrainer):
+class LSTMTrainer(ModelTrainer):
     
-    def __init__(self, window, units=50):
+    def __init__(self, window, units):
         self.window = window
         self.units = units
         self.model = None
