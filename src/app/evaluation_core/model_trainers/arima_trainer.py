@@ -7,7 +7,6 @@ from app.evaluation_core.model_core.model_base import ModelTrainer
 
 class ARIMATrainer(ModelTrainer):
     def __init__(self, order=None, seasonal_order=None, auto_arima_enabled=False):
-        super().__init__()
         self.auto_arima_enabled = auto_arima_enabled
         if not self.auto_arima_enabled:
             self.order = order
