@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from src.app.evaluation_core.model_core.model_base import ModelTrainer
+from app.evaluation_core.model_core.model_base import ModelTrainer
 
 class LSTMTrainer(ModelTrainer):
     
