@@ -2,25 +2,16 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 
-from src.app.evaluation_core.model_core.baseline import Baseline
-from src.app.evaluation_core.model_core.window_generator import WindowGenerator
-from src.app.evaluation_core.model_trainers.lstm_trainer import LSTMTrainer
-
+from app.evaluation_core.model_core.window_pipeline import data_init, data_processing
+from app.evaluation_core.model_trainers.lstm_trainer import LSTMTrainer
 
 class LSTMModel:
     def __init__(self, units=50):
-        self.train_df, self.val_df, self.test_df = self.data_processing(self.data_init())
-        self.LSTMTrainer = LSTMTrainer(window=self.window_init(), units=units)
-        self.baseline = self.baseline_init()
+        self._LSTMTrainer = LSTMTrainer(window=data_processing(self.feature_engineering()), units=units) # Refactor, ping-pong is no bueno
         self.trained_model = None
 
-    def data_init(self) -> pd.DataFrame:
-        df = pd.read_csv("data/datasets/SP500_data.csv")
-        df.drop("Dividends", axis=1, inplace=True)
-        df.drop("Stock Splits", axis=1, inplace=True)
-        return df
-
-    def feature_engineering(self, df) -> pd.DataFrame:
+    def feature_engineering(self) -> pd.DataFrame:
+        df = data_init("data/datasets/SP500_data.csv", ["Dividends", "Stock Splits"])
         date_time = pd.to_datetime(df.pop("Date"), utc=True)
         df["day_of_week"] = date_time.dt.dayofweek
         df["month_of_year"] = date_time.dt.month
@@ -31,46 +22,6 @@ class LSTMModel:
         df["month_cos"] = np.cos((df["month_of_year"] - 1) * (2 * np.pi / 12))
 
         return df
-
-    def data_split(self, df):
-        n = len(df)
-        train_df = df[0 : int(n * 0.7)]
-        val_df = df[int(n * 0.7) : int(n * 0.9)]
-        test_df = df[int(n * 0.9) :]
-
-        return train_df, val_df, test_df
-
-    def data_normalization(self, train_df, val_df, test_df):
-        train_mean = train_df.mean()
-        train_std = train_df.std()
-
-        train_df = (train_df - train_mean) / train_std
-        val_df = (val_df - train_mean) / train_std
-        test_df = (test_df - train_mean) / train_std
-
-        return train_df, val_df, test_df
-
-    def data_processing(self, df):
-        df = self.feature_engineering(df)
-        train_df, val_df, test_df = self.data_split(df)
-        train_df, val_df, test_df = self.data_normalization(train_df, val_df, test_df)
-
-        return train_df, val_df, test_df
-
-    def window_init(self):
-        return  WindowGenerator(input_width=30,
-                              label_width=1,
-                              shift=1,
-                              train_df=self.train_df,
-                              val_df=self.val_df,
-                              test_df=self.test_df,
-                              label_columns=["Close"])
-        
-    def baseline_init(self):
-        baseline = Baseline(self.train_df.columns.get_loc("Close"))
-        baseline.compile(loss=tf.losses.MeanSquaredError(),
-                         metrics=[tf.metrics.MeanAbsoluteError()])
-        return baseline
         
     def train(self):
         self.trained_model = self.LSTMTrainer.train()
