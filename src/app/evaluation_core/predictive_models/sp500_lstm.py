@@ -1,13 +1,16 @@
 import pandas as pd
 import numpy as np
+import tensorflow as tf
 
-from src.app.evaluation_core.model_core import baseline, window_generator
+from src.app.evaluation_core.model_core.baseline import Baseline
+from src.app.evaluation_core.model_core.window_generator import WindowGenerator
 from src.app.evaluation_core.model_trainers.lstm_trainer import LSTMTrainer
 
 class LSTMModel:
     def __init__(self, units=50):
-        self.LSTMTrainer = LSTMTrainer(window=self.window_init(), units=units)
         self.train_df, self.val_df, self.test_df = self.data_processing(self.data_init())
+        self.LSTMTrainer = LSTMTrainer(window=self.window_init(), units=units)
+        self.baseline = self.baseline_init()
         self.trained_model = None
         
     def data_init(self) -> pd.DataFrame:
@@ -57,13 +60,19 @@ class LSTMModel:
         return train_df, val_df, test_df
     
     def window_init(self):
-        return  window_generator(input_width=30,
+        return  WindowGenerator(input_width=30,
                               label_width=1,
                               shift=1,
                               train_df=self.train_df,
                               val_df=self.val_df,
                               test_df=self.test_df,
                               label_columns=["Close"])
+        
+    def baseline_init(self):
+        baseline = Baseline(self.train_df.columns.get_loc("Close"))
+        baseline.compile(loss=tf.losses.MeanSquaredError(),
+                         metrics=[tf.metrics.MeanAbsoluteError()])
+        return baseline
         
     def train(self):
         self.trained_model = self.LSTMTrainer.train()
