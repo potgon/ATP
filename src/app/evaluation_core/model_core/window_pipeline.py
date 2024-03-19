@@ -3,6 +3,7 @@ from src.app.evaluation_core.model_core.window_generator import WindowGenerator
 
 
 def data_init(filepath: str) -> pd.DataFrame:
+    # It'll end up being yf.download()...
     df = pd.read_csv(filepath)
     columns_to_drop = df.columns[df.iloc[0] == 0.0]
     if columns_to_drop:
