@@ -10,6 +10,8 @@ class Trainer(ModelTrainer):
         self.val_performance, self.performance = {}
         self.queue = deque()
         self.prio_queue = deque()
+        self.current_model_instance = None
+        self.current_trained_model = None
 
     def enqueue_model(self, model, user):
         # Check if user is prio
@@ -18,7 +20,7 @@ class Trainer(ModelTrainer):
         # else:
         self.queue.append(model)
 
-    def _get_next_model(self):
+    def _get_next_model_instance(self):
         return self.prio_queue.pop() if self.prio_queue else self.queue.pop()
 
     def _compile_and_fit(model, window, epochs=20, patience=2):
@@ -40,7 +42,10 @@ class Trainer(ModelTrainer):
         return history
 
     def train(self):
-        model = self._get_next_model()
+        self.current_model_instance = self._get_next_model_instance()
+        self.current_trained_model = self._compile_and_fit(
+            self.current_model_instance.model, self.current_model_instance.window
+        )
 
     def evaluate(self):
         pass
