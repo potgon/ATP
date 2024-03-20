@@ -9,18 +9,22 @@ class Trainer(ModelTrainer):
     def __init__(self):
         self.queue = deque()
         self.prio_queue = deque()
+        self.priority_counter = 0
         self.current_model_instance = None
         self.current_trained_model = None
 
     def enqueue_model(self, user, asset, model):
-        # Check if user is prio
-        # if user.prio:
-        self.prio_queue.append((user, asset, model))
-        # else:
-        self.queue.append((user, asset, model))
+        if user.prio:
+            self.prio_queue.append((user, asset, model))
+        else:
+            self.queue.append((user, asset, model))
 
     def _get_next_tuple(self):
-        return self.prio_queue.pop() if self.prio_queue else self.queue.pop()
+        while self.priority_counter < 5:
+            self.priority_counter += 1
+            return self.prio_queue.pop()
+        self.priority_counter = 0
+        return self.queue.pop()
 
     def _compile_and_fit(model, window, epochs=20, patience=2):
         early_stopping = tf.keras.callbacks.EarlyStopping(
