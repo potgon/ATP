@@ -1,11 +1,13 @@
 from collections import deque
 import tensorflow as tf
 
+from .models import TrainedModel
 from .model_base import ModelTrainer
 
 
 class Trainer(ModelTrainer):
     def __init__(self):
+        self.val_performance, self.performance = {}
         self.queue = deque()
         self.prio_queue = deque()
         self.priority_counter = 0
@@ -19,11 +21,12 @@ class Trainer(ModelTrainer):
             self.queue.append((user, asset, model))
 
     def _get_next_tuple(self):
-        while self.priority_counter < 5:
+        if self.prio_queue and self.priority_counter < 5:
             self.priority_counter += 1
             return self.prio_queue.pop()
-        self.priority_counter = 0
-        return self.queue.pop()
+        else:
+            self.priority_counter = 0
+            return self.queue.pop()
 
     def _compile_and_fit(model, window, epochs=20, patience=2):
         early_stopping = tf.keras.callbacks.EarlyStopping(
@@ -50,14 +53,15 @@ class Trainer(ModelTrainer):
         )
 
     def evaluate(self):
-        val_performance = self.current_trained_model.evaluate(
+        self.val_performance = self.current_trained_model.evaluate(
             self.current_model_instance.window.val
         )
-        performance = self.current_trained_model.evaluate(
+        self.performance = self.current_trained_model.evaluate(
             self.current_model_instance.window.test, verbose=0
         )
-        # Prompt the user with the metrics
-        # Give the option to save the model -> persist in db
 
     def predict(self):
+        pass
+
+    def save_model(self):
         pass
