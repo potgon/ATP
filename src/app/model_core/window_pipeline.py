@@ -1,5 +1,5 @@
 import pandas as pd
-from src.app.evaluation_core.model_core.window_generator import WindowGenerator
+from model_core.window_generator import WindowGenerator
 
 
 def data_init(filepath: str) -> pd.DataFrame:

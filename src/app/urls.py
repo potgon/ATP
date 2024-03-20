@@ -24,7 +24,6 @@ from app.evaluation_core.views import (
     ListAlgorithmsView,
     ListAssetsView,
     RunAlgorithmView,
-    DebugAlgoView,
 )
 from app.trading_data.views import ClosePositionViewSet
 
@@ -48,6 +47,5 @@ urlpatterns = [
         RunAlgorithmView.as_view({"get": "run", "post": "run"}),
         name="run-algorithm",
     ),
-    path("debug-algo/", DebugAlgoView.as_view(), name="debug-algo"),
     path("api/", include(router.urls)),
 ]

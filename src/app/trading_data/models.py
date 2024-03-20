@@ -12,8 +12,7 @@ class StatusChoices(models.TextChoices):
 
 
 class Position(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
     algorithm = models.ForeignKey(Algorithm, on_delete=models.CASCADE)
     status = models.CharField(
@@ -40,8 +39,8 @@ class Position(models.Model):
         self.entry_price = entry_price
         self.alpha = alpha
         self.entry_date = datetime.now()
-        self.sl = Position.calculate_sl(open_price, atr)
-        self.tp = Position.calculate_tp(open_price, self.sl)
+        self.sl = Position.calculate_sl(self.entry_price, atr)
+        self.tp = Position.calculate_tp(self.entry_price, self.sl)
 
     def close_db(self, exit_price: float):
         self.exit_date = models.DateTimeField.now()

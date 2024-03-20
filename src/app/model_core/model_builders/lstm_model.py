@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from app.evaluation_core.model_core.window_pipeline import data_processing
+from model_core.window_pipeline import data_processing
 
 
 class LSTMModel:

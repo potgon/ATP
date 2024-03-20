@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "app.evaluation_core",
     "app.market_data",
     "app.trading_data",
+    "app.model_core",
 ]
 
 MIDDLEWARE = [
@@ -148,7 +149,7 @@ STATICFILES_DIRS = [
     BASE_DIR / "app/static",
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -192,8 +193,8 @@ LOGGING = {
         "file": {
             "level": "DEBUG",
             "class": "logging.handlers.RotatingFileHandler",
-            # "filename": os.path.join(LOG_DIR, "django.log"),
-            "filename": "/app/logs/django.log",
+            "filename": os.path.join(LOG_DIR, "django.log"),
+            # "filename": "/app/logs/django.log",
             "maxBytes": 1e6,
             "backupCount": 1,
         },

@@ -2,7 +2,6 @@ from collections import deque
 import tensorflow as tf
 
 from .model_base import ModelTrainer
-from .window_pipeline import data_processing
 
 
 class Trainer(ModelTrainer):

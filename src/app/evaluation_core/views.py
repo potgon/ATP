@@ -10,7 +10,6 @@ from rest_framework.viewsets import GenericViewSet
 
 from app.trading_data.broker import Broker
 from app.trading_data.tasks import manage_request, schedule_algo
-from app.evaluation_core.scripts.debug_algo import draw_fig
 
 # from scripts.debug_algo import
 
@@ -58,10 +57,3 @@ class ListAssetsView(GenericViewSet, ListModelMixin):
 
     def list(self, request, *args, **kwargs):
         return super(ListAssetsView, self).list(request, *args, **kwargs)
-
-
-class DebugAlgoView(View):
-    def get(self, request, *args, **kwargs):
-        img = draw_fig()
-        context = {"image_base64": img}
-        return render(request, "debug_algo.html", context)
