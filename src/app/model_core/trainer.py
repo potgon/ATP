@@ -1,7 +1,7 @@
 from collections import deque
 import tensorflow as tf
 
-from .models import TrainedModel
+from .models import TrainedModel, ModelType
 from .model_base import ModelTrainer
 
 
@@ -64,4 +64,14 @@ class Trainer(ModelTrainer):
         pass
 
     def save_model(self):
-        pass
+        self._save_new_model()
+
+    def _save_new_model(self):
+        model_str = self.current_model_instance.__str__()
+        if not ModelType.objects.filter(name=model_str["model_name"]).exists():
+            ModelType(
+                name=model_str["model_name"],
+                description=model_str["description"],
+                default_hyperparameters=model_str["default_hyperparameters"],
+                default_model_architecture=model_str["default_model_architecture"],
+            ).save()
