@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from app.evaluation_core.models import Asset
 
 
 class ModelType(models.Model):
@@ -13,8 +14,9 @@ class ModelType(models.Model):
 
 
 class TrainedModel(models.Model):
-    model_type = models.ForeignKey(ModelType, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    model_type = models.ForeignKey(ModelType, null=True, on_delete=models.SET_NULL)
+    user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    asset = models.ForeignKey(Asset, null=True, on_delete=models.SET_NULL)
     model_name = models.CharField(max_length=50)
     training_timestamp = models.DateTimeField(auto_now_add=True)
     performance_metrics = models.JSONField()

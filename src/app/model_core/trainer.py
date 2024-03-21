@@ -4,6 +4,7 @@ import os
 import tensorflow as tf
 
 from django.conf import settings
+from app.dashboard.models import PriorityUser
 from .models import TrainedModel, ModelType
 from .model_base import ModelTrainer
 
@@ -18,7 +19,7 @@ class Trainer(ModelTrainer):
         self.current_trained_model = None
 
     def enqueue_model(self, user, asset, model):
-        if user.prio:
+        if user.priorityuser.is_priority:
             self.prio_queue.append((user, asset, model))
         else:
             self.queue.append((user, asset, model))
