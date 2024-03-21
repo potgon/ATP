@@ -182,6 +182,8 @@ FOREX_DATAFRAME_SIZE = 480
 
 MAX_CDL_CONTRIBUTION = 3
 
+TRAINED_MODEL_SAVE_PATH = "app/model_core/tmp_models/trained_model.pk1"
+
 # Logging configuration
 
 LOG_DIR = LOGS_DIR_DEV

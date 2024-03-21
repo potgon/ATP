@@ -1,6 +1,9 @@
 from collections import deque
+import json
+import os
 import tensorflow as tf
 
+from django.conf import settings
 from .models import TrainedModel, ModelType
 from .model_base import ModelTrainer
 
@@ -63,11 +66,30 @@ class Trainer(ModelTrainer):
     def predict(self):
         pass
 
-    def save_model(self):
-        self._save_new_model()
+    def _serialize_model(self):
+        save_path = settings.TRAINED_MODEL_SAVE_PATH
+        self.current_trained_model.save(save_path)
+        with open(settings.TRAINED_MODEL_SAVE_PATH, "rb") as file:
+            serialized_model = file.read()
+        os.remove(save_path)
+        return serialized_model
 
-    def _save_new_model(self):
+    def save_model(self, signal):
         model_str = self.current_model_instance.__str__()
+        self._save_new_model(model_str)
+        if signal:
+            serialized_model = self._serialize_model()
+            TrainedModel(
+                name=model_str["model_name"],
+                performance_metrics=json.dumps(self.performance),
+                hyperparameters=model_str["default_hyperparameters"],
+                model_architecture=model_str["default_model_architecture"],
+                serialized_model=serialized_model,
+                training_logs=json.dumps(self.val_performance),
+                status="Inactive",
+            ).save()
+
+    def _save_new_model(self, model_str):
         if not ModelType.objects.filter(name=model_str["model_name"]).exists():
             ModelType(
                 name=model_str["model_name"],
