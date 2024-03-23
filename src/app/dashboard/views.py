@@ -17,7 +17,6 @@ class RegisterUserView(GenericViewSet, CreateModelMixin):
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        make_log("USER", 20, "user.log", f"request data : {request.data}")
         if serializer.is_valid():
             self.perform_create(serializer)
             return Response({"success": True}, status=status.HTTP_201_CREATED)
