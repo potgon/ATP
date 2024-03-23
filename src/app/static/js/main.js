@@ -32,9 +32,10 @@ $(document).ready(function() {
             email: $('#registerForm input[name="email"]').val(),
             first_name: $('#registerForm input[name="first_name"]').val(),
             last_name: $('#registerForm input[name="last_name"]').val(),
-            password: $('#registerForm input[name="password"]').val()
+            password: $('#registerForm input[name="password"]').val(),
+            priority: $('#registerForm input[name="priority"]').is(":checked")
         };
-
+  
         $.ajax({
             url: '/register/',
             type: 'POST',
@@ -45,11 +46,13 @@ $(document).ready(function() {
                 if (data.success) {
                     alert('Registration successful!');
                 } else {
-                    alert('Registration failed: ' + data.message);
+                    alert('Registration failed');
+                    console.error('Registration failed')
                 }
             },
             error: function(xhr) {
                 alert('Registration failed: ' + xhr.responseText);
+                console.error('Registration failed: '+ xhr.responseText)
             }
         });
     });
