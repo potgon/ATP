@@ -99,13 +99,14 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": os.environ.get("DB_NAME"),
-        "USER": os.environ.get("DB_USER"),  # Use AWS Secrets
+        "USER": os.environ.get("DB_USER"),
         "PASSWORD": os.environ.get("DB_PASSWORD"),
         "HOST": os.environ.get("DB_HOST"),
         "PORT": os.environ.get("DB_PORT"),
     }
 }
 
+AUTH_USER_MODEL = "dashboard.User"
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -182,7 +183,7 @@ FOREX_DATAFRAME_SIZE = 480
 
 MAX_CDL_CONTRIBUTION = 3
 
-TRAINED_MODEL_SAVE_PATH = "app/model_core/tmp_models/trained_model.pk1"
+TRAINED_MODEL_SAVE_PATH = "/app/model_core/tmp_models/trained_model.pk1"
 
 # Logging configuration
 
@@ -195,8 +196,8 @@ LOGGING = {
         "file": {
             "level": "DEBUG",
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": os.path.join(LOG_DIR, "django.log"),
-            # "filename": "/app/logs/django.log",
+            # "filename": os.path.join(LOG_DIR, "django.log"),
+            "filename": "/app/logs/django.log",
             "maxBytes": 1e6,
             "backupCount": 1,
         },

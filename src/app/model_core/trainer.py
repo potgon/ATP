@@ -4,7 +4,6 @@ import os
 import tensorflow as tf
 
 from django.conf import settings
-from app.dashboard.models import PriorityUser
 from .models import TrainedModel, ModelType
 from .model_base import ModelTrainer
 
@@ -19,7 +18,7 @@ class Trainer(ModelTrainer):
         self.current_trained_model = None
 
     def enqueue_model(self, user, asset, model):
-        if user.priorityuser.is_priority:
+        if user.priorityuser.priority:
             self.prio_queue.append((user, asset, model))
         else:
             self.queue.append((user, asset, model))
@@ -70,7 +69,7 @@ class Trainer(ModelTrainer):
     def _serialize_model(self):
         save_path = settings.TRAINED_MODEL_SAVE_PATH
         self.current_trained_model.save(save_path)
-        with open(settings.TRAINED_MODEL_SAVE_PATH, "rb") as file:
+        with open(save_path, "rb") as file:
             serialized_model = file.read()
         os.remove(save_path)
         return serialized_model

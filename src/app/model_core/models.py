@@ -1,5 +1,6 @@
-from django.contrib.auth.models import User
 from django.db import models
+
+from app.dashboard.models import User
 from app.evaluation_core.models import Asset
 
 

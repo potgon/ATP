@@ -1,6 +1,6 @@
-from django.contrib.auth.models import User
 from rest_framework import serializers
 
+from app.dashboard.models import User
 from .models import Algorithm, Asset
 
 

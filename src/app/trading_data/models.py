@@ -3,6 +3,7 @@ from datetime import datetime
 from django.conf import settings
 from django.db import models
 
+from app.dashboard.models import User
 from app.evaluation_core.models import Algorithm, Asset
 
 
@@ -12,7 +13,7 @@ class StatusChoices(models.TextChoices):
 
 
 class Position(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
     algorithm = models.ForeignKey(Algorithm, on_delete=models.CASCADE)
     status = models.CharField(
