@@ -50,7 +50,7 @@ class Trainer(ModelTrainer):
         return history
 
     def train(self):
-        self.current_model_instance = self._get_next_tuple()
+        self.current_model_instance = self._get_next_tuple()[2]
         self.current_trained_model = self._compile_and_fit(
             self.current_model_instance.model, self.current_model_instance.window
         )
