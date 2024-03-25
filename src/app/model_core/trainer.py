@@ -2,13 +2,14 @@ from collections import deque
 import json
 import os
 import tensorflow as tf
-
 from django.conf import settings
+
+from app.utils.singleton import Singleton
 from .models import TrainedModel, ModelType
 from .model_base import ModelTrainer
 
 
-class Trainer(ModelTrainer):
+class Trainer(ModelTrainer, metaclass=Singleton):
     def __init__(self):
         self.val_performance, self.performance = {}
         self.queue = deque()
