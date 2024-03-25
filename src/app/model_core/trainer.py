@@ -67,14 +67,6 @@ class Trainer(ModelTrainer, metaclass=Singleton):
     def predict(self):
         pass
 
-    def _serialize_model(self):
-        save_path = settings.TRAINED_MODEL_SAVE_PATH
-        self.current_trained_model.save(save_path)
-        with open(save_path, "rb") as file:
-            serialized_model = file.read()
-        os.remove(save_path)
-        return serialized_model
-
     def save_model(self, signal):
         model_str = self.current_model_instance.__str__()
         self._save_new_model(model_str)
@@ -89,6 +81,15 @@ class Trainer(ModelTrainer, metaclass=Singleton):
                 training_logs=json.dumps(self.val_performance),
                 status="Inactive",
             ).save()
+            
+    def _serialize_model(self):
+        save_path = settings.TRAINED_MODEL_SAVE_PATH
+        self.current_trained_model.save(save_path)
+        with open(save_path, "rb") as file:
+            serialized_model = file.read()
+        os.remove(save_path)
+        return serialized_model
+
 
     def _save_new_model(self, model_str):
         if not ModelType.objects.filter(name=model_str["model_name"]).exists():
