@@ -26,6 +26,6 @@ class TrainedModelSerializer(serializers.ModelSerializer):
         if not TrainedModel.objects.filter(
             name=data["model_name"], status="Active"
         ).exists():
-            raise serializers.ValidationError("Model type is not currently operative")
+            raise serializers.ValidationError("Model is not currently operative")
 
         return data
