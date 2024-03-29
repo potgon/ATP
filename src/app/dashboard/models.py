@@ -12,3 +12,4 @@ class User(AbstractUser):
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
     priority = models.BooleanField(default=False)
+    tokens = models.IntegerField(default=0)

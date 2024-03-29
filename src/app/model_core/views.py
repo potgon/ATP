@@ -25,17 +25,18 @@ class ListTrainedModelsView(GenericViewSet, ListModelMixin):
     def list(self, request, *args, **kwargs):
         return super(ListTrainedModelsView, self).list(request, *args, **kwargs)
 
+
 class TrainModelView(GenericViewSet, CreateModelMixin):
     permission_classes = (IsAuthenticated,)
-    
+
     def post(self, request, *args, **kwargs):
         asset_serializer = AssetSerializer(data=request.data)
         model_serializer = ModelTypeSerializer(data=request.data)
-        
+
         if asset_serializer.is_valid() and model_serializer.is_valid():
             asset = asset_serializer.validated_data["ticker"]
             model = model_serializer.validated_data["model_name"]
             user = request.user
+
+            trainer = Trainer()
             
-            trainer = Trainer()            
-        

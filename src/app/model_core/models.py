@@ -29,3 +29,20 @@ class TrainedModel(models.Model):
 
     def __str__(self):
         return self.model_name
+
+
+class TempModel(models.Model):
+    model_type = models.ForeignKey(ModelType, null=True, on_delete=models.SET_NULL)
+    user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    asset = models.ForeignKey(Asset, null=True, on_delete=models.SET_NULL)
+    model_name = models.CharField(max_length=50)
+    training_timestamp = models.DateTimeField(auto_now_add=True)
+    performance_metrics = models.JSONField()
+    hyperparameters = models.JSONField()
+    model_architecture = models.TextField()
+    serialized_model = models.BinaryField()
+    training_logs = models.TextField()
+    status = models.CharField(max_length=25, default="Temporal")
+
+    def __str__(self):
+        return self.model_name

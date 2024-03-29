@@ -10,9 +10,9 @@ root = os.path.join(current_dir, "..", "..", "..")
 
 LOGS_DIR_PROD = os.path.join(root, "logs", "prod")
 
-# LOGS_DIR_DEV = os.path.join(root, "logs", "dev")
+LOGS_DIR_DEV = os.path.join(root, "logs", "dev")
 
-LOGS_DIR_DEV = "/app/logs/dev"
+# LOGS_DIR_DEV = "/app/logs/dev"
 
 loggers = {}
 
