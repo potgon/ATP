@@ -9,9 +9,10 @@ from .models import TrainedModel, ModelType
 from .model_base import ModelTrainer
 
 
-class Trainer(ModelTrainer, metaclass=Singleton):
+class Trainer(metaclass=Singleton):
     def __init__(self):
-        self.val_performance, self.performance = {}
+        self.val_performance = {} 
+        self.performance = {}
         self.queue = deque()
         self.prio_queue = deque()
         self.priority_counter = 0
