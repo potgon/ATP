@@ -12,7 +12,14 @@ RUN apt-get update && apt-get install -y \
     python3-dev \
     default-libmysqlclient-dev \
     libmariadb-dev-compat \
-    pkg-config
+    pkg-config \
+    openjdk-11-jdk
+
+RUN wget -qO- https://downloads.apache.org/kafka/3.7.0/kafka_2.13-3.7.0.tgz | tar xvz -C /opt \
+    && mv /opt/kafka_2.13-3.7.0 /opt/kafka
+
+RUN wget -qO- https://downloads.apache.org/zookeeper/zookeeper-3.9.2/apache-zookeeper-3.9.2-bin.tar.gz | tar xvz -C /opt \
+    && mv /opt/apache-zookeeper-3.9.2-bin /opt/zookeeper
 
 COPY static_dependencies/ta-lib-0.4.0-src.tar.gz /tmp/ta-lib-0.4.0-src.tar.gz
 
