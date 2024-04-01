@@ -1,20 +1,25 @@
-from collections import deque
 import json
 import os
 import tensorflow as tf
+from dotenv import load_dotenv
+from confluent_kafka import Producer, Consumer
 from django.conf import settings
 
-from app.utils.singleton import Singleton
 from .models import TrainedModel, ModelType
-from .model_base import ModelTrainer
 
+dotenv_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", ".env")
+load_dotenv(dotenv_path)
 
-class Trainer(metaclass=Singleton):
+class Trainer:
     def __init__(self):
-        self.val_performance = {} 
+        self.bootstrap_server = os.getenv("KAFKA_BOOTSTRAP_SERVER")
+        self.group_id = os.getenv("KAFKA_GROUP_ID")
+        self.consumer = Consumer({"bootstrap.servers": self.bootstrap_server,
+                                  "group.id": self.group_id,
+                                  "auto.offset.reset": "earliest"})
+        self.producer = Producer({"bootstrap.servers": self.bootstrap_server})
+        self.val_performance = {}
         self.performance = {}
-        self.queue = deque()
-        self.prio_queue = deque()
         self.priority_counter = 0
         self.current_model_instance = None
         self.current_trained_model = None
