@@ -36,7 +36,7 @@ def service_loop():
         data = json.loads(msg.value().decode("utf-8"))
         user = data["user"]
         asset_id = data["asset"]
-        model_type_id = data["model_type"]
+        model_type_id = data["model"]
         priority = User.objects.get(username=user).priority
 
         Queue.objects.create(

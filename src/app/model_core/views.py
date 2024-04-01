@@ -37,11 +37,11 @@ class TrainModelView(GenericViewSet, CreateModelMixin):
         model_serializer = ModelTypeSerializer(data=request.data)
 
         if asset_serializer.is_valid() and model_serializer.is_valid():
-            asset = asset_serializer.validated_data["ticker"]
-            model = model_serializer.validated_data["model_name"]
-            user = request.user
+            asset = asset_serializer.validated_data["id"]
+            model = model_serializer.validated_data["id"]
+            user = request.user.id
 
-            msg = json.dumps({"user": user.username, "asset": asset, "model": model})
+            msg = json.dumps({"user": user, "asset": asset, "model": model})
 
             producer = Producer(
                 {"bootstrap.servers": os.getenv("KAFKA_BOOTSTRAP_SERVER")}
