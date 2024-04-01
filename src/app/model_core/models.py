@@ -46,3 +46,19 @@ class TempModel(models.Model):
 
     def __str__(self):
         return self.model_name
+
+
+class Queue(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
+    model_type = models.ForeignKey(ModelType, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    priority = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["priority", "created_at"]
+
+    def __str__(self):
+        return (
+            f"{self.user.username} - {self.asset.name} - {self.model_type.model_name}"
+        )
