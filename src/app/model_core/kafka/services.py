@@ -97,7 +97,9 @@ def service_loop():
                         f"Error creating Queue object: {str(e)}",
                     )
                     continue
-            consumer.close()
+
+                consumer.commit(msg)
+        consumer.close()
     except (
         KafkaException
     ) as ke:  # Propagate this error to the caller whenever I implement it
