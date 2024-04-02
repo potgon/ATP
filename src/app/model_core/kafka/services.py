@@ -1,11 +1,13 @@
+import atexit
 import os
 from confluent_kafka import Consumer, Producer, KafkaError, KafkaException
 import json
 from dataclasses import dataclass
 
+from app.utils.singleton import Singleton
 from app.utils.logger import make_log
 from app.dashboard.models import User
-from .models import Queue
+from ..models import Queue
 
 
 @dataclass
@@ -13,6 +15,24 @@ class KafkaModelMessage:
     user_id: int
     asset_id: int
     model_type_id: int
+
+
+class KafkaProducerSingleton(metaclass=Singleton):
+    def __init__(self):
+        if not hasattr(self, "producer_instance"):
+            self.producer_instance = Producer(
+                {"bootstrap.servers": os.getenv("KAFKA_BOOTSTRAP_SERVER")}
+            )
+            atexit.register(self.close_producer)
+
+    def get_producer(self):
+        return self.producer_instance
+
+    def close_producer(self):
+        if hasattr(self, "producer_instance"):
+            self.producer_instance.flush()
+            self.producer_instance.close()
+            del self.producer_instance
 
 
 def get_consumer():
