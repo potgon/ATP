@@ -1,10 +1,18 @@
 import os
-from confluent_kafka import Consumer, KafkaError, KafkaException
+from confluent_kafka import Consumer, Producer, KafkaError, KafkaException
 import json
+from dataclasses import dataclass
 
 from app.utils.logger import make_log
 from app.dashboard.models import User
 from .models import Queue
+
+
+@dataclass
+class KafkaModelMessage:
+    user_id: int
+    asset_id: int
+    model_type_id: int
 
 
 def get_consumer():
@@ -39,10 +47,10 @@ def service_loop():
                         )
                         break
                 try:
-                    data = json.loads(msg.value().decode("utf-8"))
-                    user_id = data["user"]
-                    asset_id = data["asset"]
-                    model_type_id = data["model"]
+                    data = KafkaModelMessage(**json.loads(msg.value().decode("utf-8")))
+                    user_id = data.user_id
+                    asset_id = data.asset_id
+                    model_type_id = data.model_type_id
                 except json.JSONDecodeError:
                     make_log(
                         "KAFKA",
