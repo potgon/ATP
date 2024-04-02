@@ -5,12 +5,13 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import ListModelMixin, CreateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from confluent_kafka import Producer
+from confluent_kafka import Producer, KafkaException
 
+from app.utils.logger import make_log
 from app.evaluation_core.serializers import AssetSerializer
 from .models import ModelType, TrainedModel
 from .serializers import ModelTypeSerializer, TrainedModelSerializer
-from .trainer import Trainer
+from .services import delivery_callback
 
 
 class ListModelTypeView(GenericViewSet, ListModelMixin):
@@ -43,17 +44,47 @@ class TrainModelView(GenericViewSet, CreateModelMixin):
 
             msg = json.dumps({"user": user, "asset": asset, "model": model})
 
-            producer = Producer(
-                {"bootstrap.servers": os.getenv("KAFKA_BOOTSTRAP_SERVER")}
-            )
+            try:
+                producer = Producer(
+                    {"bootstrap.servers": os.getenv("KAFKA_BOOTSTRAP_SERVER")}
+                )
+            except KafkaException as ke:
+                make_log(
+                    "KAFKA",
+                    30,
+                    "kafka_models.log",
+                    f"Error creating Kafka producer: {str(ke)}",
+                )
+                return Response(
+                    {"message": "Error sending train request"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+            try:
+                topic = os.getenv("MODEL_QUEUE_TRAIN_TOPIC")
+                producer.produce(
+                    topic, msg.encode("utf-8"), callback=delivery_callback()
+                )
+                producer.flush()
 
-            topic = os.getenv("MODEL_QUEUE_TRAIN_TOPIC")
-            producer.produce(topic, msg.encode("utf-8"))
-            producer.flush()
-
-            producer.close()
+                producer.close()
+            except KafkaException as ke:
+                make_log(
+                    "KAFKA",
+                    30,
+                    "kafka_models.log",
+                    f"Error producing message to topic: {str(ke)}",
+                )
+                return Response(
+                    {"message": "Error sending train request"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 
             return Response(
                 {"message": "Model training request sent to Kafka"},
                 status=status.HTTP_201_CREATED,
             )
+
+        return Response(
+            {"message": "Asset/Model could not be validated"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )

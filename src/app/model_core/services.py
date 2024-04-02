@@ -31,7 +31,7 @@ def service_loop():
             if msg.error().code() == KafkaError._PARTITION_EOF:
                 continue
             else:
-                make_log("KAFKA_MODEL_CONSUMER", 30, "model_consumer.log", msg.error())
+                make_log("KAFKA_MODEL", 30, "kafka_models.log", msg.error())
                 break
         data = json.loads(msg.value().decode("utf-8"))
         user = data["user"]
@@ -44,3 +44,20 @@ def service_loop():
         )
 
     consumer.close()
+
+
+def delivery_callback(err, msg):
+    if err:
+        make_log(
+            "KAFKA_MODEL",
+            30,
+            "kafka_models.log",
+            f"ERROR: Message delivery failed: {err}",
+        )
+    else:
+        make_log(
+            "KAFKA_MODEL",
+            20,
+            "kafka_models.log",
+            f"Produced event to topic {msg.topic()}, key = {msg.key().decode('utf-8')}, value = {msg.value().decode('utf-8')}",
+        )
