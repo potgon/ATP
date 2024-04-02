@@ -37,11 +37,16 @@ class TrainModelView(GenericViewSet, CreateModelMixin):
         asset_serializer = AssetSerializer(data=request.data)
         model_serializer = ModelTypeSerializer(data=request.data)
 
-        if asset_serializer.is_valid() and model_serializer.is_valid():
+        if not asset_serializer.is_valid() or not model_serializer.is_valid():
             asset_id = asset_serializer.validated_data["id"]
             model_type_id = model_serializer.validated_data["id"]
             user_id = request.user.id
 
+            return Response(
+                {"message": "Asset/Model could not be validated"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        else:
             msg = json.dumps(
                 {
                     "user_id": user_id,
@@ -85,8 +90,3 @@ class TrainModelView(GenericViewSet, CreateModelMixin):
                 {"message": "Model training request sent to Kafka"},
                 status=status.HTTP_201_CREATED,
             )
-
-        return Response(
-            {"message": "Asset/Model could not be validated"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )

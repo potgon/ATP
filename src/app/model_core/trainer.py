@@ -1,23 +1,13 @@
 import json
 import os
 import tensorflow as tf
-from dotenv import load_dotenv
-from confluent_kafka import Producer, Consumer
 from django.conf import settings
 
 from .models import TrainedModel, ModelType
 
-dotenv_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", ".env")
-load_dotenv(dotenv_path)
 
 class Trainer:
     def __init__(self):
-        self.bootstrap_server = os.getenv("KAFKA_BOOTSTRAP_SERVER")
-        self.group_id = os.getenv("KAFKA_GROUP_ID")
-        self.consumer = Consumer({"bootstrap.servers": self.bootstrap_server,
-                                  "group.id": self.group_id,
-                                  "auto.offset.reset": "earliest"})
-        self.producer = Producer({"bootstrap.servers": self.bootstrap_server})
         self.val_performance = {}
         self.performance = {}
         self.priority_counter = 0
@@ -87,7 +77,7 @@ class Trainer:
                 training_logs=json.dumps(self.val_performance),
                 status="Inactive",
             ).save()
-            
+
     def _serialize_model(self):
         save_path = settings.TRAINED_MODEL_SAVE_PATH
         self.current_trained_model.save(save_path)
@@ -95,7 +85,6 @@ class Trainer:
             serialized_model = file.read()
         os.remove(save_path)
         return serialized_model
-
 
     def _save_new_model(self, model_str):
         if not ModelType.objects.filter(name=model_str["model_name"]).exists():
