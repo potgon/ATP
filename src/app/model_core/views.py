@@ -51,9 +51,9 @@ class TrainModelView(GenericViewSet, CreateModelMixin):
             except KafkaException as ke:
                 make_log(
                     "KAFKA",
-                    30,
+                    40,
                     "kafka_models.log",
-                    f"Error creating Kafka producer: {str(ke)}",
+                    f"Error creating Kafka producer: {str(ke.args[0])}",
                 )
                 return Response(
                     {"message": "Error sending train request"},
@@ -61,18 +61,16 @@ class TrainModelView(GenericViewSet, CreateModelMixin):
                 )
             try:
                 topic = os.getenv("MODEL_QUEUE_TRAIN_TOPIC")
-                producer.produce(
-                    topic, msg.encode("utf-8"), callback=delivery_callback()
-                )
+                producer.produce(topic, msg.encode("utf-8"), callback=delivery_callback)
                 producer.flush()
 
                 producer.close()
             except KafkaException as ke:
                 make_log(
                     "KAFKA",
-                    30,
+                    40,
                     "kafka_models.log",
-                    f"Error producing message to topic: {str(ke)}",
+                    f"Error producing message to topic: {str(ke.args[0])}",
                 )
                 return Response(
                     {"message": "Error sending train request"},
