@@ -5,13 +5,13 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import ListModelMixin, CreateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from confluent_kafka import Producer, KafkaException
+from confluent_kafka import KafkaException
 
 from app.utils.logger import make_log
 from app.evaluation_core.serializers import AssetSerializer
 from .models import ModelType, TrainedModel
 from .serializers import ModelTypeSerializer, TrainedModelSerializer
-from .services import delivery_callback
+from .kafka.services import delivery_callback, KafkaProducerSingleton
 
 
 class ListModelTypeView(GenericViewSet, ListModelMixin):
@@ -38,16 +38,20 @@ class TrainModelView(GenericViewSet, CreateModelMixin):
         model_serializer = ModelTypeSerializer(data=request.data)
 
         if asset_serializer.is_valid() and model_serializer.is_valid():
-            asset = asset_serializer.validated_data["id"]
-            model = model_serializer.validated_data["id"]
-            user = request.user.id
+            asset_id = asset_serializer.validated_data["id"]
+            model_type_id = model_serializer.validated_data["id"]
+            user_id = request.user.id
 
-            msg = json.dumps({"user": user, "asset": asset, "model": model})
+            msg = json.dumps(
+                {
+                    "user_id": user_id,
+                    "asset_id": asset_id,
+                    "model_type_id": model_type_id,
+                }
+            )
 
             try:
-                producer = Producer(
-                    {"bootstrap.servers": os.getenv("KAFKA_BOOTSTRAP_SERVER")}
-                )
+                producer = KafkaProducerSingleton().get_producer()
             except KafkaException as ke:
                 make_log(
                     "KAFKA",
